@@ -244,55 +244,55 @@ Builds reproducibles y checks definidos sin adelantar funcionalidades.
 
 Persistencia, errores, seguridad local, trazabilidad, eventos y shell disponibles. Las historias dependen explícitamente de estas bases.
 
-- [ ] T012 Definir IDs, clock y errores compartidos mínimos — `backend/src/main/java/com/zeko/sharedkernel/domain/ResourceId.java`, `backend/src/main/java/com/zeko/sharedkernel/domain/DomainError.java`, `backend/src/main/java/com/zeko/sharedkernel/application/ClockPort.java`, `backend/src/test/java/com/zeko/sharedkernel/SharedTypesTest.java`.
+- [x] T012 Definir IDs, clock y errores compartidos mínimos — `backend/src/main/java/com/zeko/sharedkernel/domain/ResourceId.java`, `backend/src/main/java/com/zeko/sharedkernel/domain/DomainError.java`, `backend/src/main/java/com/zeko/sharedkernel/application/ClockPort.java`, `backend/src/test/java/com/zeko/sharedkernel/SharedTypesTest.java`.
 
   **Dependencias**: T009, T010, T011. **Traza**: plan §shared-kernel; D-010. **Checks**: BE.
 
   **Aceptación**: Tipos cerrados y clock determinista; no introducir dependencias del shared-kernel hacia módulos de producto.
 
-- [ ] T013 [P] Configurar SQLite y exclusión de migraciones — `backend/src/main/java/com/zeko/sharedkernel/infrastructure/SqliteConfiguration.java`, `backend/src/main/java/com/zeko/sharedkernel/infrastructure/MigrationLock.java`, `backend/src/main/resources/application.yml`, `backend/src/main/resources/db/migration/V001__metadata_bootstrap.sql`, `backend/src/test/java/com/zeko/sharedkernel/SqliteBootstrapIntegrationTest.java`.
+- [x] T013 [P] Configurar SQLite y exclusión de migraciones — `backend/src/main/java/com/zeko/sharedkernel/infrastructure/SqliteConfiguration.java`, `backend/src/main/java/com/zeko/sharedkernel/infrastructure/MigrationLock.java`, `backend/src/main/resources/application.yml`, `backend/src/main/resources/db/migration/V001__metadata_bootstrap.sql`, `backend/src/test/java/com/zeko/sharedkernel/SqliteBootstrapIntegrationTest.java`.
 
   **Dependencias**: T012. **Traza**: D-003; NFR-001; data-model §Transacciones. **Checks**: BEI.
 
   **Aceptación**: Migraciones exclusivas, claves foráneas y contención acotada verificadas con SQLite real. Sin servidor de BD ni operaciones externas dentro de transacciones de metadata.
 
-- [ ] T014 [P] Implementar transporte de errores y correlación HTTP — `backend/src/main/java/com/zeko/sharedkernel/api/ErrorResponse.java`, `backend/src/main/java/com/zeko/sharedkernel/api/DomainExceptionHandler.java`, `backend/src/main/java/com/zeko/sharedkernel/api/CorrelationFilter.java`, `backend/src/test/java/com/zeko/sharedkernel/HttpErrorsContractTest.java`.
+- [x] T014 [P] Implementar transporte de errores y correlación HTTP — `backend/src/main/java/com/zeko/sharedkernel/api/ErrorResponse.java`, `backend/src/main/java/com/zeko/sharedkernel/api/DomainExceptionHandler.java`, `backend/src/main/java/com/zeko/sharedkernel/api/CorrelationFilter.java`, `backend/src/test/java/com/zeko/sharedkernel/HttpErrorsContractTest.java`.
 
   **Dependencias**: T012, T004. **Traza**: D-006; contracts/openapi.yaml §Error. **Checks**: BEC.
 
   **Aceptación**: DTOs y códigos acordados, sin secretos ni stacktraces expuestos. Controladores delegan negocio.
 
-- [ ] T015 [P] Proteger acceso loopback y mutaciones por sesión local — `backend/src/main/java/com/zeko/sharedkernel/infrastructure/LocalSessionStore.java`, `backend/src/main/java/com/zeko/sharedkernel/api/LocalSessionFilter.java`, `backend/src/main/java/com/zeko/sharedkernel/api/LocalSessionController.java`, `backend/src/main/resources/application.yml`, `backend/src/test/java/com/zeko/sharedkernel/LocalSessionContractTest.java`.
+- [x] T015 [P] Proteger acceso loopback y mutaciones por sesión local — `backend/src/main/java/com/zeko/sharedkernel/infrastructure/LocalSessionStore.java`, `backend/src/main/java/com/zeko/sharedkernel/api/LocalSessionFilter.java`, `backend/src/main/java/com/zeko/sharedkernel/api/LocalSessionController.java`, `backend/src/main/resources/application.yml`, `backend/src/test/java/com/zeko/sharedkernel/LocalSessionContractTest.java`.
 
   **Dependencias**: T013, T014. **Traza**: D-006; NFR-004–NFR-005; contrato sesión T004. **Checks**: BEC.
 
   **Aceptación**: Validar bootstrap, sesión efímera, origen/host y mutaciones conforme al contrato; rechazar origen no autorizado sin añadir cuentas/RBAC ni registrar el token.
 
-- [ ] T016 [P] Implementar proyección segura de datos de auditoría — `backend/src/main/java/com/zeko/traceability/domain/SafeDetail.java`, `backend/src/main/java/com/zeko/traceability/application/SensitiveDataFilter.java`, `backend/src/test/java/com/zeko/traceability/SensitiveDataFilterTest.java`.
+- [x] T016 [P] Implementar proyección segura de datos de auditoría — `backend/src/main/java/com/zeko/traceability/domain/SafeDetail.java`, `backend/src/main/java/com/zeko/traceability/application/SensitiveDataFilter.java`, `backend/src/test/java/com/zeko/traceability/SensitiveDataFilterTest.java`.
 
   **Dependencias**: T012. **Traza**: NFR-004; data-model §EffectRecord/TraceLink. **Checks**: BE.
 
   **Aceptación**: Separar datos operativos de detalle publicable; excluir secretos identificados y campos sensibles. Pruebas con secretos ficticios en argumentos/errores; no afirmar detección universal.
 
-- [ ] T017 [P] Persistir vínculos y eventos de trazabilidad — `backend/src/main/java/com/zeko/traceability/domain/TraceLink.java`, `backend/src/main/java/com/zeko/traceability/application/TraceRecorder.java`, `backend/src/main/java/com/zeko/traceability/application/TraceRepository.java`, `backend/src/main/java/com/zeko/traceability/infrastructure/JdbcTraceRepository.java`, `backend/src/main/resources/db/migration/V002__traceability.sql`, `backend/src/test/java/com/zeko/traceability/TraceRepositoryIntegrationTest.java`.
+- [x] T017 [P] Persistir vínculos y eventos de trazabilidad — `backend/src/main/java/com/zeko/traceability/domain/TraceLink.java`, `backend/src/main/java/com/zeko/traceability/application/TraceRecorder.java`, `backend/src/main/java/com/zeko/traceability/application/TraceRepository.java`, `backend/src/main/java/com/zeko/traceability/infrastructure/JdbcTraceRepository.java`, `backend/src/main/resources/db/migration/V002__traceability.sql`, `backend/src/test/java/com/zeko/traceability/TraceRepositoryIntegrationTest.java`.
 
   **Dependencias**: T013, T016. **Traza**: FR-027, FR-057; NFR-001–NFR-004; D-003. **Checks**: BEI.
 
   **Aceptación**: Enlaces navegables y eventos correlacionados persistidos con detalles seguros y orden por recurso; independencia respecto de entidades concretas de otros módulos.
 
-- [ ] T018 [P] Publicar eventos locales con suscripción validada — `backend/src/main/java/com/zeko/traceability/api/EventEnvelope.java`, `backend/src/main/java/com/zeko/traceability/api/LocalEventSocket.java`, `backend/src/main/java/com/zeko/traceability/infrastructure/LocalWebSocketConfiguration.java`, `backend/src/test/java/com/zeko/traceability/WebSocketContractTest.java`.
+- [x] T018 [P] Publicar eventos locales con suscripción validada — `backend/src/main/java/com/zeko/traceability/api/EventEnvelope.java`, `backend/src/main/java/com/zeko/traceability/api/LocalEventSocket.java`, `backend/src/main/java/com/zeko/traceability/infrastructure/LocalWebSocketConfiguration.java`, `backend/src/test/java/com/zeko/traceability/WebSocketContractTest.java`.
 
   **Dependencias**: T015, T017, T005. **Traza**: D-006; FR-048, FR-062; contracts/websocket.md. **Checks**: BEC.
 
   **Aceptación**: Sesión/origen válidos, filtros por alcance y eventos sin secretos. subscribe/unsubscribe nunca ejecutan comandos sensibles.
 
-- [ ] T019 [P] Crear cliente HTTP y recuperación de errores de sesión — `frontend/src/app/api/httpClient.ts`, `frontend/src/app/api/httpClient.test.ts`, `frontend/src/app/api/errors.ts`.
+- [x] T019 [P] Crear cliente HTTP y recuperación de errores de sesión — `frontend/src/app/api/httpClient.ts`, `frontend/src/app/api/httpClient.test.ts`, `frontend/src/app/api/errors.ts`.
 
   **Dependencias**: T008, T014, T015. **Traza**: D-005, D-006; FR-074. **Checks**: FE.
 
   **Aceptación**: Cliente usa same-origin, sesión y correlación según contrato; distingue error de red/validación/conflicto sin convertirlo en éxito.
 
-- [ ] T020 [P] Crear shell local con tabs Agents y Runtime — `frontend/src/app/App.tsx`, `frontend/src/app/WorkspaceShell.tsx`, `frontend/src/components/StatusPanel.tsx`, `frontend/src/components/WorkspaceContext.tsx`, `frontend/tests/unit/workspace-shell.test.tsx`.
+- [x] T020 [P] Crear shell local con tabs Agents y Runtime — `frontend/src/app/App.tsx`, `frontend/src/app/WorkspaceShell.tsx`, `frontend/src/components/StatusPanel.tsx`, `frontend/src/components/WorkspaceContext.tsx`, `frontend/tests/unit/workspace-shell.test.tsx`.
 
   **Dependencias**: T019. **Traza**: FR-071–FR-074; US-007; D-005. **Checks**: FE.
 
