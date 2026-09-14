@@ -406,43 +406,43 @@ Verificación independiente: plantilla, instancia, SKILL.md, binding y promoció
 
 Verificación independiente: conversación directa/PM, precedencia, registro de override y follow-ups en los tres modos con un gateway de ejecución controlado. La integración real del bucle está en fase 7.
 
-- [ ] T037 [US3] Modelar conversación, instrucción y precedencia del usuario — `backend/src/main/java/com/zeko/coordination/domain/Conversation.java`, `backend/src/main/java/com/zeko/coordination/domain/Instruction.java`, `backend/src/main/java/com/zeko/coordination/domain/InstructionPrecedence.java`, `backend/src/test/java/com/zeko/coordination/InstructionPrecedenceTest.java`.
+- [x] T037 [US3] Modelar conversación, instrucción y precedencia del usuario — `backend/src/main/java/com/zeko/coordination/domain/Conversation.java`, `backend/src/main/java/com/zeko/coordination/domain/Instruction.java`, `backend/src/main/java/com/zeko/coordination/domain/InstructionPrecedence.java`, `backend/src/test/java/com/zeko/coordination/InstructionPrecedenceTest.java`.
 
   **Dependencias**: T027, T017, T020, T018. **Traza**: FR-022–FR-029; US-003. **Checks**: BE.
 
   **Aceptación**: Usuario prevalece sobre reglas/PM/agente/skill/default; override vincula decisión y alcance, no autoriza cambios de permisos ni contenido RAG como instrucción.
 
-- [ ] T038 [P] [US3] Persistir conversaciones e historial de instrucciones — `backend/src/main/java/com/zeko/coordination/application/ConversationRepository.java`, `backend/src/main/java/com/zeko/coordination/infrastructure/JdbcConversationRepository.java`, `backend/src/main/resources/db/migration/V006__conversations_instructions.sql`, `backend/src/test/java/com/zeko/coordination/ConversationStoreIntegrationTest.java`.
+- [x] T038 [P] [US3] Persistir conversaciones e historial de instrucciones — `backend/src/main/java/com/zeko/coordination/application/ConversationRepository.java`, `backend/src/main/java/com/zeko/coordination/infrastructure/JdbcConversationRepository.java`, `backend/src/main/resources/db/migration/V006__conversations_instructions.sql`, `backend/src/test/java/com/zeko/coordination/ConversationStoreIntegrationTest.java`.
 
   **Dependencias**: T037, T028, T020, T018. **Traza**: FR-022–FR-029; NFR-001–NFR-002. **Checks**: BEI.
 
   **Aceptación**: Historial por Project/interlocutor, origen y override trazados; no sobrescribir instrucciones al continuar.
 
-- [ ] T039 [P] [US3] Implementar reglas de iniciativa confirmadas para follow-ups — `backend/src/main/java/com/zeko/coordination/domain/AutonomyMode.java`, `backend/src/main/java/com/zeko/coordination/domain/FollowUpProposal.java`, `backend/src/main/java/com/zeko/coordination/domain/InitiativePolicy.java`, `backend/src/test/java/com/zeko/coordination/InitiativePolicyTest.java`.
+- [x] T039 [P] [US3] Implementar reglas de iniciativa confirmadas para follow-ups — `backend/src/main/java/com/zeko/coordination/domain/AutonomyMode.java`, `backend/src/main/java/com/zeko/coordination/domain/FollowUpProposal.java`, `backend/src/main/java/com/zeko/coordination/domain/InitiativePolicy.java`, `backend/src/test/java/com/zeko/coordination/InitiativePolicyTest.java`.
 
   **Dependencias**: T037, T001, T020, T018. **Traza**: FR-031–FR-033, FR-044; spec §Clarificaciones. **Checks**: BE.
 
   **Aceptación**: Manual no crea follow-ups; Assisted no crea antes de confirmar; Autonomous solo relacionados a instrucción vigente. No equiparar Manual a una sola acción. Duplicados/rechazo/cambio de instrucción no producen seguimiento indebido.
 
-- [ ] T040 [US3] Persistir propuestas y confirmaciones de seguimiento — `backend/src/main/java/com/zeko/coordination/application/FollowUpRepository.java`, `backend/src/main/java/com/zeko/coordination/infrastructure/JdbcFollowUpRepository.java`, `backend/src/main/resources/db/migration/V007__follow_up_proposals.sql`, `backend/src/test/java/com/zeko/coordination/FollowUpRepositoryIntegrationTest.java`.
+- [x] T040 [US3] Persistir propuestas y confirmaciones de seguimiento — `backend/src/main/java/com/zeko/coordination/application/FollowUpRepository.java`, `backend/src/main/java/com/zeko/coordination/infrastructure/JdbcFollowUpRepository.java`, `backend/src/main/resources/db/migration/V007__follow_up_proposals.sql`, `backend/src/test/java/com/zeko/coordination/FollowUpRepositoryIntegrationTest.java`.
 
   **Dependencias**: T039, T038, T020, T018. **Traza**: FR-027, FR-031–FR-033, FR-044; diseño de autonomía sincronizado. **Checks**: BEI.
 
   **Aceptación**: Guardar estado/progenitor/instrucción y decisión conforme al modelo; confirmación repetida no duplica creación; no modelar aprobación de herramienta como confirmación de seguimiento.
 
-- [ ] T041 [US3] Implementar conversación directa, coordinación PM y confirmación — `backend/src/main/java/com/zeko/coordination/application/ConversationService.java`, `backend/src/main/java/com/zeko/coordination/application/CoordinationService.java`, `backend/src/main/java/com/zeko/coordination/application/ExecutionGateway.java`, `backend/src/main/java/com/zeko/coordination/api/ConversationController.java`, `backend/src/main/java/com/zeko/coordination/api/ConversationDtos.java`, `backend/src/test/java/com/zeko/coordination/ConversationContractTest.java`.
+- [x] T041 [US3] Implementar conversación directa, coordinación PM y confirmación — `backend/src/main/java/com/zeko/coordination/application/ConversationService.java`, `backend/src/main/java/com/zeko/coordination/application/CoordinationService.java`, `backend/src/main/java/com/zeko/coordination/application/ExecutionGateway.java`, `backend/src/main/java/com/zeko/coordination/api/ConversationController.java`, `backend/src/main/java/com/zeko/coordination/api/ConversationDtos.java`, `backend/src/test/java/com/zeko/coordination/ConversationContractTest.java`.
 
   **Dependencias**: T040, T031, T018, T020. **Traza**: FR-022–FR-029, FR-044; contracts HTTP/WS. **Checks**: BEC.
 
   **Aceptación**: Usuario puede entrar por PM o agente; reportes y decisiones trazados; gateway delimita ejecución. Probar coordinación con doble de gateway sin fingir agente real.
 
-- [ ] T042 [P] [US3] Implementar conversación PM/agente y propuesta de follow-up — `frontend/src/features/conversations/conversationApi.ts`, `frontend/src/features/conversations/ConversationPanel.tsx`, `frontend/src/features/conversations/FollowUpPrompt.tsx`, `frontend/src/features/conversations/ConversationPanel.test.tsx`, `frontend/src/app/WorkspaceShell.tsx`.
+- [x] T042 [P] [US3] Implementar conversación PM/agente y propuesta de follow-up — `frontend/src/features/conversations/conversationApi.ts`, `frontend/src/features/conversations/ConversationPanel.tsx`, `frontend/src/features/conversations/FollowUpPrompt.tsx`, `frontend/src/features/conversations/ConversationPanel.test.tsx`, `frontend/src/app/WorkspaceShell.tsx`.
 
   **Dependencias**: T041, T035, T020, T018. **Traza**: FR-022–FR-029, FR-044, FR-072–FR-074; US-003. **Checks**: FE.
 
   **Aceptación**: Canal directo, origen y confirmación visibles; Assisted espera confirmación para crear follow-up y no sustituye el approval de acción.
 
-- [ ] T043 [P] [US3] Validar precedencia y confirmación sin dependencia del modelo real — `backend/src/test/java/com/zeko/coordination/CoordinationIntegrationTest.java`.
+- [x] T043 [P] [US3] Validar precedencia y confirmación sin dependencia del modelo real — `backend/src/test/java/com/zeko/coordination/CoordinationIntegrationTest.java`.
 
   **Dependencias**: T041, T020, T018. **Traza**: US-003; FR-022–FR-029, FR-044. **Checks**: BEI.
 
