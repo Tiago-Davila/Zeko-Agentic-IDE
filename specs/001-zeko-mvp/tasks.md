@@ -510,145 +510,145 @@ Verificación independiente: clasificar acciones y aceptar/denegar/invalidar una
 
 Verificación independiente: tarea autorizada hasta resultado/diff; dos worktrees, bloqueo manual y cancelación/reintento. Sin cambio de scope, commit, merge ni push automático.
 
-- [ ] T053 [US5] Modelar Task, Execution, snapshot y efectos — `backend/src/main/java/com/zeko/executioncontrol/domain/Task.java`, `backend/src/main/java/com/zeko/executioncontrol/domain/Execution.java`, `backend/src/main/java/com/zeko/executioncontrol/domain/ExecutionSnapshot.java`, `backend/src/main/java/com/zeko/executioncontrol/domain/EffectRecord.java`, `backend/src/test/java/com/zeko/executioncontrol/ExecutionLifecycleTest.java`.
+- [x] T053 [US5] Modelar Task, Execution, snapshot y efectos — `backend/src/main/java/com/zeko/executioncontrol/domain/Task.java`, `backend/src/main/java/com/zeko/executioncontrol/domain/Execution.java`, `backend/src/main/java/com/zeko/executioncontrol/domain/ExecutionSnapshot.java`, `backend/src/main/java/com/zeko/executioncontrol/domain/EffectRecord.java`, `backend/src/test/java/com/zeko/executioncontrol/ExecutionLifecycleTest.java`.
 
   **Dependencias**: T045, T027, T003, T020, T018. **Traza**: FR-021, FR-045–FR-052, FR-057, FR-062–FR-063; D-009. **Checks**: BE.
 
   **Aceptación**: Intentos distintos, snapshot inmutable y cancelación solo confirmada; estado desconocido separado de éxito; modelo permite completar sin obligación artificial de pasar por approval.
 
-- [ ] T054 [P] [US5] Persistir tareas, intentos, snapshot y efectos seguros — `backend/src/main/java/com/zeko/executioncontrol/application/ExecutionRepository.java`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/JdbcExecutionRepository.java`, `backend/src/main/resources/db/migration/V009__tasks_executions_effects.sql`, `backend/src/test/java/com/zeko/executioncontrol/ExecutionStoreIntegrationTest.java`.
+- [x] T054 [P] [US5] Persistir tareas, intentos, snapshot y efectos seguros — `backend/src/main/java/com/zeko/executioncontrol/application/ExecutionRepository.java`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/JdbcExecutionRepository.java`, `backend/src/main/resources/db/migration/V009__tasks_executions_effects.sql`, `backend/src/test/java/com/zeko/executioncontrol/ExecutionStoreIntegrationTest.java`.
 
   **Dependencias**: T053, T046, T017, T038, T020, T018. **Traza**: FR-046–FR-048, FR-057, FR-062–FR-063; NFR-001. **Checks**: BEI.
 
   **Aceptación**: Orden de migraciones coherente con FK a las acciones existentes; persistir último estado y efecto confirmado, sin transacción extendida a un proceso externo.
 
-- [ ] T055 [P] [US5] Modelar ownership de worktree y conflicto manual — `backend/src/main/java/com/zeko/executioncontrol/domain/Worktree.java`, `backend/src/main/java/com/zeko/executioncontrol/domain/ConflictRecord.java`, `backend/src/test/java/com/zeko/executioncontrol/WorktreeOwnershipTest.java`.
+- [x] T055 [P] [US5] Modelar ownership de worktree y conflicto manual — `backend/src/main/java/com/zeko/executioncontrol/domain/Worktree.java`, `backend/src/main/java/com/zeko/executioncontrol/domain/ConflictRecord.java`, `backend/src/test/java/com/zeko/executioncontrol/WorktreeOwnershipTest.java`.
 
   **Dependencias**: T053, T020, T018. **Traza**: FR-053–FR-055; D-008; modelo revisado T003. **Checks**: BE.
 
   **Aceptación**: Exclusividad por ruta física y dueño activo además de repository+task; cancelar una Task bloqueada no la vuelve ejecutable.
 
-- [ ] T056 [P] [US5] Implementar reserva transaccional y rechazo de segundo escritor — `backend/src/main/java/com/zeko/executioncontrol/application/WorktreeRepository.java`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/JdbcWorktreeRepository.java`, `backend/src/main/resources/db/migration/V010__worktrees_conflicts.sql`, `backend/src/test/java/com/zeko/executioncontrol/WorktreeReservationIntegrationTest.java`.
+- [x] T056 [P] [US5] Implementar reserva transaccional y rechazo de segundo escritor — `backend/src/main/java/com/zeko/executioncontrol/application/WorktreeRepository.java`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/JdbcWorktreeRepository.java`, `backend/src/main/resources/db/migration/V010__worktrees_conflicts.sql`, `backend/src/test/java/com/zeko/executioncontrol/WorktreeReservationIntegrationTest.java`.
 
   **Dependencias**: T055, T054, T020, T018. **Traza**: FR-053–FR-055; SC-002; D-003, D-008. **Checks**: BEI.
 
   **Aceptación**: Probar solicitudes simultáneas, misma ruta con distintas tasks, misma task con distintas executions y reapertura; preservar conflictos sin sustitución de dueño.
 
-- [ ] T057 [P] [US5] Integrar Git worktrees y captura del diff atribuible — `backend/src/main/java/com/zeko/executioncontrol/application/GitWorkspacePort.java`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/GitWorktreeAdapter.java`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/GitDiffReader.java`, `backend/src/test/java/com/zeko/executioncontrol/GitWorktreeIntegrationTest.java`.
+- [x] T057 [P] [US5] Integrar Git worktrees y captura del diff atribuible — `backend/src/main/java/com/zeko/executioncontrol/application/GitWorkspacePort.java`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/GitWorktreeAdapter.java`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/GitDiffReader.java`, `backend/src/test/java/com/zeko/executioncontrol/GitWorktreeIntegrationTest.java`.
 
   **Dependencias**: T056, T023, T047, T020, T018. **Traza**: FR-053–FR-058, FR-061; D-007, D-008. **Checks**: BEI.
 
   **Aceptación**: Repos temporales, baseline y cambios previos preservados; Git por argumentos seguros; ninguna limpieza destructiva/merge/push implícita. Efectos externos se registran tras confirmación.
 
-- [ ] T058 [P] [US5] Definir catálogo cerrado y puertos locales tipados — `backend/src/main/java/com/zeko/executioncontrol/application/LocalCapability.java`, `backend/src/main/java/com/zeko/executioncontrol/application/LocalActionAdapter.java`, `backend/src/main/java/com/zeko/executioncontrol/application/LocalActionResult.java`, `backend/src/main/java/com/zeko/executioncontrol/application/CapabilityRegistry.java`, `backend/src/test/java/com/zeko/executioncontrol/CapabilityRegistryTest.java`.
+- [x] T058 [P] [US5] Definir catálogo cerrado y puertos locales tipados — `backend/src/main/java/com/zeko/executioncontrol/application/LocalCapability.java`, `backend/src/main/java/com/zeko/executioncontrol/application/LocalActionAdapter.java`, `backend/src/main/java/com/zeko/executioncontrol/application/LocalActionResult.java`, `backend/src/main/java/com/zeko/executioncontrol/application/CapabilityRegistry.java`, `backend/src/test/java/com/zeko/executioncontrol/CapabilityRegistryTest.java`.
 
   **Dependencias**: T053, T047, T020, T018. **Traza**: FR-020, FR-045, FR-076; D-007. **Checks**: BE.
 
   **Aceptación**: Solo capacidades integradas y resultados conocidos/efectos/cancelación tipados; ninguna vía de registro de herramienta del usuario o MCP.
 
-- [ ] T059 [P] [US5] Implementar adaptador de filesystem dentro del scope — `backend/src/main/java/com/zeko/executioncontrol/infrastructure/LocalFilesystemAdapter.java`, `backend/src/test/java/com/zeko/executioncontrol/FilesystemAdapterIntegrationTest.java`.
+- [x] T059 [P] [US5] Implementar adaptador de filesystem dentro del scope — `backend/src/main/java/com/zeko/executioncontrol/infrastructure/LocalFilesystemAdapter.java`, `backend/src/test/java/com/zeko/executioncontrol/FilesystemAdapterIntegrationTest.java`.
 
   **Dependencias**: T058, T057, T020, T018. **Traza**: FR-034, FR-045, FR-056; NFR-002–NFR-005. **Checks**: BEI.
 
   **Aceptación**: Operaciones autorizables dentro del worktree, validación de ruta/enlaces y efectos seguros; verificar intento de salir del scope con fixtures.
 
-- [ ] T060 [P] [US5] Implementar procesos de terminal y detención confirmada — `backend/src/main/java/com/zeko/executioncontrol/infrastructure/LocalTerminalAdapter.java`, `backend/src/test/java/com/zeko/executioncontrol/TerminalAdapterIntegrationTest.java`.
+- [x] T060 [P] [US5] Implementar procesos de terminal y detención confirmada — `backend/src/main/java/com/zeko/executioncontrol/infrastructure/LocalTerminalAdapter.java`, `backend/src/test/java/com/zeko/executioncontrol/TerminalAdapterIntegrationTest.java`.
 
   **Dependencias**: T058, T057, T020, T018. **Traza**: FR-045, FR-049–FR-052; D-007. **Checks**: BEI.
 
   **Aceptación**: Argumentos/cwd y salida controlados, estado real del proceso y cancelación observables; no éxito si sigue activo; pruebas locales acotadas sin shell con secretos.
 
-- [ ] T061 [P] [US5] Implementar adaptador Docker local e indisponibilidad — `backend/src/main/java/com/zeko/executioncontrol/infrastructure/LocalDockerAdapter.java`, `backend/src/test/java/com/zeko/executioncontrol/DockerAdapterTest.java`, `backend/src/test/java/com/zeko/executioncontrol/DockerLiveIntegrationTest.java`.
+- [x] T061 [P] [US5] Implementar adaptador Docker local e indisponibilidad — `backend/src/main/java/com/zeko/executioncontrol/infrastructure/LocalDockerAdapter.java`, `backend/src/test/java/com/zeko/executioncontrol/DockerAdapterTest.java`, `backend/src/test/java/com/zeko/executioncontrol/DockerLiveIntegrationTest.java`.
 
   **Dependencias**: T058, T060, T020, T018. **Traza**: FR-045, FR-062–FR-063; D-007, D-010. **Checks**: BEI.
 
   **Aceptación**: Identificar Docker y efectos conocidos; pruebas deterministas de disponible/fallo y suite real diferenciada; no descargar imágenes ni usar daemon remoto silenciosamente.
 
-- [ ] T062 [P] [US5] Implementar cliente Ollama local y resultados de generación — `backend/src/main/java/com/zeko/executioncontrol/application/LocalModelPort.java`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/OllamaLocalClient.java`, `backend/src/test/java/com/zeko/executioncontrol/OllamaClientContractTest.java`, `backend/src/test/java/com/zeko/executioncontrol/OllamaLiveIntegrationTest.java`.
+- [x] T062 [P] [US5] Implementar cliente Ollama local y resultados de generación — `backend/src/main/java/com/zeko/executioncontrol/application/LocalModelPort.java`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/OllamaLocalClient.java`, `backend/src/test/java/com/zeko/executioncontrol/OllamaClientContractTest.java`, `backend/src/test/java/com/zeko/executioncontrol/OllamaLiveIntegrationTest.java`.
 
   **Dependencias**: T058, T015, T020, T018. **Traza**: FR-045, FR-062–FR-063; D-007, D-010. **Checks**: BEC.
 
   **Aceptación**: Solo endpoint local conforme a política, streaming/finalización/fallo distinguibles; dobles reproducibles y validación real separada. No cloud ni descarga de modelos implícita.
 
-- [ ] T063 [US5] Aplicar autorización en el dispatcher antes del adaptador real — `backend/src/main/java/com/zeko/executioncontrol/application/AuthorizedActionDispatcher.java`, `backend/src/test/java/com/zeko/executioncontrol/AuthorizedActionDispatcherIntegrationTest.java`.
+- [x] T063 [US5] Aplicar autorización en el dispatcher antes del adaptador real — `backend/src/main/java/com/zeko/executioncontrol/application/AuthorizedActionDispatcher.java`, `backend/src/test/java/com/zeko/executioncontrol/AuthorizedActionDispatcherIntegrationTest.java`.
 
   **Dependencias**: T054, T048, T047, T056, T059, T060, T061, T062, T020, T018. **Traza**: FR-020, FR-034–FR-045, FR-053–FR-054; NFR-005. **Checks**: BEI.
 
   **Aceptación**: Revalidar política, revisión, denegación, scope y dueño inmediatamente antes del efecto. Tests prueban cero invocaciones al denegar/invalidar/alterar acción o cambiar adaptador; no reintentar automáticamente efectos externos.
 
-- [ ] T064 [P] [US5] Iniciar intentos con snapshot y publicar resultados confirmados — `backend/src/main/java/com/zeko/executioncontrol/application/ExecutionService.java`, `backend/src/main/java/com/zeko/executioncontrol/api/ExecutionController.java`, `backend/src/main/java/com/zeko/executioncontrol/api/ExecutionDtos.java`, `backend/src/test/java/com/zeko/executioncontrol/ExecutionContractTest.java`.
+- [x] T064 [P] [US5] Iniciar intentos con snapshot y publicar resultados confirmados — `backend/src/main/java/com/zeko/executioncontrol/application/ExecutionService.java`, `backend/src/main/java/com/zeko/executioncontrol/api/ExecutionController.java`, `backend/src/main/java/com/zeko/executioncontrol/api/ExecutionDtos.java`, `backend/src/test/java/com/zeko/executioncontrol/ExecutionContractTest.java`.
 
   **Dependencias**: T063, T028, T018, T020. **Traza**: FR-021, FR-045–FR-048, FR-057; contratos tareas/ejecución T004. **Checks**: BEC.
 
   **Aceptación**: Crear Task y Execution trazables; snapshot congelado al iniciar; ejecutar solo mediante dispatcher y entregar detalle consultable y eventos seguros.
 
-- [ ] T065 [P] [US5] Implementar cancelación y reintento manual como intento nuevo — `backend/src/main/java/com/zeko/executioncontrol/application/CancellationService.java`, `backend/src/main/java/com/zeko/executioncontrol/application/ManualRetryService.java`, `backend/src/main/java/com/zeko/executioncontrol/api/ExecutionControlController.java`, `backend/src/test/java/com/zeko/executioncontrol/CancelRetryIntegrationTest.java`.
+- [x] T065 [P] [US5] Implementar cancelación y reintento manual como intento nuevo — `backend/src/main/java/com/zeko/executioncontrol/application/CancellationService.java`, `backend/src/main/java/com/zeko/executioncontrol/application/ManualRetryService.java`, `backend/src/main/java/com/zeko/executioncontrol/api/ExecutionControlController.java`, `backend/src/test/java/com/zeko/executioncontrol/CancelRetryIntegrationTest.java`.
 
   **Dependencias**: T064, T020, T018. **Traza**: FR-049–FR-052, FR-062–FR-063; D-009. **Checks**: BEI.
 
   **Aceptación**: Mostrar último estado/efectos; cancelación real confirmada, nueva Execution con vínculo anterior solo por usuario; reconectar/reiniciar app no vuelve a ejecutar operaciones.
 
-- [ ] T066 [P] [US5] Exponer conflicto bloqueante y resolución explícita — `backend/src/main/java/com/zeko/executioncontrol/application/ConflictService.java`, `backend/src/main/java/com/zeko/executioncontrol/api/ConflictController.java`, `backend/src/test/java/com/zeko/executioncontrol/ConflictContractTest.java`.
+- [x] T066 [P] [US5] Exponer conflicto bloqueante y resolución explícita — `backend/src/main/java/com/zeko/executioncontrol/application/ConflictService.java`, `backend/src/main/java/com/zeko/executioncontrol/api/ConflictController.java`, `backend/src/test/java/com/zeko/executioncontrol/ConflictContractTest.java`.
 
   **Dependencias**: T064, T056, T020, T018. **Traza**: FR-055; SC-002; contrato conflict-resolution. **Checks**: BEC.
 
   **Aceptación**: Cancelar, reasignar o registrar resolución manual con parámetros suficientes; validar destino/estado actual y preservar worktree/cambios. Cancelar no conduce a READY.
 
-- [ ] T067 [P] [US5] Validar commits autorizados y evidencia de cambios — `backend/src/main/java/com/zeko/executioncontrol/domain/CommitMessagePolicy.java`, `backend/src/main/java/com/zeko/executioncontrol/application/AuthorizedCommitService.java`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/GitCommitAdapter.java`, `backend/src/test/java/com/zeko/executioncontrol/AuthorizedCommitIntegrationTest.java`.
+- [x] T067 [P] [US5] Validar commits autorizados y evidencia de cambios — `backend/src/main/java/com/zeko/executioncontrol/domain/CommitMessagePolicy.java`, `backend/src/main/java/com/zeko/executioncontrol/application/AuthorizedCommitService.java`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/GitCommitAdapter.java`, `backend/src/test/java/com/zeko/executioncontrol/AuthorizedCommitIntegrationTest.java`.
 
   **Dependencias**: T063, T057, T020, T018. **Traza**: FR-057–FR-061; constitución §Git. **Checks**: BEI.
 
   **Aceptación**: Un commit solo tras acción autorizada, diff de su task y checks; Conventional Commits e ID, sin Co-authored-by/firmas/trailers de asistentes. Nada de commit/push/merge por terminar una Execution.
 
-- [ ] T068 [P] [US5] Conectar coordinación con ejecuciones y generación local — `backend/src/main/java/com/zeko/coordination/infrastructure/ExecutionGatewayAdapter.java`, `backend/src/main/java/com/zeko/coordination/application/AgentLoop.java`, `backend/src/main/java/com/zeko/coordination/infrastructure/LocalModelGateway.java`, `backend/src/test/java/com/zeko/coordination/AgentLoopIntegrationTest.java`.
+- [x] T068 [P] [US5] Conectar coordinación con ejecuciones y generación local — `backend/src/main/java/com/zeko/coordination/infrastructure/ExecutionGatewayAdapter.java`, `backend/src/main/java/com/zeko/coordination/application/AgentLoop.java`, `backend/src/main/java/com/zeko/coordination/infrastructure/LocalModelGateway.java`, `backend/src/test/java/com/zeko/coordination/AgentLoopIntegrationTest.java`.
 
   **Dependencias**: T041, T039, T064, T065, T062, T052, T020, T018. **Traza**: FR-022–FR-029, FR-044–FR-045; plan §Flujo de ejecución. **Checks**: BEI.
 
   **Aceptación**: Instrucción vigente delimita tarea/follow-ups, gateway usa contratos públicos sin ciclos; cada acción pasa por dispatcher. Assisted confirma creación, no acciones implícitas; Autonomous no amplía scope o permisos ni reanuda intentos interrumpidos.
 
-- [ ] T069 [P] [US5] Implementar cliente de eventos y reconciliación por snapshot — `frontend/src/features/runtime/runtimeApi.ts`, `frontend/src/features/runtime/runtimeEvents.ts`, `frontend/src/features/runtime/runtimeEvents.test.ts`.
+- [x] T069 [P] [US5] Implementar cliente de eventos y reconciliación por snapshot — `frontend/src/features/runtime/runtimeApi.ts`, `frontend/src/features/runtime/runtimeEvents.ts`, `frontend/src/features/runtime/runtimeEvents.test.ts`.
 
   **Dependencias**: T064, T005, T019, T020, T018. **Traza**: FR-047–FR-048, FR-062; D-006; contracts/websocket.md. **Checks**: FE.
 
   **Aceptación**: Deduplicar por eventId y secuencia por recurso; huecos/reconexión consultan endpoint real; no descartar evento por secuencia de otro recurso ni solicitar reintento.
 
-- [ ] T070 [P] [US5] Implementar Runtime Canvas con estados y contexto de ejecución — `frontend/src/features/runtime/RuntimeCanvas.tsx`, `frontend/src/features/runtime/ExecutionCard.tsx`, `frontend/src/features/runtime/RuntimeCanvas.test.tsx`, `frontend/src/app/WorkspaceShell.tsx`.
+- [x] T070 [P] [US5] Implementar Runtime Canvas con estados y contexto de ejecución — `frontend/src/features/runtime/RuntimeCanvas.tsx`, `frontend/src/features/runtime/ExecutionCard.tsx`, `frontend/src/features/runtime/RuntimeCanvas.test.tsx`, `frontend/src/app/WorkspaceShell.tsx`.
 
   **Dependencias**: T069, T050, T042, T051, T020, T018. **Traza**: FR-046–FR-048, FR-071–FR-074; D-005. **Checks**: FE.
 
   **Aceptación**: Estados visibles, approvals incrustados con identidad, contexto y control; estado visual XYFlow no muta dominio ni dispara workflows.
 
-- [ ] T071 [P] [US5] Implementar cancelación, reintento y conflicto en UI — `frontend/src/features/runtime/ExecutionControls.tsx`, `frontend/src/features/runtime/ConflictPanel.tsx`, `frontend/src/features/runtime/ExecutionControls.test.tsx`, `frontend/src/features/runtime/RuntimeCanvas.tsx`.
+- [x] T071 [P] [US5] Implementar cancelación, reintento y conflicto en UI — `frontend/src/features/runtime/ExecutionControls.tsx`, `frontend/src/features/runtime/ConflictPanel.tsx`, `frontend/src/features/runtime/ExecutionControls.test.tsx`, `frontend/src/features/runtime/RuntimeCanvas.tsx`.
 
   **Dependencias**: T070, T065, T066, T020, T018. **Traza**: FR-049–FR-055, FR-062–FR-063; US-005, US-007. **Checks**: FE.
 
   **Aceptación**: Acciones explícitas, último estado y efectos antes de reintentar; no mostrar cancelada hasta confirmar; conflicto mantiene cambios y ofrece opciones manuales.
 
-- [ ] T072 [P] [US5] Exponer resultados, diff y vínculos de evidencia — `backend/src/main/java/com/zeko/executioncontrol/application/ExecutionResultQuery.java`, `backend/src/main/java/com/zeko/executioncontrol/api/ExecutionResultController.java`, `backend/src/main/java/com/zeko/traceability/api/TraceQueryController.java`, `backend/src/test/java/com/zeko/executioncontrol/ExecutionResultContractTest.java`.
+- [x] T072 [P] [US5] Exponer resultados, diff y vínculos de evidencia — `backend/src/main/java/com/zeko/executioncontrol/application/ExecutionResultQuery.java`, `backend/src/main/java/com/zeko/executioncontrol/api/ExecutionResultController.java`, `backend/src/main/java/com/zeko/traceability/api/TraceQueryController.java`, `backend/src/test/java/com/zeko/executioncontrol/ExecutionResultContractTest.java`.
 
   **Dependencias**: T064, T057, T017, T016, T020, T018. **Traza**: FR-048, FR-056–FR-057, FR-075; contrato consultas T004. **Checks**: BEC.
 
   **Aceptación**: Resultado/diff/trazas consultables con ownership; separar diff atribuible y cambios previos; redactar vista de secretos sin modificar silenciosamente archivos originales.
 
-- [ ] T073 [P] [US5] Implementar revisión del resultado y diff trazable — `frontend/src/features/traceability/traceApi.ts`, `frontend/src/features/traceability/TracePanel.tsx`, `frontend/src/features/runtime/ExecutionResultPanel.tsx`, `frontend/src/features/runtime/DiffViewer.tsx`, `frontend/tests/unit/execution-result.test.tsx`, `frontend/src/features/runtime/RuntimeCanvas.tsx`.
+- [x] T073 [P] [US5] Implementar revisión del resultado y diff trazable — `frontend/src/features/traceability/traceApi.ts`, `frontend/src/features/traceability/TracePanel.tsx`, `frontend/src/features/runtime/ExecutionResultPanel.tsx`, `frontend/src/features/runtime/DiffViewer.tsx`, `frontend/tests/unit/execution-result.test.tsx`, `frontend/src/features/runtime/RuntimeCanvas.tsx`.
 
   **Dependencias**: T071, T072, T020, T018. **Traza**: FR-048, FR-056–FR-057, FR-075; SC-001. **Checks**: FE.
 
   **Aceptación**: Navegación de task/ejecución/cambio/evidencia con contexto y fallos; diff no confunde cambios ajenos con la tarea.
 
-- [ ] T074 [P] [US5] Probar integración de actualización de plantilla con ejecución activa — `backend/src/test/java/com/zeko/executioncontrol/TemplateSnapshotIntegrationTest.java`.
+- [x] T074 [P] [US5] Probar integración de actualización de plantilla con ejecución activa — `backend/src/test/java/com/zeko/executioncontrol/TemplateSnapshotIntegrationTest.java`.
 
   **Dependencias**: T064, T031, T068, T020, T018. **Traza**: FR-021; US-002 aceptación 6–7; quickstart V-002. **Checks**: BEI.
 
   **Aceptación**: Aceptar actualización durante ejecución no modifica snapshot; siguiente intento usa versión seleccionada vigente conforme al diseño; no override configurable.
 
-- [ ] T075 [P] [US5] Validar ciclo autorizado completo y aprobación obsoleta — `frontend/tests/e2e/authorized-execution.spec.ts`.
+- [x] T075 [P] [US5] Validar ciclo autorizado completo y aprobación obsoleta — `frontend/tests/e2e/authorized-execution.spec.ts`.
 
   **Dependencias**: T073, T068, T074, T036, T020, T018. **Traza**: US-003–US-005; SC-001, SC-003–SC-004; quickstart V-001–V-003. **Checks**: E2E.
 
   **Aceptación**: Modelo/adaptadores deterministas para flujo completo; aprobación denegada y clic tardío no causan efecto; resultados/diff mantienen IDs; escenarios de follow-up para tres modos.
 
-- [ ] T076 [P] [US5] Validar concurrencia, conflictos y cancelación entre dos tareas — `frontend/tests/e2e/worktree-conflicts.spec.ts`.
+- [x] T076 [P] [US5] Validar concurrencia, conflictos y cancelación entre dos tareas — `frontend/tests/e2e/worktree-conflicts.spec.ts`.
 
   **Dependencias**: T075, T066, T065, T020, T018. **Traza**: US-005; SC-002, SC-006; quickstart V-004–V-005. **Checks**: E2E.
 
@@ -710,7 +710,7 @@ Verificación independiente: contexto de dos proyectos y fuentes globales autori
 
 Verificación independiente: tabs separadas y estados reales al perder socket, proveedor o proceso; reconectar UI no reanuda Execution.
 
-- [ ] T085 [US7] Mostrar desconexión y proveedor afectado sin éxito falso — `frontend/src/features/runtime/ProviderStatusPanel.tsx`, `frontend/src/features/runtime/ProviderStatusPanel.test.tsx`, `frontend/src/features/runtime/RuntimeCanvas.tsx`.
+- [x] T085 [US7] Mostrar desconexión y proveedor afectado sin éxito falso — `frontend/src/features/runtime/ProviderStatusPanel.tsx`, `frontend/src/features/runtime/ProviderStatusPanel.test.tsx`, `frontend/src/features/runtime/RuntimeCanvas.tsx`.
 
   **Dependencias**: T073, T069, T065, T020, T018. **Traza**: FR-062–FR-063, FR-071–FR-074; NFR-003; US-007. **Checks**: FE.
 
