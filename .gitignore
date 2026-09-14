@@ -25,11 +25,12 @@ secrets.yaml
 *.db-wal
 *.sqlite
 *.sqlite3
-/data/
-/var/
-/worktrees/
-/index/
-/lucene/
+*.migration.lock
+data/
+var/
+worktrees/
+index/
+lucene/
 
 # --- Logs ---
 *.log
