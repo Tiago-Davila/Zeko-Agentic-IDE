@@ -1,5 +1,7 @@
 plugins {
     java
+    checkstyle
+    `jvm-test-suite`
     id("org.springframework.boot") version "3.5.16"
     id("io.spring.dependency-management") version "1.1.7"
 }
@@ -19,8 +21,41 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+checkstyle {
+    toolVersion = "10.26.1"
+    configFile = file("config/checkstyle/checkstyle.xml")
+    isIgnoreFailures = false
+    maxWarnings = 0
+    maxErrors = 0
+}
+
+testing {
+    suites {
+        named<JvmTestSuite>("test") {
+            useJUnitJupiter()
+            dependencies {
+                implementation("org.springframework.boot:spring-boot-starter-test")
+            }
+        }
+
+        register<JvmTestSuite>("integrationTest") {
+            useJUnitJupiter()
+            dependencies {
+                implementation(project())
+                implementation("org.springframework.boot:spring-boot-starter-test")
+            }
+        }
+
+        register<JvmTestSuite>("contractTest") {
+            useJUnitJupiter()
+            dependencies {
+                implementation(project())
+                implementation("org.springframework.boot:spring-boot-starter-test")
+            }
+        }
+    }
 }
 
 tasks.withType<JavaCompile>().configureEach {
@@ -28,8 +63,7 @@ tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs.add("-parameters")
 }
 
-tasks.named<Test>("test") {
-    useJUnitPlatform()
+tasks.withType<Test>().configureEach {
     testLogging {
         events("failed", "skipped")
     }
