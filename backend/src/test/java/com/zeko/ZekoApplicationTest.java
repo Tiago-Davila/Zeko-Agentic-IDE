@@ -16,6 +16,7 @@ class ZekoApplicationTest {
     private static final String SHARED_KERNEL_API = "com.zeko.sharedkernel.api";
     private static final String PROJECT_CATALOG_API = "com.zeko.projectcatalog.api";
     private static final String AGENT_DESIGN_API = "com.zeko.agentdesign.api";
+    private static final String COORDINATION_API = "com.zeko.coordination.api";
 
     @Autowired
     private ApplicationContext context;
@@ -32,6 +33,6 @@ class ZekoApplicationTest {
                         .filter(Objects::nonNull)
                         .map(Class::getPackageName)
                         .toList())
-                .containsOnly(SHARED_KERNEL_API, PROJECT_CATALOG_API, AGENT_DESIGN_API);
+                .containsOnly(SHARED_KERNEL_API, PROJECT_CATALOG_API, AGENT_DESIGN_API, COORDINATION_API);
     }
 }

@@ -5,6 +5,7 @@ import { ProjectPicker } from '../features/projects/ProjectPicker';
 import { RepositoryList } from '../features/projects/RepositoryList';
 import { AgentsCanvas } from '../features/agents/AgentsCanvas';
 import { SkillPanel } from '../features/skills/SkillPanel';
+import { ConversationPanel } from '../features/conversations/ConversationPanel';
 import type { ProjectDto, RepositoryDto } from '../features/projects/projectApi';
 import { WorkspaceContextReader } from './WorkspaceContext';
 
@@ -81,6 +82,7 @@ export function WorkspaceShell() {
                 />
                 <AgentsCanvas projectId={workspace.projectId} />
                 <SkillPanel projectId={workspace.projectId} />
+                <ConversationPanel projectId={workspace.projectId} />
               </>
             )}
           </WorkspaceContextReader>
