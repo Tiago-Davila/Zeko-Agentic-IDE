@@ -1,7 +1,10 @@
+import { WorkspaceContextProvider } from './WorkspaceContext';
+import { WorkspaceShell } from './WorkspaceShell';
+
 export function App() {
   return (
-    <main>
-      <h1>Zeko Agentic IDE</h1>
-    </main>
+    <WorkspaceContextProvider>
+      <WorkspaceShell />
+    </WorkspaceContextProvider>
   );
 }

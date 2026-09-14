@@ -14,11 +14,10 @@ describe('App', () => {
     expect(screen.getByRole('heading', { name: 'Zeko Agentic IDE' })).not.toBeNull();
   });
 
-  it('no monta pantallas de negocio en el arranque minimo', () => {
+  it('monta las superficies iniciales del workspace', () => {
     render(<App />);
 
-    expect(screen.queryAllByRole('tab')).toHaveLength(0);
-    expect(screen.queryAllByRole('button')).toHaveLength(0);
-    expect(screen.queryAllByRole('form')).toHaveLength(0);
+    expect(screen.getAllByRole('tab')).toHaveLength(2);
+    expect(screen.getByRole('complementary', { name: 'Estado del workspace' })).not.toBeNull();
   });
 });
