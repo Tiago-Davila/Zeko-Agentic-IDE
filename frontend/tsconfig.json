@@ -23,5 +23,5 @@
     "exactOptionalPropertyTypes": true,
     "erasableSyntaxOnly": true
   },
-  "include": ["src", "tests"]
+  "include": ["src", "tests/unit"]
 }

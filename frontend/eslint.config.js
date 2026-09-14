@@ -32,4 +32,13 @@ export default tseslint.config(
       globals: globals.node,
     },
   },
+  {
+    // La suite E2E no es codigo React y la API de fixtures de Playwright exige `{}`.
+    files: ['playwright.config.ts', 'tests/e2e/**/*.ts'],
+    rules: {
+      'no-empty-pattern': 'off',
+      'react-hooks/rules-of-hooks': 'off',
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 );

@@ -12,7 +12,9 @@
     "build": "npm run typecheck && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "test": "vitest"
+    "test": "vitest",
+    "test:e2e": "playwright test --project=simulated",
+    "test:e2e:real": "playwright test --project=real"
   },
   "dependencies": {
     "react": "19.3.0",
@@ -20,7 +22,9 @@
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
+    "@playwright/test": "1.63.0",
     "@testing-library/react": "16.3.3",
+    "@types/node": "26.5.1",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.1.1",
