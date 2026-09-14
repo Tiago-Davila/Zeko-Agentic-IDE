@@ -452,55 +452,55 @@ Verificación independiente: conversación directa/PM, precedencia, registro de 
 
 Verificación independiente: clasificar acciones y aceptar/denegar/invalidar una revisión, mostrando permiso e iniciativa separados. Las pruebas E2E con efectos reales del dispatcher se completan en fase 7.
 
-- [ ] T044 [US4] Modelar permisos independientes y política conservadora — `backend/src/main/java/com/zeko/executioncontrol/domain/PermissionMode.java`, `backend/src/main/java/com/zeko/executioncontrol/domain/PermissionPolicy.java`, `backend/src/main/java/com/zeko/executioncontrol/domain/PermissionDecision.java`, `backend/src/test/java/com/zeko/executioncontrol/PermissionPolicyTest.java`.
+- [x] T044 [US4] Modelar permisos independientes y política conservadora — `backend/src/main/java/com/zeko/executioncontrol/domain/PermissionMode.java`, `backend/src/main/java/com/zeko/executioncontrol/domain/PermissionPolicy.java`, `backend/src/main/java/com/zeko/executioncontrol/domain/PermissionDecision.java`, `backend/src/test/java/com/zeko/executioncontrol/PermissionPolicyTest.java`.
 
   **Dependencias**: T012, T003, T020, T018. **Traza**: FR-030–FR-044; NFR-005. **Checks**: BE.
 
   **Aceptación**: Prohibiciones primero; mutante/red/destructiva requiere Ask; Auto solo local no destructiva expresamente cubierta; Full no elimina prohibiciones ni denegaciones. Efectos compuestos no se reducen a categoría inocua.
 
-- [ ] T045 [US4] Modelar acción canónica y aprobación por revisión — `backend/src/main/java/com/zeko/executioncontrol/domain/ActionProposal.java`, `backend/src/main/java/com/zeko/executioncontrol/domain/Approval.java`, `backend/src/main/java/com/zeko/executioncontrol/domain/ApprovalDecision.java`, `backend/src/test/java/com/zeko/executioncontrol/ApprovalRevisionTest.java`.
+- [x] T045 [US4] Modelar acción canónica y aprobación por revisión — `backend/src/main/java/com/zeko/executioncontrol/domain/ActionProposal.java`, `backend/src/main/java/com/zeko/executioncontrol/domain/Approval.java`, `backend/src/main/java/com/zeko/executioncontrol/domain/ApprovalDecision.java`, `backend/src/test/java/com/zeko/executioncontrol/ApprovalRevisionTest.java`.
 
   **Dependencias**: T044, T020, T018. **Traza**: FR-035, FR-038–FR-040; data-model §ActionProposal/Approval. **Checks**: BE.
 
   **Aceptación**: Cambio de acción/recurso/alcance/efecto invalida solicitud pendiente; distintas acciones no comparten identidad/revisión; decisión tardía o duplicada no habilita ejecución.
 
-- [ ] T046 [P] [US4] Persistir políticas, revisiones y aprobación con control concurrente — `backend/src/main/java/com/zeko/executioncontrol/application/ApprovalRepository.java`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/JdbcApprovalRepository.java`, `backend/src/main/resources/db/migration/V008__permission_actions_approvals.sql`, `backend/src/test/java/com/zeko/executioncontrol/ApprovalConcurrencyIntegrationTest.java`.
+- [x] T046 [P] [US4] Persistir políticas, revisiones y aprobación con control concurrente — `backend/src/main/java/com/zeko/executioncontrol/application/ApprovalRepository.java`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/JdbcApprovalRepository.java`, `backend/src/main/resources/db/migration/V008__permission_actions_approvals.sql`, `backend/src/test/java/com/zeko/executioncontrol/ApprovalConcurrencyIntegrationTest.java`.
 
   **Dependencias**: T045, T013, T020, T018. **Traza**: FR-030, FR-035–FR-043; D-003. **Checks**: BEI.
 
   **Aceptación**: Transacción corta actualiza versión/estado de aprobación; carrera invalidar/aprobar rechaza revisión obsoleta; metadata operativa y vista de auditoría segura diferenciadas.
 
-- [ ] T047 [P] [US4] Normalizar y clasificar acciones para el límite de ejecución — `backend/src/main/java/com/zeko/executioncontrol/application/ActionClassifier.java`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/HostActionNormalizer.java`, `backend/src/test/java/com/zeko/executioncontrol/ActionClassifierTest.java`.
+- [x] T047 [P] [US4] Normalizar y clasificar acciones para el límite de ejecución — `backend/src/main/java/com/zeko/executioncontrol/application/ActionClassifier.java`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/HostActionNormalizer.java`, `backend/src/test/java/com/zeko/executioncontrol/ActionClassifierTest.java`.
 
   **Dependencias**: T045, T023, T020, T018. **Traza**: FR-020, FR-034, FR-039, FR-041–FR-045; D-007. **Checks**: BE.
 
   **Aceptación**: Rutas/cwd/argumentos/red validados; catálogo cerrado aplica efectos compuestos conservadores y normalización por host. No autorizar shell arbitrario por coincidencia de texto; no afirmar equivalencia semántica universal.
 
-- [ ] T048 [P] [US4] Exponer solicitudes y decisiones de aprobación seguras — `backend/src/main/java/com/zeko/executioncontrol/application/ApprovalService.java`, `backend/src/main/java/com/zeko/executioncontrol/api/ApprovalController.java`, `backend/src/main/java/com/zeko/executioncontrol/api/ApprovalDtos.java`, `backend/src/test/java/com/zeko/executioncontrol/ApprovalContractTest.java`.
+- [x] T048 [P] [US4] Exponer solicitudes y decisiones de aprobación seguras — `backend/src/main/java/com/zeko/executioncontrol/application/ApprovalService.java`, `backend/src/main/java/com/zeko/executioncontrol/api/ApprovalController.java`, `backend/src/main/java/com/zeko/executioncontrol/api/ApprovalDtos.java`, `backend/src/test/java/com/zeko/executioncontrol/ApprovalContractTest.java`.
 
   **Dependencias**: T046, T047, T015, T018, T020. **Traza**: FR-035–FR-043; contracts HTTP/WS. **Checks**: BEC.
 
   **Aceptación**: Vista contiene agente/task/acción/recurso/alcance/efectos; 409 approval-stale bloquea respuesta obsoleta; eventos invalidación/decisión correlacionados y sin ejecutar adaptadores.
 
-- [ ] T049 [P] [US4] Configurar y consultar permiso/autonomía sin acoplarlos — `backend/src/main/java/com/zeko/executioncontrol/application/PermissionPolicyService.java`, `backend/src/main/java/com/zeko/executioncontrol/api/PermissionPolicyController.java`, `backend/src/main/java/com/zeko/coordination/application/AutonomySettingsService.java`, `backend/src/main/java/com/zeko/coordination/api/AutonomySettingsController.java`, `backend/src/test/java/com/zeko/coordination/ModeSettingsContractTest.java`.
+- [x] T049 [P] [US4] Configurar y consultar permiso/autonomía sin acoplarlos — `backend/src/main/java/com/zeko/executioncontrol/application/PermissionPolicyService.java`, `backend/src/main/java/com/zeko/executioncontrol/api/PermissionPolicyController.java`, `backend/src/main/java/com/zeko/coordination/application/AutonomySettingsService.java`, `backend/src/main/java/com/zeko/coordination/api/AutonomySettingsController.java`, `backend/src/test/java/com/zeko/coordination/ModeSettingsContractTest.java`.
 
   **Dependencias**: T044, T040, T046, T015, T020, T018. **Traza**: FR-030–FR-033, FR-037, FR-044; contrato modos T004. **Checks**: BEC.
 
   **Aceptación**: Persistencia y DTOs de cada dimensión separados conforme a diseño; modificar una no toca otra ni agrega overrides de configuración de plantilla.
 
-- [ ] T050 [P] [US4] Implementar prompt legible de aprobación e invalidación — `frontend/src/features/approvals/approvalApi.ts`, `frontend/src/features/approvals/ApprovalPrompt.tsx`, `frontend/src/features/approvals/ApprovalPrompt.test.tsx`.
+- [x] T050 [P] [US4] Implementar prompt legible de aprobación e invalidación — `frontend/src/features/approvals/approvalApi.ts`, `frontend/src/features/approvals/ApprovalPrompt.tsx`, `frontend/src/features/approvals/ApprovalPrompt.test.tsx`.
 
   **Dependencias**: T048, T019, T020, T018. **Traza**: FR-035, FR-038–FR-040, FR-072–FR-074; US-004. **Checks**: FE.
 
   **Aceptación**: Muestra información vigente, aceptar/denegar y solicitud invalidada; clic tardío muestra conflicto sin éxito falso; aprobación pendiente nunca implica ejecución.
 
-- [ ] T051 [P] [US4] Implementar controles independientes de permiso y autonomía — `frontend/src/features/agents/ModeSettings.tsx`, `frontend/src/features/agents/ModeSettings.test.tsx`, `frontend/src/features/agents/AgentsCanvas.tsx`.
+- [x] T051 [P] [US4] Implementar controles independientes de permiso y autonomía — `frontend/src/features/agents/ModeSettings.tsx`, `frontend/src/features/agents/ModeSettings.test.tsx`, `frontend/src/features/agents/AgentsCanvas.tsx`.
 
   **Dependencias**: T049, T034, T020, T018. **Traza**: FR-030–FR-033, FR-037, FR-044; US-004. **Checks**: FE.
 
   **Aceptación**: Explicar iniciativa por follow-ups y permiso aplicable; cambios persisten separadamente sin inferir Full=Autonomous.
 
-- [ ] T052 [P] [US4] Probar nueve combinaciones de permiso e iniciativa — `backend/src/test/java/com/zeko/coordination/PermissionAutonomyMatrixTest.java`.
+- [x] T052 [P] [US4] Probar nueve combinaciones de permiso e iniciativa — `backend/src/test/java/com/zeko/coordination/PermissionAutonomyMatrixTest.java`.
 
   **Dependencias**: T049, T043, T047, T020, T018. **Traza**: FR-030–FR-044; SC-004. **Checks**: BEI.
 
