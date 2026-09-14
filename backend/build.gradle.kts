@@ -1,7 +1,6 @@
 plugins {
     java
     checkstyle
-    `jvm-test-suite`
     id("org.springframework.boot") version "3.5.16"
     id("io.spring.dependency-management") version "1.1.7"
 }
@@ -21,6 +20,7 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
 checkstyle {
@@ -31,42 +31,54 @@ checkstyle {
     maxErrors = 0
 }
 
-testing {
-    suites {
-        named<JvmTestSuite>("test") {
-            useJUnitJupiter()
-            dependencies {
-                implementation("org.springframework.boot:spring-boot-starter-test")
-            }
-        }
+val integrationTestPattern = "*IntegrationTest"
+val contractTestPattern = "*ContractTest"
 
-        register<JvmTestSuite>("integrationTest") {
-            useJUnitJupiter()
-            dependencies {
-                implementation(project())
-                implementation("org.springframework.boot:spring-boot-starter-test")
-            }
-        }
-
-        register<JvmTestSuite>("contractTest") {
-            useJUnitJupiter()
-            dependencies {
-                implementation(project())
-                implementation("org.springframework.boot:spring-boot-starter-test")
-            }
-        }
+// Las tres suites comparten src/test/java y se separan por convencion de nombre.
+fun Test.useTestSourceSet() {
+    val testSourceSet = sourceSets.getByName("test")
+    testClassesDirs = testSourceSet.output.classesDirs
+    classpath = testSourceSet.runtimeClasspath
+    useJUnitPlatform()
+    testLogging {
+        events("failed", "skipped")
     }
+}
+
+tasks.named<Test>("test") {
+    useTestSourceSet()
+    filter {
+        excludeTestsMatching(integrationTestPattern)
+        excludeTestsMatching(contractTestPattern)
+        isFailOnNoMatchingTests = false
+    }
+}
+
+tasks.register<Test>("integrationTest") {
+    description = "Runs the integration test suite."
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    useTestSourceSet()
+    filter {
+        includeTestsMatching(integrationTestPattern)
+        isFailOnNoMatchingTests = false
+    }
+    shouldRunAfter(tasks.named("test"))
+}
+
+tasks.register<Test>("contractTest") {
+    description = "Runs the contract test suite."
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    useTestSourceSet()
+    filter {
+        includeTestsMatching(contractTestPattern)
+        isFailOnNoMatchingTests = false
+    }
+    shouldRunAfter(tasks.named("test"))
 }
 
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
     options.compilerArgs.add("-parameters")
-}
-
-tasks.withType<Test>().configureEach {
-    testLogging {
-        events("failed", "skipped")
-    }
 }
 
 tasks.named<Jar>("jar") {
