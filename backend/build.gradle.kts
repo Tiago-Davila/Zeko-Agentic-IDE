@@ -24,6 +24,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("org.flywaydb:flyway-core")
     implementation("org.xerial:sqlite-jdbc:3.49.1.0")
+    implementation("org.apache.lucene:lucene-core:10.5.0")
+    implementation("org.apache.lucene:lucene-analysis-common:10.5.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
