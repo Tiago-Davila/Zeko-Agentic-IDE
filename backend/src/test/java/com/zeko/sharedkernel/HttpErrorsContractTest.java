@@ -9,7 +9,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.zeko.sharedkernel.api.CorrelationFilter;
+import com.zeko.sharedkernel.api.LocalSessionFilter;
 import com.zeko.sharedkernel.domain.DomainError;
+import jakarta.servlet.http.Cookie;
 import java.nio.file.Path;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -153,9 +155,24 @@ class HttpErrorsContractTest {
                 .andExpect(jsonPath("$.message").value("El cuerpo de la solicitud no es valido"));
     }
 
+    // Fuera de /api, donde la sesion local no se exige antes de resolver la ruta.
     @Test
     void unaRutaDesconocidaDevuelveElContratoDeError() throws Exception {
+        mockMvc.perform(get("/ruta-inexistente"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("not-found"));
+    }
+
+    @Test
+    void unaRutaApiDesconocidaExigeSesionAntesDeRevelarSuExistencia() throws Exception {
         mockMvc.perform(get("/api/ruta-inexistente"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("unauthorized"));
+    }
+
+    @Test
+    void unaRutaApiDesconocidaConSesionDevuelveNotFound() throws Exception {
+        mockMvc.perform(get("/api/ruta-inexistente").cookie(bootstrapCookie()))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("not-found"));
     }
@@ -194,5 +211,16 @@ class HttpErrorsContractTest {
                         .content("{\"name\":\"zeko\"}"))
                 .andExpect(status().isOk())
                 .andExpect(header().string(CorrelationFilter.HEADER, matchesPattern(UUID_PATTERN)));
+    }
+
+    private Cookie bootstrapCookie() throws Exception {
+        MvcResult bootstrap = mockMvc.perform(post("/api/session/bootstrap"))
+                .andExpect(status().isCreated())
+                .andReturn();
+        Cookie cookie = bootstrap.getResponse().getCookie(LocalSessionFilter.COOKIE_NAME);
+        if (cookie == null) {
+            throw new IllegalStateException("El bootstrap no emitio cookie local");
+        }
+        return cookie;
     }
 }

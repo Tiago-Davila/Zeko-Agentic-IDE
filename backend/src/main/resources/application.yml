@@ -11,9 +11,16 @@ spring:
     init:
       mode: never
 
+server:
+  address: 127.0.0.1
+  port: 8080
+  forward-headers-strategy: none
+
 zeko:
   datasource:
     path: ${user.dir}/data/zeko.db
     busy-timeout: 5s
     max-pool-size: 4
     migration-lock-timeout: 30s
+  session:
+    ttl: 30m
