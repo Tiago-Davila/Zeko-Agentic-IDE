@@ -1,0 +1,3 @@
+import { useEffect, useState } from 'react';
+import { skills, type SkillDto } from './skillApi';
+export function SkillPanel({ projectId }: { readonly projectId: string | null }) { const [items, setItems] = useState<readonly SkillDto[]>([]); useEffect(() => { if (projectId !== null) void skills(projectId).then(setItems).catch(() => setItems([])); }, [projectId]); return <section aria-label="Skills de proyecto"><h3>Skills locales</h3><p>Una skill describe contexto; no concede permisos ni herramientas.</p><ul>{items.map((item) => <li key={item.id}>{item.name} · {item.scope}</li>)}</ul></section>; }

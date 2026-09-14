@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { StatusPanel } from '../components/StatusPanel';
 import { ProjectPicker } from '../features/projects/ProjectPicker';
 import { RepositoryList } from '../features/projects/RepositoryList';
+import { AgentsCanvas } from '../features/agents/AgentsCanvas';
+import { SkillPanel } from '../features/skills/SkillPanel';
 import type { ProjectDto, RepositoryDto } from '../features/projects/projectApi';
 import { WorkspaceContextReader } from './WorkspaceContext';
 
@@ -77,6 +79,8 @@ export function WorkspaceShell() {
                   onRepositoryAdded={addRepository}
                   onRepositorySelected={(repository) => workspace.selectRepository(repository.id, repository.path)}
                 />
+                <AgentsCanvas projectId={workspace.projectId} />
+                <SkillPanel projectId={workspace.projectId} />
               </>
             )}
           </WorkspaceContextReader>

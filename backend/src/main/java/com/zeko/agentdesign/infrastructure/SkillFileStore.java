@@ -1,5 +1,6 @@
 package com.zeko.agentdesign.infrastructure;
 
+import com.zeko.agentdesign.application.SkillContentStore;
 import com.zeko.sharedkernel.domain.DomainError;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -9,7 +10,8 @@ import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class SkillFileStore {
+@org.springframework.stereotype.Component
+public class SkillFileStore implements SkillContentStore {
     public Path resolveProjectSkill(Path projectRoot, Path skillPath) {
         Path root = projectRoot.toAbsolutePath().normalize();
         Path resolved = (skillPath.isAbsolute() ? skillPath : root.resolve(skillPath)).normalize();
@@ -19,6 +21,7 @@ public class SkillFileStore {
         return resolved;
     }
 
+    @Override
     public String fingerprint(Path projectRoot, Path skillPath) {
         Path file = resolveProjectSkill(projectRoot, skillPath);
         try {
