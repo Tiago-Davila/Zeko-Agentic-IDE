@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 class ZekoApplicationTest {
 
     private static final String SHARED_KERNEL_API = "com.zeko.sharedkernel.api";
+    private static final String PROJECT_CATALOG_API = "com.zeko.projectcatalog.api";
 
     @Autowired
     private ApplicationContext context;
@@ -23,15 +24,13 @@ class ZekoApplicationTest {
         assertThat(context).isNotNull();
     }
 
-    // El MVP aun no expone endpoints de features: solo los del shared kernel local.
     @Test
-    void exposesNoFeatureControllers() {
+    void exposesControllersOnlyFromImplementedModules() {
         assertThat(Arrays.stream(context.getBeanNamesForAnnotation(RestController.class))
                         .map(context::getType)
                         .filter(Objects::nonNull)
                         .map(Class::getPackageName)
-                        .filter(packageName -> !SHARED_KERNEL_API.equals(packageName))
                         .toList())
-                .isEmpty();
+                .containsOnly(SHARED_KERNEL_API, PROJECT_CATALOG_API);
     }
 }

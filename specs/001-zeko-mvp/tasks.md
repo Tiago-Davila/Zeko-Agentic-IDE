@@ -302,37 +302,37 @@ Persistencia, errores, seguridad local, trazabilidad, eventos y shell disponible
 
 Verificación independiente: crear y reabrir Project con dos repositorios y una ruta inaccesible; conservar configuración y contexto. SC-001 se completa después con ejecución.
 
-- [ ] T021 [US1] Modelar Project y Repository con validación de pertenencia — `backend/src/main/java/com/zeko/projectcatalog/domain/Project.java`, `backend/src/main/java/com/zeko/projectcatalog/domain/Repository.java`, `backend/src/main/java/com/zeko/projectcatalog/domain/RepositoryAccessState.java`, `backend/src/test/java/com/zeko/projectcatalog/ProjectTest.java`.
+- [x] T021 [US1] Modelar Project y Repository con validación de pertenencia — `backend/src/main/java/com/zeko/projectcatalog/domain/Project.java`, `backend/src/main/java/com/zeko/projectcatalog/domain/Repository.java`, `backend/src/main/java/com/zeko/projectcatalog/domain/RepositoryAccessState.java`, `backend/src/test/java/com/zeko/projectcatalog/ProjectTest.java`.
 
   **Dependencias**: T012, T020, T018. **Traza**: FR-001–FR-008; data-model §Project/Repository. **Checks**: BE.
 
   **Aceptación**: Identidad/ruta por Project, asociación múltiple y estados inválido/inaccesible sin pérdida de configuración.
 
-- [ ] T022 [P] [US1] Persistir proyectos y repositorios con SQLite — `backend/src/main/java/com/zeko/projectcatalog/application/ProjectRepository.java`, `backend/src/main/java/com/zeko/projectcatalog/infrastructure/JdbcProjectRepository.java`, `backend/src/main/resources/db/migration/V003__projects_repositories.sql`, `backend/src/test/java/com/zeko/projectcatalog/ProjectRepositoryIntegrationTest.java`.
+- [x] T022 [P] [US1] Persistir proyectos y repositorios con SQLite — `backend/src/main/java/com/zeko/projectcatalog/application/ProjectRepository.java`, `backend/src/main/java/com/zeko/projectcatalog/infrastructure/JdbcProjectRepository.java`, `backend/src/main/resources/db/migration/V003__projects_repositories.sql`, `backend/src/test/java/com/zeko/projectcatalog/ProjectRepositoryIntegrationTest.java`.
 
   **Dependencias**: T021, T013, T020, T018. **Traza**: FR-001–FR-004, FR-007–FR-008; NFR-001–NFR-002. **Checks**: BEI.
 
   **Aceptación**: Reapertura conserva configuración; unicidad por proyecto y lectura sin cruces de ownership.
 
-- [ ] T023 [P] [US1] Validar rutas de repositorios mediante filesystem y Git — `backend/src/main/java/com/zeko/projectcatalog/application/RepositoryInspector.java`, `backend/src/main/java/com/zeko/projectcatalog/infrastructure/GitRepositoryInspector.java`, `backend/src/test/java/com/zeko/projectcatalog/GitRepositoryInspectorIntegrationTest.java`.
+- [x] T023 [P] [US1] Validar rutas de repositorios mediante filesystem y Git — `backend/src/main/java/com/zeko/projectcatalog/application/RepositoryInspector.java`, `backend/src/main/java/com/zeko/projectcatalog/infrastructure/GitRepositoryInspector.java`, `backend/src/test/java/com/zeko/projectcatalog/GitRepositoryInspectorIntegrationTest.java`.
 
   **Dependencias**: T021, T020, T018. **Traza**: FR-005–FR-006; D-007; US-001. **Checks**: BEI.
 
   **Aceptación**: Rutas Windows normalizadas, accesibilidad y raíz Git verificadas con repos temporales; paths con espacios y rutas inválidas no ejecutan comandos interpolados.
 
-- [ ] T024 [US1] Exponer casos de uso y contratos de proyectos/repositorios — `backend/src/main/java/com/zeko/projectcatalog/application/ProjectService.java`, `backend/src/main/java/com/zeko/projectcatalog/api/ProjectController.java`, `backend/src/main/java/com/zeko/projectcatalog/api/ProjectDtos.java`, `backend/src/test/java/com/zeko/projectcatalog/ProjectApiContractTest.java`.
+- [x] T024 [US1] Exponer casos de uso y contratos de proyectos/repositorios — `backend/src/main/java/com/zeko/projectcatalog/application/ProjectService.java`, `backend/src/main/java/com/zeko/projectcatalog/api/ProjectController.java`, `backend/src/main/java/com/zeko/projectcatalog/api/ProjectDtos.java`, `backend/src/test/java/com/zeko/projectcatalog/ProjectApiContractTest.java`.
 
   **Dependencias**: T022, T023, T015, T017, T020, T018. **Traza**: FR-001–FR-008; contracts/openapi.yaml §projects. **Checks**: BEC.
 
   **Aceptación**: Listar/crear/abrir y asociar según contrato; errores 400/404/409/422 cuando apliquen; ninguna regla de negocio en controller.
 
-- [ ] T025 [US1] Implementar creación/apertura y asociación de repositorios en UI — `frontend/src/features/projects/projectApi.ts`, `frontend/src/features/projects/ProjectPicker.tsx`, `frontend/src/features/projects/RepositoryList.tsx`, `frontend/tests/unit/projects.test.tsx`, `frontend/src/app/WorkspaceShell.tsx`.
+- [x] T025 [US1] Implementar creación/apertura y asociación de repositorios en UI — `frontend/src/features/projects/projectApi.ts`, `frontend/src/features/projects/ProjectPicker.tsx`, `frontend/src/features/projects/RepositoryList.tsx`, `frontend/tests/unit/projects.test.tsx`, `frontend/src/app/WorkspaceShell.tsx`.
 
   **Dependencias**: T024, T020, T018. **Traza**: FR-001–FR-008, FR-072–FR-074; US-001. **Checks**: FE.
 
   **Aceptación**: Dos repositorios visibles con contexto; reapertura y errores sin perder selección válida. El proyecto activo alimenta el shell.
 
-- [ ] T026 [US1] Validar persistencia y aislamiento de un proyecto multi-repo — `frontend/tests/e2e/projects.spec.ts`.
+- [x] T026 [US1] Validar persistencia y aislamiento de un proyecto multi-repo — `frontend/tests/e2e/projects.spec.ts`.
 
   **Dependencias**: T025, T010, T020, T018. **Traza**: US-001; SC-001 parcial; NFR-001–NFR-002. **Checks**: E2E.
 

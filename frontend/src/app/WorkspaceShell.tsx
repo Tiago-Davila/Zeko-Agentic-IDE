@@ -1,6 +1,10 @@
 import { useState } from 'react';
 
 import { StatusPanel } from '../components/StatusPanel';
+import { ProjectPicker } from '../features/projects/ProjectPicker';
+import { RepositoryList } from '../features/projects/RepositoryList';
+import type { ProjectDto, RepositoryDto } from '../features/projects/projectApi';
+import { WorkspaceContextReader } from './WorkspaceContext';
 
 type WorkspaceSurface = 'agents' | 'runtime';
 
@@ -19,7 +23,22 @@ const surfaces: Record<WorkspaceSurface, { readonly label: string; readonly titl
 
 export function WorkspaceShell() {
   const [activeSurface, setActiveSurface] = useState<WorkspaceSurface>('agents');
+  const [activeProject, setActiveProject] = useState<ProjectDto | null>(null);
   const active = surfaces[activeSurface];
+
+  function selectProject(project: ProjectDto, select: (id: string, name: string) => void) {
+    setActiveProject(project);
+    select(project.id, project.name);
+  }
+
+  function addRepository(repository: RepositoryDto) {
+    setActiveProject((project) => {
+      if (project === null || project.id !== repository.projectId) {
+        return project;
+      }
+      return { ...project, repositories: [...project.repositories, repository] };
+    });
+  }
 
   return (
     <main>
@@ -45,6 +64,23 @@ export function WorkspaceShell() {
       <section id={`${activeSurface}-panel`} role="tabpanel" aria-labelledby={`${activeSurface}-tab`}>
         <h2>{active.title}</h2>
         <p>{active.description}</p>
+        {activeSurface === 'agents' ? (
+          <WorkspaceContextReader>
+            {(workspace) => (
+              <>
+                <ProjectPicker
+                  onProjectSelected={(project) => selectProject(project, workspace.selectProject)}
+                  onConnectionChange={workspace.setConnection}
+                />
+                <RepositoryList
+                  project={activeProject}
+                  onRepositoryAdded={addRepository}
+                  onRepositorySelected={(repository) => workspace.selectRepository(repository.id, repository.path)}
+                />
+              </>
+            )}
+          </WorkspaceContextReader>
+        ) : null}
       </section>
       <StatusPanel />
     </main>

@@ -190,8 +190,8 @@ class LocalSessionContractTest {
     @Test
     void unaMutacionConSesionValidaSuperaElBoundaryDeSesion() throws Exception {
         mockMvc.perform(post("/api/projects").cookie(bootstrapCookie()))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value("not-found"));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("validation"));
     }
 
     @Test
