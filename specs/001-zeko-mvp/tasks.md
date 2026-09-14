@@ -342,61 +342,61 @@ Verificación independiente: crear y reabrir Project con dos repositorios y una 
 
 Verificación independiente: plantilla, instancia, SKILL.md, binding y promoción explícita, sin ejecución por arista. El snapshot durante ejecución se verifica también en fase 7.
 
-- [ ] T027 [US2] Modelar plantilla versionada e instancia sin overrides configurables — `backend/src/main/java/com/zeko/agentdesign/domain/AgentTemplate.java`, `backend/src/main/java/com/zeko/agentdesign/domain/TemplateVersion.java`, `backend/src/main/java/com/zeko/agentdesign/domain/AgentInstance.java`, `backend/src/main/java/com/zeko/agentdesign/domain/TemplateUpdateDecision.java`, `backend/src/test/java/com/zeko/agentdesign/AgentTemplateTest.java`.
+- [x] T027 [US2] Modelar plantilla versionada e instancia sin overrides configurables — `backend/src/main/java/com/zeko/agentdesign/domain/AgentTemplate.java`, `backend/src/main/java/com/zeko/agentdesign/domain/TemplateVersion.java`, `backend/src/main/java/com/zeko/agentdesign/domain/AgentInstance.java`, `backend/src/main/java/com/zeko/agentdesign/domain/TemplateUpdateDecision.java`, `backend/src/test/java/com/zeko/agentdesign/AgentTemplateTest.java`.
 
   **Dependencias**: T021, T020, T018. **Traza**: FR-009–FR-011, FR-021; data-model §Agentes. **Checks**: BE.
 
   **Aceptación**: Versiones inmutables, identidad/contexto/estado propios y aceptación por instancia; no campos de override sobre configuración de plantilla.
 
-- [ ] T028 [P] [US2] Persistir versiones e instancias y decisiones de actualización — `backend/src/main/java/com/zeko/agentdesign/application/AgentRepository.java`, `backend/src/main/java/com/zeko/agentdesign/infrastructure/JdbcAgentRepository.java`, `backend/src/main/resources/db/migration/V004__agents_templates.sql`, `backend/src/test/java/com/zeko/agentdesign/AgentRepositoryIntegrationTest.java`.
+- [x] T028 [P] [US2] Persistir versiones e instancias y decisiones de actualización — `backend/src/main/java/com/zeko/agentdesign/application/AgentRepository.java`, `backend/src/main/java/com/zeko/agentdesign/infrastructure/JdbcAgentRepository.java`, `backend/src/main/resources/db/migration/V004__agents_templates.sql`, `backend/src/test/java/com/zeko/agentdesign/AgentRepositoryIntegrationTest.java`.
 
   **Dependencias**: T027, T022, T020, T018. **Traza**: FR-009–FR-011, FR-021; NFR-001. **Checks**: BEI.
 
   **Aceptación**: Decisión conserva versión previa/nueva y selección de futuras ejecuciones; concurrencia optimista preserva versiones.
 
-- [ ] T029 [P] [US2] Modelar skills de proyecto y vínculos por instancia — `backend/src/main/java/com/zeko/agentdesign/domain/SkillDefinition.java`, `backend/src/main/java/com/zeko/agentdesign/domain/AgentSkillBinding.java`, `backend/src/test/java/com/zeko/agentdesign/SkillBindingTest.java`.
+- [x] T029 [P] [US2] Modelar skills de proyecto y vínculos por instancia — `backend/src/main/java/com/zeko/agentdesign/domain/SkillDefinition.java`, `backend/src/main/java/com/zeko/agentdesign/domain/AgentSkillBinding.java`, `backend/src/test/java/com/zeko/agentdesign/SkillBindingTest.java`.
 
   **Dependencias**: T027, T020, T018. **Traza**: FR-015–FR-020; data-model §Skills. **Checks**: BE.
 
   **Aceptación**: Binding y definición distintos; validar existencia/ownership de Project sin conceder permisos adicionales.
 
-- [ ] T030 [P] [US2] Registrar SKILL.md y persistir definiciones y bindings — `backend/src/main/java/com/zeko/agentdesign/application/SkillRepository.java`, `backend/src/main/java/com/zeko/agentdesign/infrastructure/JdbcSkillRepository.java`, `backend/src/main/java/com/zeko/agentdesign/infrastructure/SkillFileStore.java`, `backend/src/main/resources/db/migration/V005__skills_bindings.sql`, `backend/src/test/java/com/zeko/agentdesign/SkillStoreIntegrationTest.java`.
+- [x] T030 [P] [US2] Registrar SKILL.md y persistir definiciones y bindings — `backend/src/main/java/com/zeko/agentdesign/application/SkillRepository.java`, `backend/src/main/java/com/zeko/agentdesign/infrastructure/JdbcSkillRepository.java`, `backend/src/main/java/com/zeko/agentdesign/infrastructure/SkillFileStore.java`, `backend/src/main/resources/db/migration/V005__skills_bindings.sql`, `backend/src/test/java/com/zeko/agentdesign/SkillStoreIntegrationTest.java`.
 
   **Dependencias**: T029, T028, T020, T018. **Traza**: FR-015–FR-018, FR-020; NFR-004. **Checks**: BEI.
 
   **Aceptación**: Archivos dentro del scope, huella y metadata coherentes; texto de skill no concede autoridad para abrir herramientas; errores no destruyen el archivo.
 
-- [ ] T031 [P] [US2] Implementar creación/consulta/versionado de agentes — `backend/src/main/java/com/zeko/agentdesign/application/AgentService.java`, `backend/src/main/java/com/zeko/agentdesign/api/AgentController.java`, `backend/src/main/java/com/zeko/agentdesign/api/AgentDtos.java`, `backend/src/test/java/com/zeko/agentdesign/AgentApiContractTest.java`.
+- [x] T031 [P] [US2] Implementar creación/consulta/versionado de agentes — `backend/src/main/java/com/zeko/agentdesign/application/AgentService.java`, `backend/src/main/java/com/zeko/agentdesign/api/AgentController.java`, `backend/src/main/java/com/zeko/agentdesign/api/AgentDtos.java`, `backend/src/test/java/com/zeko/agentdesign/AgentApiContractTest.java`.
 
   **Dependencias**: T028, T024, T020, T018. **Traza**: FR-009–FR-013, FR-021; contrato agentes T004. **Checks**: BEC.
 
   **Aceptación**: Creación real de instancia y lectura de configuración/relaciones además de plantilla; aceptación de versión sin mutar ejecución activa.
 
-- [ ] T032 [P] [US2] Implementar gestión de skills y asociaciones — `backend/src/main/java/com/zeko/agentdesign/application/SkillService.java`, `backend/src/main/java/com/zeko/agentdesign/api/SkillController.java`, `backend/src/main/java/com/zeko/agentdesign/api/SkillDtos.java`, `backend/src/test/java/com/zeko/agentdesign/SkillApiContractTest.java`.
+- [x] T032 [P] [US2] Implementar gestión de skills y asociaciones — `backend/src/main/java/com/zeko/agentdesign/application/SkillService.java`, `backend/src/main/java/com/zeko/agentdesign/api/SkillController.java`, `backend/src/main/java/com/zeko/agentdesign/api/SkillDtos.java`, `backend/src/test/java/com/zeko/agentdesign/SkillApiContractTest.java`.
 
   **Dependencias**: T030, T031, T020, T018. **Traza**: FR-015–FR-018, FR-020; contrato skills T004. **Checks**: BEC.
 
   **Aceptación**: Alta/lectura/vinculación necesarias para US-002; datos inválidos y cross-project rechazados.
 
-- [ ] T033 [P] [US2] Implementar promoción global explícita y registrada — `backend/src/main/java/com/zeko/agentdesign/application/PromotionService.java`, `backend/src/main/java/com/zeko/agentdesign/api/PromotionController.java`, `backend/src/test/java/com/zeko/agentdesign/PromotionIntegrationTest.java`.
+- [x] T033 [P] [US2] Implementar promoción global explícita y registrada — `backend/src/main/java/com/zeko/agentdesign/application/PromotionService.java`, `backend/src/main/java/com/zeko/agentdesign/api/PromotionController.java`, `backend/src/test/java/com/zeko/agentdesign/PromotionIntegrationTest.java`.
 
   **Dependencias**: T032, T017, T003, T020, T018. **Traza**: FR-019; data-model §Ownership; contrato promoción T004. **Checks**: BEI.
 
   **Aceptación**: Acción explícita con alcance visible y registro seguro; no duplicación/promoción automática; global no implica compartir agentes o memoria de otros proyectos.
 
-- [ ] T034 [P] [US2] Implementar Agents Canvas y edición/versionado de plantillas — `frontend/src/features/agents/agentApi.ts`, `frontend/src/features/agents/AgentsCanvas.tsx`, `frontend/src/features/agents/AgentTemplateEditor.tsx`, `frontend/src/features/agents/TemplateUpdateDialog.tsx`, `frontend/tests/unit/agents-canvas.test.tsx`, `frontend/src/app/WorkspaceShell.tsx`.
+- [x] T034 [P] [US2] Implementar Agents Canvas y edición/versionado de plantillas — `frontend/src/features/agents/agentApi.ts`, `frontend/src/features/agents/AgentsCanvas.tsx`, `frontend/src/features/agents/AgentTemplateEditor.tsx`, `frontend/src/features/agents/TemplateUpdateDialog.tsx`, `frontend/tests/unit/agents-canvas.test.tsx`, `frontend/src/app/WorkspaceShell.tsx`.
 
   **Dependencias**: T031, T025, T020, T018. **Traza**: FR-009–FR-014, FR-018, FR-021; D-005. **Checks**: FE.
 
   **Aceptación**: Relaciones comprensibles, actualización por instancia y configuración vigente/futura visibles; aristas no inician ejecución.
 
-- [ ] T035 [US2] Implementar asociación y promoción explícita de skills/agentes — `frontend/src/features/skills/skillApi.ts`, `frontend/src/features/skills/SkillPanel.tsx`, `frontend/src/features/skills/SkillBindingEditor.tsx`, `frontend/src/features/agents/PromotionDialog.tsx`, `frontend/tests/unit/skills.test.tsx`, `frontend/src/features/agents/AgentsCanvas.tsx`.
+- [x] T035 [US2] Implementar asociación y promoción explícita de skills/agentes — `frontend/src/features/skills/skillApi.ts`, `frontend/src/features/skills/SkillPanel.tsx`, `frontend/src/features/skills/SkillBindingEditor.tsx`, `frontend/src/features/agents/PromotionDialog.tsx`, `frontend/tests/unit/skills.test.tsx`, `frontend/src/features/agents/AgentsCanvas.tsx`.
 
   **Dependencias**: T032, T033, T034, T020, T018. **Traza**: FR-015–FR-020; US-002. **Checks**: FE.
 
   **Aceptación**: Definición, vínculo y alcance distinguibles; promover requiere acción explícita y muestra efecto. No UI para MCP/custom tools.
 
-- [ ] T036 [US2] Validar configuración de agentes y skills local-first — `frontend/tests/e2e/agents-skills.spec.ts`.
+- [x] T036 [US2] Validar configuración de agentes y skills local-first — `frontend/tests/e2e/agents-skills.spec.ts`.
 
   **Dependencias**: T035, T026, T020, T018. **Traza**: US-002; SC-001 parcial; FR-009–FR-020. **Checks**: E2E.
 
