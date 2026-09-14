@@ -1,0 +1,501 @@
+openapi: 3.1.0
+info:
+  title: Zeko Agentic IDE Local API
+  version: 0.1.0-plan
+  description: |
+    Contrato documental para el backend local. Se sirve solo por loopback y requiere
+    una sesión local efímera para mutaciones. No representa cuentas, multiusuario ni RBAC.
+servers:
+  - url: /api
+security:
+  - LocalSession: []
+paths:
+  /session/bootstrap:
+    post:
+      summary: Inicia una sesión efímera desde loopback y emite cookie local
+      security: []
+      responses:
+        '201': { $ref: '#/components/responses/LocalSession' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /session:
+    get:
+      summary: Consulta el estado de la sesión local sin revelar su token
+      responses:
+        '200': { $ref: '#/components/responses/LocalSession' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /projects:
+    get:
+      summary: Lista proyectos locales conocidos
+      responses:
+        '200': { $ref: '#/components/responses/ProjectList' }
+    post:
+      summary: Crea un proyecto local
+      requestBody: { $ref: '#/components/requestBodies/CreateProject' }
+      responses:
+        '201': { $ref: '#/components/responses/Project' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+  /projects/{projectId}:
+    get:
+      summary: Recupera proyecto y su contexto local
+      parameters: [ { $ref: '#/components/parameters/ProjectId' } ]
+      responses:
+        '200': { $ref: '#/components/responses/Project' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /projects/{projectId}/repositories:
+    post:
+      summary: Asocia un repositorio local tras validar ruta y acceso
+      parameters: [ { $ref: '#/components/parameters/ProjectId' } ]
+      requestBody: { $ref: '#/components/requestBodies/AddRepository' }
+      responses:
+        '201': { $ref: '#/components/responses/Repository' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/PathError' }
+  /projects/{projectId}/agent-templates:
+    get:
+      summary: Lista plantillas de agente de un Project
+      parameters: [ { $ref: '#/components/parameters/ProjectId' } ]
+      responses:
+        '200': { $ref: '#/components/responses/AgentTemplateList' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      summary: Crea o versiona una plantilla de agente de proyecto
+      parameters: [ { $ref: '#/components/parameters/ProjectId' } ]
+      requestBody: { $ref: '#/components/requestBodies/AgentTemplate' }
+      responses:
+        '201': { $ref: '#/components/responses/AgentTemplate' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+  /projects/{projectId}/agent-instances:
+    get:
+      summary: Lista instancias y configuración operativa de un Project
+      parameters: [ { $ref: '#/components/parameters/ProjectId' } ]
+      responses:
+        '200': { $ref: '#/components/responses/AgentInstanceList' }
+    post:
+      summary: Crea una instancia desde una versión de plantilla
+      parameters: [ { $ref: '#/components/parameters/ProjectId' } ]
+      requestBody: { $ref: '#/components/requestBodies/CreateAgentInstance' }
+      responses:
+        '201': { $ref: '#/components/responses/AgentInstance' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /agent-instances/{instanceId}:
+    get:
+      summary: Recupera una instancia, relaciones y configuración operativa
+      parameters: [ { $ref: '#/components/parameters/InstanceId' } ]
+      responses:
+        '200': { $ref: '#/components/responses/AgentInstance' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /agent-instances/{instanceId}/template-updates:
+    post:
+      summary: Registra aceptación o rechazo de actualización para futuras ejecuciones
+      parameters: [ { $ref: '#/components/parameters/InstanceId' } ]
+      requestBody: { $ref: '#/components/requestBodies/TemplateUpdateDecision' }
+      responses:
+        '200': { $ref: '#/components/responses/AgentInstance' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /agent-instances/{instanceId}/autonomy-mode:
+    put:
+      summary: Configura iniciativa sin cambiar PermissionMode
+      parameters: [ { $ref: '#/components/parameters/InstanceId' } ]
+      requestBody: { $ref: '#/components/requestBodies/AutonomyMode' }
+      responses:
+        '200': { $ref: '#/components/responses/AgentInstance' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /agent-instances/{instanceId}/permission-mode:
+    put:
+      summary: Configura permiso sin cambiar AutonomyMode
+      parameters: [ { $ref: '#/components/parameters/InstanceId' } ]
+      requestBody: { $ref: '#/components/requestBodies/PermissionMode' }
+      responses:
+        '200': { $ref: '#/components/responses/AgentInstance' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /agent-templates/{templateId}/global-promotions:
+    post:
+      summary: Solicita promoción global explícita de una plantilla
+      parameters: [ { $ref: '#/components/parameters/TemplateId' } ]
+      requestBody: { $ref: '#/components/requestBodies/PromotionDecision' }
+      responses:
+        '201': { $ref: '#/components/responses/PromotionDecision' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /projects/{projectId}/skills:
+    post:
+      summary: Registra una SkillDefinition basada en SKILL.md de alcance local
+      parameters: [ { $ref: '#/components/parameters/ProjectId' } ]
+      requestBody: { $ref: '#/components/requestBodies/SkillDefinition' }
+      responses:
+        '201': { $ref: '#/components/responses/SkillDefinition' }
+        '422': { $ref: '#/components/responses/PathError' }
+  /skills/{skillId}/global-promotions:
+    post:
+      summary: Solicita promoción global explícita de una skill
+      parameters: [ { $ref: '#/components/parameters/SkillId' } ]
+      requestBody: { $ref: '#/components/requestBodies/PromotionDecision' }
+      responses:
+        '201': { $ref: '#/components/responses/PromotionDecision' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /agent-instances/{instanceId}/skill-bindings:
+    post:
+      summary: Asocia una skill existente a una instancia
+      parameters: [ { $ref: '#/components/parameters/InstanceId' } ]
+      requestBody: { $ref: '#/components/requestBodies/SkillBinding' }
+      responses:
+        '201': { $ref: '#/components/responses/SkillBinding' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /projects/{projectId}/conversations:
+    post:
+      summary: Crea una conversación con PM o agente dentro de un Project
+      parameters: [ { $ref: '#/components/parameters/ProjectId' } ]
+      requestBody: { $ref: '#/components/requestBodies/CreateConversation' }
+      responses:
+        '201': { $ref: '#/components/responses/Conversation' }
+  /conversations/{conversationId}:
+    get:
+      summary: Recupera conversación, interlocutor e historial trazable
+      parameters: [ { $ref: '#/components/parameters/ConversationId' } ]
+      responses:
+        '200': { $ref: '#/components/responses/Conversation' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /conversations/{conversationId}/messages:
+    post:
+      summary: Registra una instrucción para PM o agente
+      parameters: [ { $ref: '#/components/parameters/ConversationId' } ]
+      requestBody: { $ref: '#/components/requestBodies/Instruction' }
+      responses:
+        '202': { $ref: '#/components/responses/Instruction' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /tasks:
+    post:
+      summary: Crea una Task trazable para un repositorio objetivo
+      requestBody: { $ref: '#/components/requestBodies/CreateTask' }
+      responses:
+        '201': { $ref: '#/components/responses/Task' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /tasks/{taskId}:
+    get:
+      summary: Recupera Task, conflicto, worktree y ejecuciones conocidas
+      parameters: [ { $ref: '#/components/parameters/TaskId' } ]
+      responses:
+        '200': { $ref: '#/components/responses/TaskDetail' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /follow-up-proposals/{followUpProposalId}/decisions:
+    post:
+      summary: Confirma o rechaza un follow-up propuesto por Assisted
+      parameters: [ { $ref: '#/components/parameters/FollowUpProposalId' } ]
+      requestBody: { $ref: '#/components/requestBodies/FollowUpDecision' }
+      responses:
+        '200': { $ref: '#/components/responses/FollowUpProposal' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /tasks/{taskId}/executions:
+    post:
+      summary: Solicita una nueva ejecución o reintento manual explícito
+      parameters: [ { $ref: '#/components/parameters/TaskId' } ]
+      requestBody: { $ref: '#/components/requestBodies/CreateExecution' }
+      responses:
+        '202': { $ref: '#/components/responses/Execution' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '423': { $ref: '#/components/responses/Blocked' }
+  /executions/{executionId}:
+    get:
+      summary: Recupera snapshot, estado conocido, effects y approvals de una ejecución
+      parameters: [ { $ref: '#/components/parameters/ExecutionId' } ]
+      responses:
+        '200': { $ref: '#/components/responses/ExecutionDetail' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /executions/{executionId}/result:
+    get:
+      summary: Recupera resultado, diff atribuible y trazas seguras
+      parameters: [ { $ref: '#/components/parameters/ExecutionId' } ]
+      responses:
+        '200': { $ref: '#/components/responses/ExecutionResult' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /executions/{executionId}/cancel-requests:
+    post:
+      summary: Solicita cancelación; no afirma detención hasta confirmación
+      parameters: [ { $ref: '#/components/parameters/ExecutionId' } ]
+      responses:
+        '202': { $ref: '#/components/responses/Execution' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /approvals/{approvalId}/decisions:
+    post:
+      summary: Aprueba o deniega una revisión exacta de acción
+      parameters: [ { $ref: '#/components/parameters/ApprovalId' } ]
+      requestBody: { $ref: '#/components/requestBodies/ApprovalDecision' }
+      responses:
+        '200': { $ref: '#/components/responses/Approval' }
+        '409': { $ref: '#/components/responses/ApprovalStale' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /approvals/{approvalId}:
+    get:
+      summary: Recupera una aprobación y su ActionRevision exacta
+      parameters: [ { $ref: '#/components/parameters/ApprovalId' } ]
+      responses:
+        '200': { $ref: '#/components/responses/Approval' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /tasks/{taskId}/conflict-resolution:
+    post:
+      summary: Registra cancelación, reasignación o resolución manual de conflicto
+      parameters: [ { $ref: '#/components/parameters/TaskId' } ]
+      requestBody: { $ref: '#/components/requestBodies/ConflictResolution' }
+      responses:
+        '200': { $ref: '#/components/responses/Task' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /projects/{projectId}/memory/search:
+    get:
+      summary: Recupera contexto local filtrado por alcance
+      parameters:
+        - { $ref: '#/components/parameters/ProjectId' }
+        - name: query
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+        - name: conversationId
+          in: query
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/MemorySearch' }
+        '503': { $ref: '#/components/responses/ProviderUnavailable' }
+  /projects/{projectId}/memory-sources:
+    post:
+      summary: Registra una fuente local admitida para indexación con alcance explícito
+      parameters: [ { $ref: '#/components/parameters/ProjectId' } ]
+      requestBody: { $ref: '#/components/requestBodies/MemorySource' }
+      responses:
+        '201': { $ref: '#/components/responses/MemorySource' }
+        '422': { $ref: '#/components/responses/PathError' }
+  /projects/{projectId}/runtime-snapshot:
+    get:
+      summary: Recupera estado conocido de runtime después de reconexión
+      parameters: [ { $ref: '#/components/parameters/ProjectId' } ]
+      responses:
+        '200': { $ref: '#/components/responses/RuntimeSnapshot' }
+components:
+  parameters:
+    ProjectId: { name: projectId, in: path, required: true, schema: { type: string, format: uuid } }
+    TemplateId: { name: templateId, in: path, required: true, schema: { type: string, format: uuid } }
+    InstanceId: { name: instanceId, in: path, required: true, schema: { type: string, format: uuid } }
+    SkillId: { name: skillId, in: path, required: true, schema: { type: string, format: uuid } }
+    ConversationId: { name: conversationId, in: path, required: true, schema: { type: string, format: uuid } }
+    TaskId: { name: taskId, in: path, required: true, schema: { type: string, format: uuid } }
+    ExecutionId: { name: executionId, in: path, required: true, schema: { type: string, format: uuid } }
+    ApprovalId: { name: approvalId, in: path, required: true, schema: { type: string, format: uuid } }
+    FollowUpProposalId: { name: followUpProposalId, in: path, required: true, schema: { type: string, format: uuid } }
+  requestBodies:
+    CreateProject:
+      required: true
+      content: { application/json: { schema: { $ref: '#/components/schemas/CreateProject' } } }
+    AddRepository:
+      required: true
+      content: { application/json: { schema: { $ref: '#/components/schemas/AddRepository' } } }
+    AgentTemplate:
+      required: true
+      content: { application/json: { schema: { $ref: '#/components/schemas/AgentTemplateInput' } } }
+    CreateAgentInstance:
+      required: true
+      content: { application/json: { schema: { $ref: '#/components/schemas/CreateAgentInstanceInput' } } }
+    TemplateUpdateDecision:
+      required: true
+      content: { application/json: { schema: { $ref: '#/components/schemas/TemplateUpdateDecision' } } }
+    AutonomyMode:
+      required: true
+      content: { application/json: { schema: { $ref: '#/components/schemas/AutonomyModeInput' } } }
+    PermissionMode:
+      required: true
+      content: { application/json: { schema: { $ref: '#/components/schemas/PermissionModeInput' } } }
+    PromotionDecision:
+      required: true
+      content: { application/json: { schema: { $ref: '#/components/schemas/PromotionDecisionInput' } } }
+    SkillDefinition:
+      required: true
+      content: { application/json: { schema: { $ref: '#/components/schemas/SkillDefinitionInput' } } }
+    SkillBinding:
+      required: true
+      content: { application/json: { schema: { $ref: '#/components/schemas/SkillBindingInput' } } }
+    Instruction:
+      required: true
+      content: { application/json: { schema: { $ref: '#/components/schemas/InstructionInput' } } }
+    CreateConversation:
+      required: true
+      content: { application/json: { schema: { $ref: '#/components/schemas/CreateConversationInput' } } }
+    CreateTask:
+      required: true
+      content: { application/json: { schema: { $ref: '#/components/schemas/CreateTaskInput' } } }
+    FollowUpDecision:
+      required: true
+      content: { application/json: { schema: { $ref: '#/components/schemas/FollowUpDecisionInput' } } }
+    CreateExecution:
+      required: true
+      content: { application/json: { schema: { $ref: '#/components/schemas/CreateExecutionInput' } } }
+    ApprovalDecision:
+      required: true
+      content: { application/json: { schema: { $ref: '#/components/schemas/ApprovalDecisionInput' } } }
+    ConflictResolution:
+      required: true
+      content: { application/json: { schema: { $ref: '#/components/schemas/ConflictResolutionInput' } } }
+    MemorySource:
+      required: true
+      content: { application/json: { schema: { $ref: '#/components/schemas/MemorySourceInput' } } }
+  schemas:
+    CreateProject:
+      type: object
+      required: [name, rootPath]
+      properties: { name: { type: string }, rootPath: { type: string } }
+    AddRepository:
+      type: object
+      required: [path]
+      properties: { path: { type: string } }
+    AgentTemplateInput:
+      type: object
+      required: [name, configuration]
+      properties: { name: { type: string }, configuration: { type: object, additionalProperties: true } }
+    CreateAgentInstanceInput:
+      type: object
+      required: [templateVersionId, identity, context]
+      properties:
+        templateVersionId: { type: string, format: uuid }
+        identity: { type: string }
+        context: { type: object, additionalProperties: true }
+    TemplateUpdateDecision:
+      type: object
+      required: [templateVersionId, decision]
+      properties:
+        templateVersionId: { type: string, format: uuid }
+        decision: { type: string, enum: [ACCEPT, REJECT] }
+    AutonomyModeInput:
+      type: object
+      required: [autonomyMode]
+      properties:
+        autonomyMode: { type: string, enum: [MANUAL, ASSISTED, AUTONOMOUS] }
+    PermissionModeInput:
+      type: object
+      required: [permissionMode]
+      properties:
+        permissionMode: { type: string, enum: [ASK_APPROVAL, AUTO_APPROVE, FULL_ACCESS] }
+        autoApproveRules: { type: array, items: { type: string } }
+    PromotionDecisionInput:
+      type: object
+      required: [decision]
+      properties:
+        decision: { type: string, enum: [PROMOTE, REJECT] }
+        scope: { type: string, enum: [GLOBAL] }
+    SkillDefinitionInput:
+      type: object
+      required: [name, skillPath]
+      properties: { name: { type: string }, skillPath: { type: string } }
+    SkillBindingInput:
+      type: object
+      required: [skillDefinitionId]
+      properties: { skillDefinitionId: { type: string, format: uuid } }
+    InstructionInput:
+      type: object
+      required: [recipientType, recipientId, content]
+      properties:
+        recipientType: { type: string, enum: [PM, AGENT] }
+        recipientId: { type: string, format: uuid }
+        content: { type: string }
+        overrideOf: { type: string, format: uuid }
+    CreateConversationInput:
+      type: object
+      required: [recipientType, recipientId]
+      properties:
+        recipientType: { type: string, enum: [PM, AGENT] }
+        recipientId: { type: string, format: uuid }
+    CreateTaskInput:
+      type: object
+      required: [projectId, repositoryId, agentInstanceId, instructionId, title]
+      properties:
+        projectId: { type: string, format: uuid }
+        repositoryId: { type: string, format: uuid }
+        agentInstanceId: { type: string, format: uuid }
+        instructionId: { type: string, format: uuid }
+        title: { type: string }
+    FollowUpDecisionInput:
+      type: object
+      required: [decision]
+      properties:
+        decision: { type: string, enum: [ACCEPT, REJECT] }
+    CreateExecutionInput:
+      type: object
+      properties: { retryOfExecutionId: { type: string, format: uuid } }
+    ApprovalDecisionInput:
+      type: object
+      required: [actionRevision, decision]
+      properties:
+        actionRevision: { type: integer, minimum: 1 }
+        decision: { type: string, enum: [APPROVE, DENY] }
+        reason: { type: string }
+    ConflictResolutionInput:
+      type: object
+      required: [resolution]
+      properties:
+        resolution: { type: string, enum: [CANCEL, REASSIGN, RESOLVED_MANUALLY] }
+        targetAgentInstanceId: { type: string, format: uuid }
+        note: { type: string }
+    MemorySourceInput:
+      type: object
+      required: [path, scope]
+      properties:
+        path: { type: string }
+        scope: { type: string, enum: [PROJECT, AGENT, CONVERSATION, GLOBAL] }
+        ownerId: { type: string, format: uuid }
+    LocalSession: { type: object, required: [expiresAt, loopbackOnly], properties: { expiresAt: { type: string, format: date-time }, loopbackOnly: { type: boolean, const: true } } }
+    Project: { type: object, required: [id, name, rootPath], properties: { id: { type: string, format: uuid }, name: { type: string }, rootPath: { type: string } } }
+    Repository: { type: object, required: [id, projectId, path, accessState], properties: { id: { type: string, format: uuid }, projectId: { type: string, format: uuid }, path: { type: string }, accessState: { type: string, enum: [AVAILABLE, UNAVAILABLE, INVALID] } } }
+    AgentTemplate: { type: object, required: [id, projectId, version], properties: { id: { type: string, format: uuid }, projectId: { type: string, format: uuid }, version: { type: integer } } }
+    AgentInstance: { type: object, required: [id, projectId, templateVersionId, permissionMode, autonomyMode, state], properties: { id: { type: string, format: uuid }, projectId: { type: string, format: uuid }, templateVersionId: { type: string, format: uuid }, permissionMode: { type: string, enum: [ASK_APPROVAL, AUTO_APPROVE, FULL_ACCESS] }, autonomyMode: { type: string, enum: [MANUAL, ASSISTED, AUTONOMOUS] }, state: { type: string } } }
+    PromotionDecision: { type: object, required: [id, decision, scope], properties: { id: { type: string, format: uuid }, decision: { type: string, enum: [PROMOTE, REJECT] }, scope: { type: string, enum: [GLOBAL] } } }
+    SkillDefinition: { type: object, required: [id, projectId, skillPath], properties: { id: { type: string, format: uuid }, projectId: { type: string, format: uuid }, skillPath: { type: string } } }
+    SkillBinding: { type: object, required: [id, agentInstanceId, skillDefinitionId], properties: { id: { type: string, format: uuid }, agentInstanceId: { type: string, format: uuid }, skillDefinitionId: { type: string, format: uuid } } }
+    Conversation: { type: object, required: [id, projectId, recipientType, recipientId], properties: { id: { type: string, format: uuid }, projectId: { type: string, format: uuid }, recipientType: { type: string, enum: [PM, AGENT] }, recipientId: { type: string, format: uuid }, instructions: { type: array, items: { $ref: '#/components/schemas/Instruction' } } } }
+    Instruction: { type: object, required: [id, origin, precedence], properties: { id: { type: string, format: uuid }, origin: { type: string }, precedence: { type: string } } }
+    Task: { type: object, required: [id, repositoryId, state], properties: { id: { type: string, format: uuid }, repositoryId: { type: string, format: uuid }, state: { type: string, enum: [DRAFT, READY, RUNNING, COMPLETED, FAILED, CANCELLED, BLOCKED] } } }
+    TaskDetail: { allOf: [ { $ref: '#/components/schemas/Task' }, { type: object, properties: { worktreePath: { type: string }, conflictId: { type: string, format: uuid }, executionIds: { type: array, items: { type: string, format: uuid } } } } ] }
+    FollowUpProposal: { type: object, required: [id, instructionId, agentInstanceId, state], properties: { id: { type: string, format: uuid }, instructionId: { type: string, format: uuid }, agentInstanceId: { type: string, format: uuid }, state: { type: string, enum: [PENDING_CONFIRMATION, ACCEPTED, REJECTED, EXPIRED] }, taskId: { type: string, format: uuid } } }
+    Execution: { type: object, required: [id, taskId, state], properties: { id: { type: string, format: uuid }, taskId: { type: string, format: uuid }, state: { type: string, enum: [PENDING, RUNNING, WAITING_APPROVAL, COMPLETED, FAILED, CANCELLED] } } }
+    ExecutionDetail: { allOf: [ { $ref: '#/components/schemas/Execution' }, { type: object, properties: { templateVersionSnapshot: { type: string, format: uuid }, knownState: { type: string }, provider: { type: string, enum: [GIT, FILESYSTEM, TERMINAL, DOCKER, OLLAMA] }, effects: { type: array, items: { $ref: '#/components/schemas/Effect' } }, approvalIds: { type: array, items: { type: string, format: uuid } } } } ] }
+    ExecutionResult: { type: object, required: [executionId, effects, traceLinks], properties: { executionId: { type: string, format: uuid }, effects: { type: array, items: { $ref: '#/components/schemas/Effect' } }, attributableDiff: { type: string }, traceLinks: { type: array, items: { type: string, format: uuid } } } }
+    Effect: { type: object, required: [id, type, resource, confirmed], properties: { id: { type: string, format: uuid }, type: { type: string }, resource: { type: string }, confirmed: { type: boolean } } }
+    Approval: { type: object, required: [id, actionRevision, state], properties: { id: { type: string, format: uuid }, actionRevision: { type: integer }, state: { type: string, enum: [PENDING, APPROVED, DENIED, INVALIDATED] } } }
+    MemorySource: { type: object, required: [id, scope, indexState], properties: { id: { type: string, format: uuid }, scope: { type: string, enum: [GLOBAL, PROJECT, AGENT, CONVERSATION] }, indexState: { type: string, enum: [CURRENT, STALE, UNAVAILABLE, EXCLUDED] } } }
+    MemorySearchResult: { type: object, required: [sourceId, level, excerpt], properties: { sourceId: { type: string, format: uuid }, level: { type: string, enum: [GLOBAL, PROJECT, AGENT, CONVERSATION] }, excerpt: { type: string } } }
+    RuntimeSnapshot: { type: object, required: [projectId, executions, tasks], properties: { projectId: { type: string, format: uuid }, executions: { type: array, items: { $ref: '#/components/schemas/ExecutionDetail' } }, tasks: { type: array, items: { $ref: '#/components/schemas/TaskDetail' } } } }
+    Error:
+      type: object
+      required: [code, message, correlationId]
+      properties: { code: { type: string }, message: { type: string }, correlationId: { type: string }, provider: { type: string }, knownState: { type: string }, retryAllowed: { type: boolean } }
+  securitySchemes:
+    LocalSession:
+      type: apiKey
+      in: cookie
+      name: zeko_local_session
+  responses:
+    LocalSession: { description: Local ephemeral session; token is never returned in the body, content: { application/json: { schema: { $ref: '#/components/schemas/LocalSession' } } } }
+    Project: { description: Project, content: { application/json: { schema: { $ref: '#/components/schemas/Project' } } } }
+    ProjectList: { description: Projects, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Project' } } } } }
+    Repository: { description: Repository, content: { application/json: { schema: { $ref: '#/components/schemas/Repository' } } } }
+    AgentTemplate: { description: Agent template, content: { application/json: { schema: { $ref: '#/components/schemas/AgentTemplate' } } } }
+    AgentTemplateList: { description: Agent templates, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/AgentTemplate' } } } } }
+    AgentInstance: { description: Agent instance, content: { application/json: { schema: { $ref: '#/components/schemas/AgentInstance' } } } }
+    AgentInstanceList: { description: Agent instances, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/AgentInstance' } } } } }
+    PromotionDecision: { description: Explicit global promotion decision, content: { application/json: { schema: { $ref: '#/components/schemas/PromotionDecision' } } } }
+    SkillDefinition: { description: Skill definition, content: { application/json: { schema: { $ref: '#/components/schemas/SkillDefinition' } } } }
+    SkillBinding: { description: Skill binding, content: { application/json: { schema: { $ref: '#/components/schemas/SkillBinding' } } } }
+    Instruction: { description: Instruction, content: { application/json: { schema: { $ref: '#/components/schemas/Instruction' } } } }
+    Conversation: { description: Conversation and history, content: { application/json: { schema: { $ref: '#/components/schemas/Conversation' } } } }
+    Task: { description: Task, content: { application/json: { schema: { $ref: '#/components/schemas/Task' } } } }
+    TaskDetail: { description: Task detail, content: { application/json: { schema: { $ref: '#/components/schemas/TaskDetail' } } } }
+    FollowUpProposal: { description: Follow-up proposal, content: { application/json: { schema: { $ref: '#/components/schemas/FollowUpProposal' } } } }
+    Execution: { description: Execution, content: { application/json: { schema: { $ref: '#/components/schemas/Execution' } } } }
+    ExecutionDetail: { description: Execution snapshot, content: { application/json: { schema: { $ref: '#/components/schemas/ExecutionDetail' } } } }
+    ExecutionResult: { description: Attributable result and diff, content: { application/json: { schema: { $ref: '#/components/schemas/ExecutionResult' } } } }
+    Approval: { description: Approval, content: { application/json: { schema: { $ref: '#/components/schemas/Approval' } } } }
+    MemorySearch: { description: Context results, content: { application/json: { schema: { type: object, required: [results], properties: { results: { type: array, items: { $ref: '#/components/schemas/MemorySearchResult' } } } } } } }
+    MemorySource: { description: Admitted local memory source, content: { application/json: { schema: { $ref: '#/components/schemas/MemorySource' } } } }
+    RuntimeSnapshot: { description: Current runtime state for reconnection, content: { application/json: { schema: { $ref: '#/components/schemas/RuntimeSnapshot' } } } }
+    ValidationError: { description: Invalid request, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    PathError: { description: Invalid or inaccessible local path, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    Forbidden: { description: Local session or permission policy rejects action, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    Unauthorized: { description: Missing or expired local session, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    NotFound: { description: Resource not found, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    Conflict: { description: State, worktree, revision or concurrency conflict, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    ApprovalStale: { description: Approval is invalidated or revision differs, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    Blocked: { description: Task is blocked by a manual conflict, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    ProviderUnavailable: { description: Local provider unavailable; identifies provider and known state, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }

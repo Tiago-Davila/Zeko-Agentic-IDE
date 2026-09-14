@@ -1,0 +1,138 @@
+{
+  "backend": {
+    "color": "007396",
+    "description": "Backend Java/Spring y sus pruebas"
+  },
+  "build": {
+    "color": "C5DEF5",
+    "description": "Build, dependencias, empaquetado y checks"
+  },
+  "database": {
+    "color": "D4C5F9",
+    "description": "SQLite, repositorios de datos o migraciones"
+  },
+  "docs": {
+    "color": "0075CA",
+    "description": "Documentación, contratos o validación documental"
+  },
+  "fase:0": {
+    "color": "FBCA04",
+    "description": "Fase 0: Cierre documental previo (clarify/plan/checklist)"
+  },
+  "fase:1": {
+    "color": "FBCA04",
+    "description": "Fase 1: Setup reproducible"
+  },
+  "fase:10": {
+    "color": "FBCA04",
+    "description": "Fase 10: Integración y aceptación transversal"
+  },
+  "fase:2": {
+    "color": "FBCA04",
+    "description": "Fase 2: Fundaciones compartidas"
+  },
+  "fase:3": {
+    "color": "FBCA04",
+    "description": "Fase 3: US-001: proyecto con varios repositorios (P1)"
+  },
+  "fase:4": {
+    "color": "FBCA04",
+    "description": "Fase 4: US-002: agentes, plantillas y skills (P1)"
+  },
+  "fase:5": {
+    "color": "FBCA04",
+    "description": "Fase 5: US-003: instrucciones y coordinación (P1)"
+  },
+  "fase:6": {
+    "color": "FBCA04",
+    "description": "Fase 6: US-004: permisos y aprobación (P1)"
+  },
+  "fase:7": {
+    "color": "FBCA04",
+    "description": "Fase 7: US-005: ejecución local aislada y resultados (P1)"
+  },
+  "fase:8": {
+    "color": "FBCA04",
+    "description": "Fase 8: US-006: memoria y RAG local (P2)"
+  },
+  "fase:9": {
+    "color": "FBCA04",
+    "description": "Fase 9: US-007: estados y recuperación en UI (P2)"
+  },
+  "feature:001-zeko-mvp": {
+    "color": "0052CC",
+    "description": "Feature SDD 001-zeko-mvp"
+  },
+  "front": {
+    "color": "61DAFB",
+    "description": "Frontend React/TypeScript y sus pruebas"
+  },
+  "git": {
+    "color": "F05032",
+    "description": "Repositorios, worktrees y commits"
+  },
+  "parallel": {
+    "color": "BFDADC",
+    "description": "Paralelismo condicionado a dependencias y archivos"
+  },
+  "priority:P1": {
+    "color": "D93F0B",
+    "description": "Prioridad P1 de la historia; no omite alcance MVP"
+  },
+  "priority:P2": {
+    "color": "D93F0B",
+    "description": "Prioridad P2 de la historia; no omite alcance MVP"
+  },
+  "rag": {
+    "color": "0E8A16",
+    "description": "Memoria, fuentes e índice Lucene"
+  },
+  "runtime": {
+    "color": "5319E7",
+    "description": "Ejecución, proveedores y observabilidad"
+  },
+  "sdd:documentation": {
+    "color": "0052CC",
+    "description": "Fase documental; no ejecutar mediante implement"
+  },
+  "security": {
+    "color": "B60205",
+    "description": "Permisos, aprobaciones, aislamiento o secretos"
+  },
+  "story:US-001": {
+    "color": "D4C5F9",
+    "description": "Historia US-001 de la especificación"
+  },
+  "story:US-002": {
+    "color": "D4C5F9",
+    "description": "Historia US-002 de la especificación"
+  },
+  "story:US-003": {
+    "color": "D4C5F9",
+    "description": "Historia US-003 de la especificación"
+  },
+  "story:US-004": {
+    "color": "D4C5F9",
+    "description": "Historia US-004 de la especificación"
+  },
+  "story:US-005": {
+    "color": "D4C5F9",
+    "description": "Historia US-005 de la especificación"
+  },
+  "story:US-006": {
+    "color": "D4C5F9",
+    "description": "Historia US-006 de la especificación"
+  },
+  "story:US-007": {
+    "color": "D4C5F9",
+    "description": "Historia US-007 de la especificación"
+  },
+  "testing": {
+    "color": "1D76DB",
+    "description": "Pruebas automatizadas o verificación explícita"
+  },
+  "ux": {
+    "color": "E99695",
+    "description": "Interacción y estados de interfaz"
+  }
+}
