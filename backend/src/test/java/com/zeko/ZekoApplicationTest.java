@@ -18,6 +18,7 @@ class ZekoApplicationTest {
     private static final String AGENT_DESIGN_API = "com.zeko.agentdesign.api";
     private static final String COORDINATION_API = "com.zeko.coordination.api";
     private static final String EXECUTION_CONTROL_API = "com.zeko.executioncontrol.api";
+    private static final String TRACEABILITY_API = "com.zeko.traceability.api";
 
     @Autowired
     private ApplicationContext context;
@@ -35,6 +36,6 @@ class ZekoApplicationTest {
                         .map(Class::getPackageName)
                         .toList())
                         .containsOnly(SHARED_KERNEL_API, PROJECT_CATALOG_API, AGENT_DESIGN_API, COORDINATION_API,
-                                EXECUTION_CONTROL_API);
+                                EXECUTION_CONTROL_API, TRACEABILITY_API);
     }
 }

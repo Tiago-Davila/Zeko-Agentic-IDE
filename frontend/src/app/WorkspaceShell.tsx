@@ -6,6 +6,7 @@ import { RepositoryList } from '../features/projects/RepositoryList';
 import { AgentsCanvas } from '../features/agents/AgentsCanvas';
 import { SkillPanel } from '../features/skills/SkillPanel';
 import { ConversationPanel } from '../features/conversations/ConversationPanel';
+import { RuntimeCanvas } from '../features/runtime/RuntimeCanvas';
 import type { ProjectDto, RepositoryDto } from '../features/projects/projectApi';
 import { WorkspaceContextReader } from './WorkspaceContext';
 
@@ -86,7 +87,7 @@ export function WorkspaceShell() {
               </>
             )}
           </WorkspaceContextReader>
-        ) : null}
+        ) : <RuntimeCanvas />}
       </section>
       <StatusPanel />
     </main>

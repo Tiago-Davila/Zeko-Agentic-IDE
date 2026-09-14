@@ -51,7 +51,7 @@ class SqliteBootstrapIntegrationTest {
         List<String> applied = jdbcTemplate.queryForList(
                 "SELECT version FROM flyway_schema_history WHERE success = 1 ORDER BY installed_rank", String.class);
 
-        assertThat(applied).containsExactly("001", "002", "003", "004", "005", "006", "007", "008");
+        assertThat(applied).containsExactly("001", "002", "003", "004", "005", "006", "007", "008", "009", "010");
         assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM metadata_bootstrap", Integer.class)).isEqualTo(1);
         assertThat(Files.exists(localDataDir.resolve("zeko.db"))).isTrue();
     }
