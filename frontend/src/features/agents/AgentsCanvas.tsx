@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { type AgentTemplateDto, templates } from './agentApi';
 import { AgentTemplateEditor } from './AgentTemplateEditor';
+import { ModeSettings } from './ModeSettings';
 
 export function AgentsCanvas({ projectId }: { readonly projectId: string | null }) {
   const [items, setItems] = useState<readonly AgentTemplateDto[]>([]);
@@ -10,5 +11,5 @@ export function AgentsCanvas({ projectId }: { readonly projectId: string | null 
     }
   }, [projectId]);
   if (projectId === null) return <p>Seleccioná un proyecto para diseñar agentes.</p>;
-  return <section aria-label="Diseño de agentes"><h3>Plantillas de agente</h3><AgentTemplateEditor projectId={projectId} onCreated={(item) => setItems((current) => [...current, item])} /><ul>{items.map((item) => <li key={item.id}>{item.name} · versión {item.version} · Relación de configuración, no ejecución.</li>)}</ul></section>;
+  return <section aria-label="Diseño de agentes"><h3>Plantillas de agente</h3><AgentTemplateEditor projectId={projectId} onCreated={(item) => setItems((current) => [...current, item])} /><ul>{items.map((item) => <li key={item.id}>{item.name} · versión {item.version} · Relación de configuración, no ejecución.</li>)}</ul><ModeSettings instanceId={null} /></section>;
 }
