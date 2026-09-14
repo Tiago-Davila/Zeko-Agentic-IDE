@@ -210,31 +210,31 @@ Estas seis tareas documentales se completaron en la fase SDD propietaria antes d
 
 Builds reproducibles y checks definidos sin adelantar funcionalidades.
 
-- [ ] T007 [P] Crear build reproducible y arranque mínimo Java 21/Spring Boot — `backend/settings.gradle.kts`, `backend/build.gradle.kts`, `backend/gradlew`, `backend/gradlew.bat`, `backend/gradle/wrapper/gradle-wrapper.jar`, `backend/gradle/wrapper/gradle-wrapper.properties`, `backend/src/main/java/com/zeko/ZekoApplication.java`, `backend/src/test/java/com/zeko/ZekoApplicationTest.java`.
+- [x] T007 [P] Crear build reproducible y arranque mínimo Java 21/Spring Boot — `backend/settings.gradle.kts`, `backend/build.gradle.kts`, `backend/gradlew`, `backend/gradlew.bat`, `backend/gradle/wrapper/gradle-wrapper.jar`, `backend/gradle/wrapper/gradle-wrapper.properties`, `backend/src/main/java/com/zeko/ZekoApplication.java`, `backend/src/test/java/com/zeko/ZekoApplicationTest.java`.
 
   **Dependencias**: T006. **Traza**: D-001, D-002; plan §Contexto técnico. **Checks**: BE.
 
   **Aceptación**: Wrapper con checksum y versiones fijadas; arranque vacío probado, sin entidades ni endpoints de features. Limitar dependencias a las decisiones aprobadas.
 
-- [ ] T008 [P] Crear base React/TypeScript/Vite y herramientas de pruebas — `frontend/package.json`, `frontend/package-lock.json`, `frontend/index.html`, `frontend/tsconfig.json`, `frontend/tsconfig.node.json`, `frontend/vite.config.ts`, `frontend/vitest.config.ts`, `frontend/eslint.config.js`, `frontend/src/main.tsx`, `frontend/src/app/App.tsx`, `frontend/tests/unit/app.test.tsx`.
+- [x] T008 [P] Crear base React/TypeScript/Vite y herramientas de pruebas — `frontend/package.json`, `frontend/package-lock.json`, `frontend/index.html`, `frontend/tsconfig.json`, `frontend/tsconfig.node.json`, `frontend/vite.config.ts`, `frontend/vitest.config.ts`, `frontend/eslint.config.js`, `frontend/src/main.tsx`, `frontend/src/app/App.tsx`, `frontend/tests/unit/app.test.tsx`.
 
   **Dependencias**: T006. **Traza**: D-005, D-010; plan §Frontend y UI local. **Checks**: FE.
 
   **Aceptación**: npm ci reproducible; scripts build/lint/test; arranque mínimo sin pantallas de negocio. No agregar otro framework de aplicación.
 
-- [ ] T009 [P] Configurar suites y checks backend obligatorios — `backend/build.gradle.kts`, `backend/config/checkstyle/checkstyle.xml`, `backend/src/test/java/com/zeko/ArchitectureBoundariesTest.java`.
+- [x] T009 [P] Configurar suites y checks backend obligatorios — `backend/build.gradle.kts`, `backend/config/checkstyle/checkstyle.xml`, `backend/src/test/java/com/zeko/ArchitectureBoundariesTest.java`.
 
   **Dependencias**: T007. **Traza**: D-010; constitución §Arquitectura, §Calidad. **Checks**: BE.
 
   **Aceptación**: check ejecuta reglas de formato, unidad y límites de módulos; integrationTest/contractTest son suites explícitas. Respetar no Javadoc/IDs de requisito en Java; no apagar checks.
 
-- [ ] T010 [P] Preparar harness E2E local y fixtures aisladas — `frontend/playwright.config.ts`, `frontend/tests/e2e/fixtures/localWorkspace.ts`, `frontend/tests/e2e/app-shell.spec.ts`, `frontend/package.json`, `frontend/package-lock.json`.
+- [x] T010 [P] Preparar harness E2E local y fixtures aisladas — `frontend/playwright.config.ts`, `frontend/tests/e2e/fixtures/localWorkspace.ts`, `frontend/tests/e2e/app-shell.spec.ts`, `frontend/package.json`, `frontend/package-lock.json`.
 
   **Dependencias**: T008. **Traza**: D-010; quickstart §Preparación de datos. **Checks**: FE.
 
   **Aceptación**: Repositorios temporales de prueba validados dentro del directorio de la suite; no reutilizar datos del usuario. Comandos E2E separan proveedor simulado y real.
 
-- [ ] T011 [P] Definir exclusiones de secretos y artefactos de desarrollo — `.gitignore`, `.editorconfig`.
+- [x] T011 [P] Definir exclusiones de secretos y artefactos de desarrollo — `.gitignore`, `.editorconfig`.
 
   **Dependencias**: T006. **Traza**: NFR-004; constitución §Seguridad, §Git. **Checks**: DOC.
 
