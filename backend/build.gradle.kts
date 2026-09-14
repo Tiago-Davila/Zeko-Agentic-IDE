@@ -20,6 +20,9 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.xerial:sqlite-jdbc:3.49.1.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
