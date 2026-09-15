@@ -976,7 +976,7 @@ Estas tareas corrigen los hallazgos pendientes de `AUD-MVP-20260915` después de
 T094–T099. Se mantienen los contratos, el stack local y las exclusiones del MVP;
 cada tarea requiere un diff y un commit propios.
 
-- [ ] T100 [A08] Reemplazar el índice en memoria por Lucene local reconstruible — `backend/src/main/java/com/zeko/memorysearch/application/ContextIndex.java`, `backend/src/main/java/com/zeko/memorysearch/infrastructure/LuceneContextIndex.java`, configuración local de índice y pruebas de reinicio/alcance.
+- [x] T100 [A08] Reemplazar el índice en memoria por Lucene local reconstruible — `backend/src/main/java/com/zeko/memorysearch/application/ContextIndex.java`, `backend/src/main/java/com/zeko/memorysearch/infrastructure/LuceneContextIndex.java`, configuración local de índice y pruebas de reinicio/alcance.
 
   **Dependencias**: T078–T080. **Traza**: A08; FR-064–FR-069; NFR-001; Constitución, «Modelo de producto y memoria». **Checks**: BE, BEI.
 
