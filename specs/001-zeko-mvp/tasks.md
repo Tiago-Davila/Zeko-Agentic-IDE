@@ -1012,7 +1012,7 @@ cada tarea requiere un diff y un commit propios.
 
   **Aceptación**: las pruebas verifican ingestión, reconstrucción, scope y exclusión de secretos con datos temporales; no tratan títulos, nombres de clase ni errores de proxy como evidencia funcional.
 
-- [ ] T106 [A12] Reconciliar evidencia de aceptación y estado documental — `docs/validation/mvp-results.md`, `docs/validation/mvp-audit-2026-09-15.md` y evidencia de mediciones aplicable.
+- [x] T106 [A12] Reconciliar evidencia de aceptación y estado documental — `docs/validation/mvp-results.md`, `docs/validation/mvp-audit-2026-09-15.md` y evidencia de mediciones aplicable.
 
   **Dependencias**: T100–T105. **Traza**: A12; T092; FR-001–FR-076; NFR-001–NFR-008; SC-001–SC-007. **Checks**: DOC.
 
