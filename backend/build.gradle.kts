@@ -39,6 +39,43 @@ checkstyle {
 
 val integrationTestPattern = "*IntegrationTest"
 val contractTestPattern = "*ContractTest"
+val frontendDirectory = layout.projectDirectory.dir("../frontend")
+val frontendDistribution = frontendDirectory.dir("dist")
+val npmExecutable = if (System.getProperty("os.name").startsWith("Windows", ignoreCase = true)) {
+    "npm.cmd"
+} else {
+    "npm"
+}
+
+val installFrontend by tasks.registering(Exec::class) {
+    workingDir(frontendDirectory)
+    commandLine(npmExecutable, "ci")
+    inputs.files(
+        frontendDirectory.file("package.json"),
+        frontendDirectory.file("package-lock.json"),
+    )
+    outputs.dir(frontendDirectory.dir("node_modules"))
+}
+
+val buildFrontend by tasks.registering(Exec::class) {
+    dependsOn(installFrontend)
+    workingDir(frontendDirectory)
+    commandLine(npmExecutable, "run", "build")
+    inputs.dir(frontendDirectory.dir("src"))
+    inputs.files(
+        frontendDirectory.file("index.html"),
+        frontendDirectory.file("vite.config.ts"),
+        frontendDirectory.file("tsconfig.json"),
+    )
+    outputs.dir(frontendDistribution)
+}
+
+tasks.named<Copy>("processResources") {
+    dependsOn(buildFrontend)
+    from(frontendDistribution) {
+        into("static")
+    }
+}
 
 // Las tres suites comparten src/test/java y se separan por convencion de nombre.
 fun Test.useTestSourceSet() {
