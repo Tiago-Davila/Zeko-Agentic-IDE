@@ -1,4 +1,5 @@
 import {request} from '../../app/api/httpClient';
+import type {ApprovalDto} from '../approvals/approvalApi';
 
 export type ExecutionState =
     'PENDING'|'RUNNING'|'WAITING_APPROVAL'|'COMPLETED'|'FAILED'|'CANCELLED';
@@ -24,6 +25,28 @@ export interface RuntimeExecution {
   readonly provider?: RuntimeProvider | null;
   readonly cancellationRequested: boolean;
   readonly effects: readonly RuntimeEffect[];
+}
+
+export interface RuntimeTask {
+  readonly id: string;
+  readonly repositoryId: string;
+  readonly state: string;
+  readonly title: string;
+}
+
+export interface RuntimeSnapshot {
+  readonly projectId: string;
+  readonly executions: readonly RuntimeExecution[];
+  readonly tasks: readonly RuntimeTask[];
+}
+
+export interface RuntimeConflict {
+  readonly id: string;
+  readonly taskId: string;
+  readonly type: string;
+  readonly resources: readonly string[];
+  readonly state: string;
+  readonly resolution: string;
 }
 
 export interface ExecutionResult extends RuntimeExecution {
@@ -52,16 +75,44 @@ export async function retryExecution(executionId: string):
   return request(`/api/executions/${executionId}/retries`, {method : 'POST'});
 }
 
-export interface RuntimeSnapshot {
-  readonly projectId: string;
-  readonly executions: readonly RuntimeExecution[];
-  readonly tasks: readonly unknown[];
+export async function runtimeSession(): Promise<void> {
+  await request('/api/session/bootstrap', {method : 'POST'});
 }
 
-export async function runtimeSnapshot(): Promise<readonly RuntimeExecution[]> {
-  return request('/api/runtime/snapshot');
+export async function runtimeSnapshot(projectId?: string): Promise<RuntimeSnapshot> {
+  await runtimeSession();
+  const body = await request<RuntimeSnapshot | readonly RuntimeExecution[]>(
+      projectId === undefined || projectId === null
+          ? '/api/runtime/snapshot'
+          : `/api/projects/${projectId}/runtime-snapshot`);
+  if (Array.isArray(body)) {
+    return {projectId: projectId ?? '', executions: body, tasks: []};
+  }
+  return body as RuntimeSnapshot;
 }
 
 export async function runtimeProjectSnapshot(projectId: string): Promise<RuntimeSnapshot> {
-  return request(`/api/projects/${projectId}/runtime-snapshot`);
+  return runtimeSnapshot(projectId);
+}
+
+export async function pendingApprovals(projectId: string): Promise<readonly ApprovalDto[]> {
+  await runtimeSession();
+  return request(`/api/projects/${projectId}/approvals`);
+}
+
+export async function conflict(taskId: string): Promise<RuntimeConflict> {
+  await runtimeSession();
+  return request(`/api/tasks/${taskId}/conflict-resolution`);
+}
+
+export async function resolveConflict(
+    taskId: string,
+    resolution: 'CANCELLED'|'REASSIGNED'|'RESOLVED_MANUALLY',
+    note = ''): Promise<RuntimeConflict> {
+  await runtimeSession();
+  return request(`/api/tasks/${taskId}/conflict-resolution`, {
+    method : 'POST',
+    headers : {'Content-Type': 'application/json'},
+    body : JSON.stringify({resolution, note}),
+  });
 }

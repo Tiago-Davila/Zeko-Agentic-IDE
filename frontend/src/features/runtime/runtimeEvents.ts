@@ -1,4 +1,4 @@
-import {type RuntimeExecution, runtimeSnapshot} from './runtimeApi';
+import {runtimeSnapshot, type RuntimeExecution, type RuntimeSnapshot} from './runtimeApi';
 
 export interface RuntimeEvent {
   readonly eventId: string;
@@ -10,9 +10,12 @@ export interface RuntimeEvent {
 export interface RuntimeReconciler {
   accept(event: RuntimeEvent): Promise<boolean>;
   executions(): readonly RuntimeExecution[];
+  replace(snapshot: RuntimeSnapshot | readonly RuntimeExecution[]): void;
 }
 
-export function createRuntimeReconciler(loadSnapshot = runtimeSnapshot):
+type SnapshotLoader = () => Promise<RuntimeSnapshot | readonly RuntimeExecution[]>;
+
+export function createRuntimeReconciler(loadSnapshot: SnapshotLoader = runtimeSnapshot):
     RuntimeReconciler {
   const seen = new Set<string>();
   const sequences = new Map<string, number>();
@@ -20,7 +23,18 @@ export function createRuntimeReconciler(loadSnapshot = runtimeSnapshot):
 
   async function reconcile(): Promise<void> {
     const snapshot = await loadSnapshot();
-    for (const item of snapshot)
+    applySnapshot(snapshot);
+  }
+
+  function replace(snapshot: RuntimeSnapshot | readonly RuntimeExecution[]): void {
+    seen.clear();
+    sequences.clear();
+    applySnapshot(snapshot);
+  }
+
+  function applySnapshot(snapshot: RuntimeSnapshot | readonly RuntimeExecution[]): void {
+    state.clear();
+    for (const item of executionsFrom(snapshot))
       state.set(item.id, item);
   }
 
@@ -39,5 +53,10 @@ export function createRuntimeReconciler(loadSnapshot = runtimeSnapshot):
       return true;
     },
     executions : () => [...state.values()],
+    replace,
   };
+}
+
+function executionsFrom(snapshot: RuntimeSnapshot | readonly RuntimeExecution[]): readonly RuntimeExecution[] {
+  return Array.isArray(snapshot) ? snapshot : (snapshot as RuntimeSnapshot).executions;
 }

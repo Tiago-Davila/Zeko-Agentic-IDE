@@ -129,6 +129,18 @@ public class JdbcApprovalRepository implements ApprovalRepository {
     }
 
     @Override
+    public List<Approval> findPendingByProject(ResourceId projectId) {
+        return jdbcTemplate.query(
+                        "SELECT a.id, a.action_proposal_id, a.action_revision, a.state, a.decided_by, "
+                                + "a.decided_at, a.reason, a.version FROM approvals a "
+                                + "JOIN action_proposals p ON p.id = a.action_proposal_id "
+                                + "JOIN tasks t ON t.id = p.task_id "
+                                + "WHERE t.project_id = ? AND a.state = 'PENDING' "
+                                + "ORDER BY a.id",
+                        (row, index) -> approval(row), projectId.asString());
+    }
+
+    @Override
     @Transactional
     public Approval decide(ResourceId approvalId, ApprovalDecision decision) {
         Approval current = findApproval(approvalId)

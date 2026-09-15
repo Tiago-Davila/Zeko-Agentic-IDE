@@ -6,6 +6,7 @@ import com.zeko.executioncontrol.domain.ApprovalDecision;
 import com.zeko.executioncontrol.domain.PermissionMode;
 import com.zeko.executioncontrol.domain.PermissionPolicy;
 import com.zeko.sharedkernel.domain.ResourceId;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -22,6 +23,8 @@ public interface ApprovalRepository {
     void saveApproval(Approval approval);
 
     Optional<Approval> findApproval(ResourceId approvalId);
+
+    List<Approval> findPendingByProject(ResourceId projectId);
 
     Approval decide(ResourceId approvalId, ApprovalDecision decision);
 

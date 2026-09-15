@@ -9,6 +9,7 @@ import com.zeko.traceability.application.TraceRecorder;
 import com.zeko.traceability.domain.SafeDetail;
 import com.zeko.traceability.domain.TraceLink;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,15 @@ public class ApprovalService {
         ActionProposal action = approvals.findAction(updated.actionProposalId(), updated.actionRevision())
                 .orElseThrow(() -> DomainError.notFound("ActionRevision", updated.actionProposalId()));
         return new ApprovalView(updated, action);
+    }
+
+    public List<ApprovalView> pending(ResourceId projectId) {
+        return approvals.findPendingByProject(projectId).stream()
+                .map(approval -> new ApprovalView(approval,
+                        approvals.findAction(approval.actionProposalId(), approval.actionRevision())
+                                .orElseThrow(() -> DomainError.notFound("ActionRevision",
+                                        approval.actionProposalId()))))
+                .toList();
     }
 
     public record ApprovalView(Approval approval, ActionProposal action) {

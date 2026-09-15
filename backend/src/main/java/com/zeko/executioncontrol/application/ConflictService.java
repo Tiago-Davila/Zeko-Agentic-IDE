@@ -30,4 +30,9 @@ public class ConflictService {
     worktrees.saveConflict(resolved);
     return resolved;
   }
+
+  public ConflictRecord view(ResourceId taskId) {
+    return worktrees.findConflict(taskId).orElseThrow(
+        () -> DomainError.notFound("Conflict", taskId));
+  }
 }
