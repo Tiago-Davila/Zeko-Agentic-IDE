@@ -63,6 +63,14 @@ class ConversationServiceTest {
     }
 
     @Override
+    public Optional<Instruction> findInstructionById(ResourceId instructionId) {
+      return conversations.stream()
+          .flatMap(conversation -> conversation.instructions().stream())
+          .filter(instruction -> instruction.id().equals(instructionId))
+          .findFirst();
+    }
+
+    @Override
     public List<Conversation> findByProjectId(ResourceId projectId) {
       return conversations.stream()
           .filter(conversation -> conversation.projectId().equals(projectId))

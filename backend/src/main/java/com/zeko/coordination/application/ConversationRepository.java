@@ -10,5 +10,6 @@ public interface ConversationRepository {
   void save(Conversation conversation);
   void append(Instruction instruction);
   Optional<Conversation> findById(ResourceId conversationId);
+  Optional<Instruction> findInstructionById(ResourceId instructionId);
   List<Conversation> findByProjectId(ResourceId projectId);
 }

@@ -65,6 +65,16 @@ public class JdbcConversationRepository implements ConversationRepository {
   }
 
   @Override
+  public Optional<Instruction> findInstructionById(ResourceId instructionId) {
+    return jdbcTemplate.query(
+        "SELECT id, conversation_id, origin, content, precedence, override_of, "
+            + "override_scope, related_resource_id, created_at FROM instructions WHERE id = ?",
+        (row, index) -> readInstruction(row), instructionId.asString())
+        .stream()
+        .findFirst();
+  }
+
+  @Override
   public List<Conversation> findByProjectId(ResourceId projectId) {
     return jdbcTemplate.query(
         "SELECT id, project_id, recipient_type, recipient_id FROM " +
