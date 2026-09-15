@@ -17,6 +17,7 @@
     "test:e2e:real": "playwright test --project=real"
   },
   "dependencies": {
+    "@xyflow/react": "^12.8.6",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },

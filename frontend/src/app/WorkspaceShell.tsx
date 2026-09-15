@@ -4,7 +4,6 @@ import { StatusPanel } from '../components/StatusPanel';
 import { ProjectPicker } from '../features/projects/ProjectPicker';
 import { RepositoryList } from '../features/projects/RepositoryList';
 import { AgentsCanvas } from '../features/agents/AgentsCanvas';
-import { SkillPanel } from '../features/skills/SkillPanel';
 import { ConversationPanel } from '../features/conversations/ConversationPanel';
 import { RuntimeCanvas } from '../features/runtime/RuntimeCanvas';
 import type { ProjectDto, RepositoryDto } from '../features/projects/projectApi';
@@ -82,7 +81,6 @@ export function WorkspaceShell() {
                   onRepositorySelected={(repository) => workspace.selectRepository(repository.id, repository.path)}
                 />
                 <AgentsCanvas projectId={workspace.projectId} />
-                <SkillPanel projectId={workspace.projectId} />
                 <ConversationPanel projectId={workspace.projectId} />
               </>
             )}

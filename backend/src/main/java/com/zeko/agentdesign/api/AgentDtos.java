@@ -18,7 +18,8 @@ public final class AgentDtos {
     public record UpdateInput(String templateVersionId, String decision) {
     }
 
-    public record TemplateResponse(String id, String projectId, String name, int version) {
+    public record TemplateResponse(String id, String projectId, String name,
+                                   String versionId, int version) {
     }
 
     public record InstanceResponse(
@@ -34,6 +35,7 @@ public final class AgentDtos {
     public static TemplateResponse template(AgentTemplate template) {
         return new TemplateResponse(
                 template.id().asString(), template.projectId().asString(), template.name(),
+                template.currentVersion().id().asString(),
                 template.currentVersion().number());
     }
 
