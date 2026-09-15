@@ -16,15 +16,18 @@ public class AuthorizedActionDispatcher {
   private final PermissionPolicyService policies;
   private final WorktreeRepository worktrees;
   private final CapabilityRegistry capabilities;
+  private final ExecutionService executions;
 
   public AuthorizedActionDispatcher(ApprovalRepository approvals,
                                     PermissionPolicyService policies,
                                     WorktreeRepository worktrees,
-                                    CapabilityRegistry capabilities) {
+                                    CapabilityRegistry capabilities,
+                                    ExecutionService executions) {
     this.approvals = approvals;
     this.policies = policies;
     this.worktrees = worktrees;
     this.capabilities = capabilities;
+    this.executions = executions;
   }
 
   public LocalActionResult dispatch(ActionProposal action,
@@ -53,7 +56,16 @@ public class AuthorizedActionDispatcher {
         !action.executionId().equals(worktree.ownerExecutionId())) {
       throw DomainError.blocked("La ejecucion no es dueña del worktree");
     }
-    return capabilities.require(capability(action)).execute(action);
+    LocalCapability capability = capability(action);
+    executions.identifyProvider(action.executionId(), capability);
+    try {
+      return capabilities.require(capability).execute(action);
+    } catch (DomainError error) {
+      if (error.code() == DomainError.Code.PROVIDER_UNAVAILABLE) {
+        executions.markProviderUnavailable(action.executionId(), capability);
+      }
+      throw error;
+    }
   }
 
   private static LocalCapability capability(ActionProposal action) {

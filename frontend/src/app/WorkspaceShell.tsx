@@ -87,7 +87,7 @@ export function WorkspaceShell() {
               </>
             )}
           </WorkspaceContextReader>
-        ) : <RuntimeCanvas />}
+        ) : <RuntimeCanvas projectId={activeProject?.id ?? null} />}
       </section>
       <StatusPanel />
     </main>

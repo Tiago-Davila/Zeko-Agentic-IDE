@@ -8,7 +8,7 @@ import java.util.Objects;
 public record
     Execution(ResourceId id, ResourceId taskId, int attempt, State state,
               ExecutionSnapshot snapshot, ResourceId retryOf, String knownState,
-              boolean cancellationRequested, List<EffectRecord> effects) {
+              Provider provider, boolean cancellationRequested, List<EffectRecord> effects) {
 
   public enum State {
     PENDING,
@@ -17,6 +17,11 @@ public record
     COMPLETED,
     FAILED,
     CANCELLED
+  }
+
+  public enum Provider {
+    DOCKER,
+    OLLAMA
   }
 
   public Execution {
@@ -43,7 +48,12 @@ public record
           "La cancelacion requiere confirmacion del adaptador");
     }
     return new Execution(id, taskId, attempt, next, snapshot, retryOf,
-                         nextKnownState, cancellationRequested, effects);
+                         nextKnownState, provider, cancellationRequested, effects);
+  }
+
+  public Execution withProvider(Provider confirmedProvider) {
+    return new Execution(id, taskId, attempt, state, snapshot, retryOf,
+                         knownState, confirmedProvider, cancellationRequested, effects);
   }
 
   public Execution requestCancellation() {
@@ -52,7 +62,7 @@ public record
           "Solo una ejecucion activa puede solicitar cancelacion");
     }
     return new Execution(id, taskId, attempt, state, snapshot, retryOf,
-                         knownState, true, effects);
+                         knownState, provider, true, effects);
   }
 
   public Execution confirmCancelled(String known) {
@@ -60,7 +70,7 @@ public record
       throw DomainError.conflict("No existe una solicitud de cancelacion");
     }
     return new Execution(id, taskId, attempt, State.CANCELLED, snapshot,
-                         retryOf, known, true, effects);
+                         retryOf, known, provider, true, effects);
   }
 
   public Execution record(EffectRecord effect) {
@@ -72,6 +82,6 @@ public record
         new java.util.ArrayList<>(effects);
     updated.add(effect);
     return new Execution(id, taskId, attempt, state, snapshot, retryOf,
-                         knownState, cancellationRequested, updated);
+                         knownState, provider, cancellationRequested, updated);
   }
 }

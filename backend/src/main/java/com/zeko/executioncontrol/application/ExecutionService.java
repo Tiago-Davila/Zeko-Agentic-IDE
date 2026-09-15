@@ -43,7 +43,7 @@ public class ExecutionService {
     Execution execution =
         new Execution(ResourceId.newId(), taskId, previous.size() + 1,
                       Execution.State.PENDING, snapshot, retryOf, "PENDING",
-                      false, List.of());
+                      null, false, List.of());
     executions.saveExecution(execution);
     executions.saveTask(task.transition(Task.State.RUNNING));
     return execution;
@@ -60,4 +60,39 @@ public class ExecutionService {
   public List<Execution> snapshot() {
     return executions.findAllExecutions();
   }
+
+  public RuntimeSnapshot snapshot(ResourceId projectId) {
+    return new RuntimeSnapshot(projectId, executions.findExecutionsForProject(projectId),
+                               executions.findTasksForProject(projectId));
+  }
+
+  public Execution identifyProvider(ResourceId executionId, LocalCapability capability) {
+    Execution execution = find(executionId);
+    Execution.Provider provider = provider(capability);
+    if (provider == null || provider == execution.provider()) {
+      return execution;
+    }
+    Execution identified = execution.withProvider(provider);
+    executions.saveExecution(identified);
+    return identified;
+  }
+
+  public Execution markProviderUnavailable(ResourceId executionId,
+                                           LocalCapability capability) {
+    Execution identified = identifyProvider(executionId, capability);
+    Execution failed = identified.transition(Execution.State.FAILED, "UNAVAILABLE");
+    executions.saveExecution(failed);
+    return failed;
+  }
+
+  private static Execution.Provider provider(LocalCapability capability) {
+    return switch (capability) {
+      case DOCKER -> Execution.Provider.DOCKER;
+      case OLLAMA -> Execution.Provider.OLLAMA;
+      default -> null;
+    };
+  }
+
+  public record RuntimeSnapshot(ResourceId projectId, List<Execution> executions,
+                                List<Task> tasks) {}
 }

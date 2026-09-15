@@ -58,4 +58,10 @@ public class ExecutionController {
         .map(ExecutionDtos.Response::from)
         .toList();
   }
+
+  @GetMapping("/projects/{projectId}/runtime-snapshot")
+  public ExecutionDtos.RuntimeSnapshotResponse snapshot(@PathVariable String projectId) {
+    return ExecutionDtos.RuntimeSnapshotResponse.from(
+        executions.snapshot(ResourceId.parse(projectId)));
+  }
 }

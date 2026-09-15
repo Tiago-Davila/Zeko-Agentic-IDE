@@ -13,6 +13,8 @@ public interface ExecutionRepository {
   void saveExecution(Execution execution);
   Optional<Execution> findExecution(ResourceId executionId);
   List<Execution> findExecutions(ResourceId taskId);
+  List<Execution> findExecutionsForProject(ResourceId projectId);
+  List<Task> findTasksForProject(ResourceId projectId);
 
   List<Execution> findAllExecutions();
   void appendEffect(EffectRecord effect);

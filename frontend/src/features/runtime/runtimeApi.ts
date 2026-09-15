@@ -2,6 +2,7 @@ import {request} from '../../app/api/httpClient';
 
 export type ExecutionState =
     'PENDING'|'RUNNING'|'WAITING_APPROVAL'|'COMPLETED'|'FAILED'|'CANCELLED';
+export type RuntimeProvider = 'DOCKER' | 'OLLAMA';
 
 export interface RuntimeEffect {
   readonly id: string;
@@ -20,6 +21,7 @@ export interface RuntimeExecution {
   readonly templateId: string;
   readonly templateVersion: number;
   readonly retryOfExecutionId: string|null;
+  readonly provider?: RuntimeProvider | null;
   readonly cancellationRequested: boolean;
   readonly effects: readonly RuntimeEffect[];
 }
@@ -50,6 +52,16 @@ export async function retryExecution(executionId: string):
   return request(`/api/executions/${executionId}/retries`, {method : 'POST'});
 }
 
+export interface RuntimeSnapshot {
+  readonly projectId: string;
+  readonly executions: readonly RuntimeExecution[];
+  readonly tasks: readonly unknown[];
+}
+
 export async function runtimeSnapshot(): Promise<readonly RuntimeExecution[]> {
   return request('/api/runtime/snapshot');
+}
+
+export async function runtimeProjectSnapshot(projectId: string): Promise<RuntimeSnapshot> {
+  return request(`/api/projects/${projectId}/runtime-snapshot`);
 }

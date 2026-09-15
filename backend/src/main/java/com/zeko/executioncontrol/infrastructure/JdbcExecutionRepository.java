@@ -61,16 +61,17 @@ public class JdbcExecutionRepository implements ExecutionRepository {
   public void saveExecution(Execution execution) {
     jdbc.update(
         "INSERT INTO executions (id, task_id, attempt, state, retry_of, "
-            + "known_state, cancellation_requested) "
-            + "VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET "
+            + "known_state, provider, cancellation_requested) "
+            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET "
             + "state = excluded.state, "
             + "known_state = excluded.known_state, cancellation_requested = "
-            + "excluded.cancellation_requested, "
+            + "excluded.cancellation_requested, provider = excluded.provider, "
             +
             "version = executions.version + 1, updated_at = CURRENT_TIMESTAMP",
         execution.id().asString(), execution.taskId().asString(),
         execution.attempt(), execution.state().name(), id(execution.retryOf()),
-        execution.knownState(), execution.cancellationRequested() ? 1 : 0);
+        execution.knownState(), provider(execution.provider()),
+        execution.cancellationRequested() ? 1 : 0);
     ExecutionSnapshot snapshot = execution.snapshot();
     jdbc.update("INSERT OR IGNORE INTO execution_snapshots (execution_id, "
                     + "template_id, template_version, "
@@ -84,7 +85,7 @@ public class JdbcExecutionRepository implements ExecutionRepository {
   public Optional<Execution> findExecution(ResourceId executionId) {
     return jdbc
         .query("SELECT e.id, e.task_id, e.attempt, e.state, e.retry_of, "
-                   + "e.known_state, "
+                   + "e.known_state, e.provider, "
                    + "e.cancellation_requested, s.template_id, "
                    + "s.template_version, s.agent_identity, s.context "
                    + "FROM executions e JOIN execution_snapshots s ON "
@@ -97,7 +98,7 @@ public class JdbcExecutionRepository implements ExecutionRepository {
   @Override
   public List<Execution> findExecutions(ResourceId taskId) {
     return jdbc.query("SELECT e.id, e.task_id, e.attempt, e.state, "
-                          + "e.retry_of, e.known_state, "
+                          + "e.retry_of, e.known_state, e.provider, "
                           + "e.cancellation_requested, s.template_id, "
                           + "s.template_version, s.agent_identity, s.context "
                           + "FROM executions e JOIN execution_snapshots s ON "
@@ -107,9 +108,28 @@ public class JdbcExecutionRepository implements ExecutionRepository {
   }
 
   @Override
+  public List<Execution> findExecutionsForProject(ResourceId projectId) {
+    return jdbc.query("SELECT e.id, e.task_id, e.attempt, e.state, e.retry_of, "
+                          + "e.known_state, e.provider, e.cancellation_requested, "
+                          + "s.template_id, s.template_version, s.agent_identity, "
+                          + "s.context FROM executions e JOIN execution_snapshots s "
+                          + "ON s.execution_id = e.id JOIN tasks t ON t.id = e.task_id "
+                          + "WHERE t.project_id = ? ORDER BY e.started_at DESC",
+                      (row, number) -> execution(row), projectId.asString());
+  }
+
+  @Override
+  public List<Task> findTasksForProject(ResourceId projectId) {
+    return jdbc.query("SELECT id, project_id, repository_id, agent_instance_id, "
+                          + "instruction_id, title, state, blocked_reason FROM tasks "
+                          + "WHERE project_id = ? ORDER BY created_at DESC",
+                      (row, number) -> task(row), projectId.asString());
+  }
+
+  @Override
   public List<Execution> findAllExecutions() {
     return jdbc.query("SELECT e.id, e.task_id, e.attempt, e.state, "
-                          + "e.retry_of, e.known_state, "
+                          + "e.retry_of, e.known_state, e.provider, "
                           + "e.cancellation_requested, s.template_id, "
                           + "s.template_version, s.agent_identity, s.context "
                           + "FROM executions e JOIN execution_snapshots s ON "
@@ -157,7 +177,8 @@ public class JdbcExecutionRepository implements ExecutionRepository {
         executionId, ResourceId.parse(row.getString("task_id")),
         row.getInt("attempt"), Execution.State.valueOf(row.getString("state")),
         snapshot, nullable(row.getString("retry_of")),
-        row.getString("known_state"), row.getInt("cancellation_requested") == 1,
+        row.getString("known_state"), provider(row.getString("provider")),
+        row.getInt("cancellation_requested") == 1,
         effects(executionId));
   }
 
@@ -190,5 +211,11 @@ public class JdbcExecutionRepository implements ExecutionRepository {
   }
   private static ResourceId nullable(String value) {
     return value == null ? null : ResourceId.parse(value);
+  }
+  private static String provider(Execution.Provider value) {
+    return value == null ? null : value.name();
+  }
+  private static Execution.Provider provider(String value) {
+    return value == null ? null : Execution.Provider.valueOf(value);
   }
 }

@@ -30,6 +30,6 @@ class ExecutionLifecycleTest {
   private static Execution execution() {
     return new Execution(ResourceId.newId(), ResourceId.newId(), 1, Execution.State.RUNNING,
                          new ExecutionSnapshot(ResourceId.newId(), 1, "agent", Map.of("scope", "local")),
-                         null, "RUNNING", false, java.util.List.of());
+                         null, "RUNNING", null, false, java.util.List.of());
   }
 }
