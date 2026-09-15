@@ -724,7 +724,7 @@ Verificación independiente: tabs separadas y estados reales al perder socket, p
 
   **Aceptación**: Docker/Ollama se identifican solo desde el campo `provider` tipado y confirmado del snapshot, persistido desde `LocalCapability` durante un despacho autorizado; estado `FAILED` o `UNAVAILABLE` marca el proveedor afectado sin éxito falso. El snapshot se filtra por Project. Desconexión conserva último estado, recuperación recarga snapshot y reintento es manual; no confundir socket reconectado con ejecución reanudada ni inferir proveedor desde texto libre.
 
-- [ ] T086 [US7] Validar recuperación visible, estados y separación de canvases — `frontend/tests/e2e/runtime-recovery.spec.ts`.
+- [x] T086 [US7] Validar recuperación visible, estados y separación de canvases — `frontend/tests/e2e/runtime-recovery.spec.ts`.
 
   **Dependencias**: T085, T076, T084, T020, T018. **Traza**: US-007; SC-006; NFR-003, NFR-006; quickstart V-005–V-007. **Checks**: E2E.
 
