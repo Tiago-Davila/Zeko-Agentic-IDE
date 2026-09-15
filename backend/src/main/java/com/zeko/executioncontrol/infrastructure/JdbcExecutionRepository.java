@@ -133,8 +133,28 @@ public class JdbcExecutionRepository implements ExecutionRepository {
                           + "e.cancellation_requested, s.template_id, "
                           + "s.template_version, s.agent_identity, s.context "
                           + "FROM executions e JOIN execution_snapshots s ON "
-                          + "s.execution_id = e.id ORDER BY e.started_at DESC",
+                          + "s.execution_id = e.id ORDER BY e.created_at DESC, e.id",
                       (row, number) -> execution(row));
+  }
+
+  @Override
+  public List<Execution> findAllExecutions(ResourceId projectId) {
+    return jdbc.query("SELECT e.id, e.task_id, e.attempt, e.state, "
+                          + "e.retry_of, e.known_state, "
+                          + "e.cancellation_requested, s.template_id, "
+                          + "s.template_version, s.agent_identity, s.context "
+                          + "FROM executions e JOIN execution_snapshots s ON "
+                          + "s.execution_id = e.id JOIN tasks t ON t.id = e.task_id "
+                          + "WHERE t.project_id = ? ORDER BY e.created_at DESC, e.id",
+                      (row, number) -> execution(row), projectId.asString());
+  }
+
+  @Override
+  public List<Task> findTasks(ResourceId projectId) {
+    return jdbc.query("SELECT id, project_id, repository_id, agent_instance_id, "
+                          + "instruction_id, title, state, blocked_reason FROM tasks "
+                          + "WHERE project_id = ? ORDER BY created_at, id",
+                      (row, number) -> task(row), projectId.asString());
   }
 
   @Override

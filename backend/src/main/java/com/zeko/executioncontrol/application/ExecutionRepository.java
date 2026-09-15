@@ -17,6 +17,8 @@ public interface ExecutionRepository {
   List<Task> findTasksForProject(ResourceId projectId);
 
   List<Execution> findAllExecutions();
+  List<Execution> findAllExecutions(ResourceId projectId);
+  List<Task> findTasks(ResourceId projectId);
   void appendEffect(EffectRecord effect);
   List<EffectRecord> effects(ResourceId executionId);
 }

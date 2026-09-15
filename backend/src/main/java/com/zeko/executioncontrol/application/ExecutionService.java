@@ -62,8 +62,8 @@ public class ExecutionService {
   }
 
   public RuntimeSnapshot snapshot(ResourceId projectId) {
-    return new RuntimeSnapshot(projectId, executions.findExecutionsForProject(projectId),
-                               executions.findTasksForProject(projectId));
+    return new RuntimeSnapshot(projectId, executions.findAllExecutions(projectId),
+                               executions.findTasks(projectId));
   }
 
   public Execution identifyProvider(ResourceId executionId, LocalCapability capability) {
