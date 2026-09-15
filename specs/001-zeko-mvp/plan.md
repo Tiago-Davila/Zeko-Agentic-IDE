@@ -164,6 +164,34 @@ HTTP sirve snapshots de recursos y Runtime Canvas los consulta después de recon
 WebSocket solo publica observabilidad. La sesión local se inicia en loopback, se mantiene
 en cookie efímera y se revalida en cada mutación o suscripción.
 
+### Corrección de implementación: memoria conversacional y estado de proveedor
+
+**Autorización de usuario (2026-09-14)**: ante el hallazgo de que las tareas T084 y
+T085 no podían demostrar sus criterios de aceptación, el usuario autorizó actualizar
+los artefactos SDD, completar los correctivos dependientes y marcar las tareas una vez
+validadas. Esta autorización prevalece sobre la regla operativa que normalmente reserva
+esas marcas para revisión documental.
+
+La consulta de memoria de la UI se liga a una `Conversation` activa seleccionada o
+creada explícitamente. El frontend envía `conversationId`, nunca sustituye ese valor por
+`projectId` ni por una identidad de agente inferida. `memory-search` resuelve un contexto
+de acceso desde la conversación: Project, conversación y, cuando el interlocutor es un
+agente, AgentInstance. El filtro aplica `GLOBAL`, `PROJECT`, `AGENT` y `CONVERSATION`
+antes de devolver o rankear snippets. Una conversación con PM usa la identidad local
+estable del Project solo para crear el interlocutor PM; esa identidad no sustituye el
+`conversationId` de una búsqueda.
+
+`MemorySearchResult` entrega metadata segura de fuente, nivel, owner e indexState junto
+con el excerpt. Fuentes `EXCLUDED`, sensibles o de otro contexto nunca producen excerpt;
+la UI diferencia resultado vacío, fuente desactualizada y error sin revelar contenido.
+
+Runtime Canvas consume el campo `provider` ya definido en `ExecutionDetail` y conserva
+el último snapshot confirmado del Project activo; sin Project no solicita un snapshot.
+Un estado `FAILED` o `UNAVAILABLE` con proveedor explícito marca solo Docker u Ollama
+como no disponible; si no existe proveedor confirmado, se muestra `unknown` y no se
+deduce una causa desde texto libre. Al recuperar conectividad, la UI recarga el snapshot
+observacional y no realiza POST de reintento ni reactiva una Execution.
+
 ## Estructura propuesta
 
 La estructura es una propuesta inicial, ya que el repositorio no contiene código.

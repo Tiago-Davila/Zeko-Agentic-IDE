@@ -39,7 +39,7 @@ considerar completa la secuencia. Un evento no constituye autorización para eje
 | `worktree.reserved` | worktreeId, repositoryId, taskId, path | Informa ownership exclusivo. |
 | `task.blocked` | taskId, conflictId, conflictType, resolutionOptions | Expone cancelar, reasignar o resolver manualmente. |
 | `task.conflict.resolved` | taskId, conflictId, resolution | Indica resolución explícita; nunca merge automático. |
-| `provider.unavailable` | provider, executionId?, knownState, retryAllowed | Docker u Ollama identificados; no informa éxito falso. |
+| `provider.unavailable` | provider (`DOCKER` u `OLLAMA`), executionId?, knownState, retryAllowed | Docker u Ollama identificados; no informa éxito falso ni infiere proveedor desde texto libre. |
 | `memory.index.changed` | projectId, sourceId, state | Indica CURRENT, STALE, UNAVAILABLE o EXCLUDED sin exponer contenido secreto. |
 | `trace.link.created` | traceLinkId, source, target, relation | Permite refrescar evidencia de trazabilidad. |
 | `pm.reported` | conversationId, instructionId?, kind, summary, relatedResourceIds | Comunica avance, bloqueo o resultado del PM con trazabilidad. |
@@ -54,7 +54,8 @@ La pérdida de socket no cambia el estado de Execution. Tras reconectar, el clie
 /api/approvals/{approvalId}`. No solicita reanudar una ejecución. Si llega un evento con
 secuencia anterior, se conserva el estado ya confirmado. Si hay hueco de secuencia, el
 cliente vuelve a consultar el recurso y muestra el estado conocido, no una conclusión
-inferida.
+inferida. Un proveedor solo se marca no disponible cuando el evento o snapshot incluye
+su identificador explícito; de otro modo la UI conserva `unknown`.
 
 ## Eventos de cliente permitidos
 

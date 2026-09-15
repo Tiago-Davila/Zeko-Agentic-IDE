@@ -98,10 +98,12 @@ reanudar automático.
 
 ### V-006 — Memoria con alcance y secretos
 
-Indexar fuentes autorizadas no secretas en dos Projects. Buscar desde una conversación
-del primero. El resultado esperado solo devuelve fuentes permitidas con nivel/ownership,
-distingue vacío de error y no concede permisos a partir de contexto recuperado. Un valor
-marcado secreto no se indexa ni aparece en log, prompt, diff o resultado.
+Indexar fuentes autorizadas no secretas en dos Projects. Crear o seleccionar de forma
+explícita una conversación del primero y buscar desde ella; su identificador, no el
+Project, delimita el contexto. El resultado esperado solo devuelve fuentes permitidas
+con nivel/ownership/estado/fuente, distingue vacío, fuente desactualizada y error, y no
+concede permisos a partir de contexto recuperado. Un valor marcado secreto no se indexa
+ni aparece en log, prompt, diff o resultado.
 
 ### V-007 — UX y mediciones provisionales
 

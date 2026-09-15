@@ -249,6 +249,7 @@ paths:
           schema: { type: string, minLength: 1 }
         - name: conversationId
           in: query
+          required: true
           schema: { type: string, format: uuid }
       responses:
         '200': { $ref: '#/components/responses/MemorySearch' }
@@ -455,7 +456,7 @@ components:
     Effect: { type: object, required: [id, type, resource, confirmed], properties: { id: { type: string, format: uuid }, type: { type: string }, resource: { type: string }, confirmed: { type: boolean } } }
     Approval: { type: object, required: [id, actionRevision, state], properties: { id: { type: string, format: uuid }, actionRevision: { type: integer }, state: { type: string, enum: [PENDING, APPROVED, DENIED, INVALIDATED] } } }
     MemorySource: { type: object, required: [id, scope, indexState], properties: { id: { type: string, format: uuid }, scope: { type: string, enum: [GLOBAL, PROJECT, AGENT, CONVERSATION] }, indexState: { type: string, enum: [CURRENT, STALE, UNAVAILABLE, EXCLUDED] } } }
-    MemorySearchResult: { type: object, required: [sourceId, level, excerpt], properties: { sourceId: { type: string, format: uuid }, level: { type: string, enum: [GLOBAL, PROJECT, AGENT, CONVERSATION] }, excerpt: { type: string } } }
+    MemorySearchResult: { type: object, required: [sourceId, level, ownerId, source, indexState, excerpt], properties: { sourceId: { type: string, format: uuid }, level: { type: string, enum: [GLOBAL, PROJECT, AGENT, CONVERSATION] }, ownerId: { type: string, format: uuid }, source: { type: string }, indexState: { type: string, enum: [CURRENT, STALE, UNAVAILABLE] }, excerpt: { type: string } } }
     RuntimeSnapshot: { type: object, required: [projectId, executions, tasks], properties: { projectId: { type: string, format: uuid }, executions: { type: array, items: { $ref: '#/components/schemas/ExecutionDetail' } }, tasks: { type: array, items: { $ref: '#/components/schemas/TaskDetail' } } } }
     Error:
       type: object

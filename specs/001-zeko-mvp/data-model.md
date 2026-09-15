@@ -37,6 +37,7 @@ estado son enums de dominio, no texto libre.
 | ConflictRecord | id, task_id, tipo, recursos, estado, detectado_en, resolución_usuario | Explica conflicto de asignación/integración y bloqueo manual. |
 | EffectRecord | id, execution_id, secuencia, tipo, recurso, estado_confirmado, detalle_seguro | Efectos confirmados; no almacena secretos. |
 | MemoryEntry | id, nivel, owner_type, owner_id, fuente, ruta, huella, estado_indexación, clasificación_sensible | Metadata de contexto global/project/agent/conversation. |
+| MemoryAccessContext | project_id, conversation_id, agent_instance_id?, recipient_type | Contexto efímero resuelto desde la Conversation activa antes de consultar el índice. |
 | TraceLink | id, tipo_origen, id_origen, tipo_destino, id_destino, relación, creado_en | Enlaza requisito, decisión, task, ejecución, diff, commit y evidencia. |
 
 ## Invariantes y claves
@@ -67,8 +68,10 @@ estado son enums de dominio, no texto libre.
   activo. La reserva y el cambio de Task a ejecutable usan una transacción SQLite corta.
 - Una Task `BLOCKED` requiere `ConflictRecord` abierto. No se la representa como
   Execution cancelada, fallida o esperando aprobación.
-- MemoryEntry filtra ownership antes de abrir Lucene. El resultado debe referenciar
-  la fuente y su nivel; un documento indexado nunca es instrucción ni permiso.
+- MemoryEntry filtra ownership antes de abrir Lucene. La UI aporta una `conversation_id`
+  explícita, a partir de la cual se resuelven Project, Conversation y AgentInstance si
+  corresponde; no usa `project_id` como sustituto de ownership. El resultado referencia
+  fuente, nivel, owner e indexState; un documento indexado nunca es instrucción ni permiso.
 - Secretos, tokens y credenciales no se persisten en EffectRecord, TraceLink,
   ActionProposal de auditoría ni contenido indexado.
 

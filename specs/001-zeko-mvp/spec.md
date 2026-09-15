@@ -50,6 +50,7 @@ permitidas y sus versiones no forma parte de esta especificación funcional.
 
 - P: Al editar un `AgentTemplate`, ¿cómo se propagan sus cambios a las instancias existentes? → R: Cada instancia puede recibir una actualización seleccionable desde su plantilla.
 - P: ¿Qué política debe gobernar permisos y autonomía en el MVP? → R: Política conservadora: `Ask Approval` aprueba cada acción mutante, de red o destructiva; `Auto Approve` solo permite acciones locales, no destructivas y cubiertas explícitamente; `Full Access` permite acciones locales no prohibidas. La autonomía no amplía permisos.
+
 - P: ¿Qué recuperación mínima se admite tras una interrupción? → R: Reintento manual explícito después de mostrar el último estado conocido y los efectos registrados; sin reanudación automática.
 - P: ¿Qué ocurre si cambia una acción mientras espera aprobación? → R: Cualquier cambio de acción, recurso, alcance o efecto esperado invalida la aprobación pendiente y requiere una solicitud nueva.
 - P: ¿Cuándo se aplica una actualización aceptada de plantilla a una instancia con ejecución activa? → R: Solo se aplica a ejecuciones futuras; la ejecución activa conserva su configuración hasta terminar, fallar o cancelarse.
@@ -57,6 +58,10 @@ permitidas y sus versiones no forma parte de esta especificación funcional.
 - P: ¿Cómo se trata la indisponibilidad de Docker y Ollama? → R: Comparten el tratamiento de proveedor local no disponible: se identifica el proveedor afectado, se muestra el último estado conocido y se ofrece reintento manual.
 - P: ¿Cómo se resuelven los conflictos de asignación o integración? → R: Las tareas afectadas quedan bloqueadas; se preservan worktrees y cambios, y el usuario debe cancelar, reasignar o resolver manualmente el conflicto.
 - P: ¿Qué iniciativa corresponde a `Manual`, `Assisted` y `Autonomous`? → R: `Manual` actúa solo ante una instrucción explícita vigente del usuario y no crea follow-ups; `Assisted` propone follow-ups y espera la confirmación del usuario antes de crearlos; `Autonomous` puede crear y continuar follow-ups relacionados con la instrucción vigente. Ningún modo amplía permisos ni evita approvals aplicables.
+
+### Sesión 2026-09-14
+
+- P: ¿Qué propietario debe usar la UI para buscar memoria? → R: La conversación activa. El usuario crea o selecciona explícitamente una conversación con PM o agente y la UI usa su identidad para recuperar contexto; nunca infiere el ownership desde el Project.
 
 ## Historias de usuario y verificación
 
@@ -365,8 +370,8 @@ veraz y el usuario recibe una acción disponible.
 #### Memoria y RAG local
 
 - **FR-064**: El sistema MUST distinguir memoria global, project, agent y conversation.
-- **FR-065**: El sistema MUST mostrar el alcance, ownership y fuente del contexto recuperado.
-- **FR-066**: El sistema MUST recuperar contexto local relevante sin filtrar información de otros proyectos fuera del alcance autorizado.
+- **FR-065**: El sistema MUST mostrar el alcance, ownership y fuente del contexto recuperado asociado a la conversación activa.
+- **FR-066**: El sistema MUST recuperar contexto local relevante para una conversación seleccionada explícitamente, sin inferir ownership desde el Project ni filtrar información de otros proyectos fuera del alcance autorizado.
 - **FR-067**: El contexto recuperado MUST NOT otorgar permisos ni prevalecer sobre instrucciones de mayor jerarquía.
 - **FR-068**: El sistema MUST distinguir ausencia de resultados de un error de búsqueda.
 - **FR-069**: El sistema MUST mantener metadata y recuperación de contexto local conforme a las restricciones heredadas.

@@ -694,27 +694,27 @@ Verificación independiente: contexto de dos proyectos y fuentes globales autori
 
   **Aceptación**: Puertos preservan dependencias memory→coordination, sin ciclo inverso de módulos; contexto recuperado no se convierte en instrucciones de usuario/PM ni concesión de permisos.
 
-- [ ] T083 [P] [US6] Mostrar fuentes, alcance y resultados de contexto — `frontend/src/features/memory/memoryApi.ts`, `frontend/src/features/memory/MemoryPanel.tsx`, `frontend/src/features/memory/MemoryPanel.test.tsx`, `frontend/src/features/conversations/ConversationPanel.tsx`.
+- [ ] T083 [US6] Resolver y mostrar memoria de la conversación activa — `backend/src/main/java/com/zeko/coordination/application/ConversationContextProvider.java`, `backend/src/main/java/com/zeko/coordination/application/ConversationService.java`, `backend/src/main/java/com/zeko/memorysearch/application/MemoryAccessContext.java`, `backend/src/main/java/com/zeko/memorysearch/application/MemorySearchService.java`, `backend/src/main/java/com/zeko/memorysearch/application/ContextIndex.java`, `backend/src/main/java/com/zeko/memorysearch/domain/MemoryAccessPolicy.java`, `backend/src/main/java/com/zeko/memorysearch/infrastructure/LuceneContextIndex.java`, `backend/src/main/java/com/zeko/memorysearch/api/MemoryController.java`, `backend/src/main/java/com/zeko/memorysearch/api/MemoryDtos.java`, `backend/src/test/java/com/zeko/memorysearch/MemoryConversationAccessIntegrationTest.java`, `frontend/src/features/memory/memoryApi.ts`, `frontend/src/features/memory/MemoryPanel.tsx`, `frontend/src/features/memory/MemoryPanel.test.tsx`, `frontend/src/features/conversations/conversationApi.ts`, `frontend/src/features/conversations/ConversationPanel.tsx`, `frontend/src/features/conversations/ConversationPanel.test.tsx`.
 
-  **Dependencias**: T081, T042, T020, T018. **Traza**: FR-064–FR-068, FR-072–FR-074; US-006. **Checks**: FE.
+  **Dependencias**: T081, T042, T020, T018. **Traza**: FR-022–FR-023, FR-064–FR-068, FR-072–FR-074; NFR-002, NFR-004; US-006. **Checks**: BEC + FE.
 
-  **Aceptación**: Distinguir vacío/error/desactualizado; mostrar pertenencia y fuente accesible sin exponer contenido excluido.
+  **Aceptación**: Crear o seleccionar conversación explícita; la búsqueda envía su `conversationId`, no un `projectId` o agentId inferido. Resolver Project, conversación y AgentInstance cuando aplique antes de filtrar/rankear. Distinguir vacío/error/desactualizado y mostrar fuente, nivel, ownership e indexState sin exponer contenido excluido.
 
 - [ ] T084 [US6] Validar contexto de dos proyectos y protección de secretos — `frontend/tests/e2e/memory-scope.spec.ts`.
 
   **Dependencias**: T083, T082, T075, T020, T018. **Traza**: US-006; SC-005; NFR-002, NFR-004; quickstart V-006. **Checks**: E2E.
 
-  **Aceptación**: Fixtures con secreto sintético, contexto global autorizado y contexto aislado; verificar fuentes y ausencia de secreto en índice/log/prompt/resultado/diff presentado.
+  **Aceptación**: Fixtures con secreto sintético, conversación activa, contexto global autorizado y contexto aislado; verificar que la búsqueda usa el `conversationId`, muestra metadata segura de fuente y ausencia de secreto en índice/log/prompt/resultado/diff presentado.
 
 ## Fase 9 - US-007: estados y recuperación en UI (P2)
 
 Verificación independiente: tabs separadas y estados reales al perder socket, proveedor o proceso; reconectar UI no reanuda Execution.
 
-- [x] T085 [US7] Mostrar desconexión y proveedor afectado sin éxito falso — `frontend/src/features/runtime/ProviderStatusPanel.tsx`, `frontend/src/features/runtime/ProviderStatusPanel.test.tsx`, `frontend/src/features/runtime/RuntimeCanvas.tsx`.
+- [ ] T085 [US7] Mostrar desconexión y proveedor afectado sin éxito falso — `frontend/src/app/WorkspaceShell.tsx`, `frontend/src/features/runtime/runtimeApi.ts`, `frontend/src/features/runtime/ProviderStatusPanel.tsx`, `frontend/src/features/runtime/ProviderStatusPanel.test.tsx`, `frontend/src/features/runtime/RuntimeCanvas.tsx`, `frontend/src/features/runtime/RuntimeCanvas.test.tsx`.
 
   **Dependencias**: T073, T069, T065, T020, T018. **Traza**: FR-062–FR-063, FR-071–FR-074; NFR-003; US-007. **Checks**: FE.
 
-  **Aceptación**: Docker/Ollama identificados; desconexión conserva último estado y reintento es manual; no confundir socket reconectado con ejecución reanudada.
+  **Aceptación**: Docker/Ollama se identifican solo desde el campo `provider` confirmado del snapshot; estado `FAILED` o `UNAVAILABLE` marca el proveedor afectado sin éxito falso. Desconexión conserva último estado, recuperación recarga snapshot y reintento es manual; no confundir socket reconectado con ejecución reanudada ni inferir proveedor desde texto libre.
 
 - [ ] T086 [US7] Validar recuperación visible, estados y separación de canvases — `frontend/tests/e2e/runtime-recovery.spec.ts`.
 
