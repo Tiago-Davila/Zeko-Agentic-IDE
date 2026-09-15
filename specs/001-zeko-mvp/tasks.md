@@ -3,8 +3,9 @@
 **Fecha**: 2026-09-13  
 **Repositorio**: `Zeko-Agentic-IDE` (`C:/Users/Tiago/proyectos/Zeko-Agentic-IDE`)  
 **Rama de feature**: `feature/001-zeko-mvp`  
-**Estado**: Cierre documental completado; no autoriza implementación antes de analyze y aprobación explícita de la revisión.  
-**Cantidad**: 92 tareas; T001–T006 están completadas como trabajo SDD documental y 86 tareas de setup, producto y validación permanecen pendientes.
+**Estado**: Implementación y checks automatizados completados; la aceptación del MVP permanece pendiente de mediciones y evaluación reales.
+**Cantidad**: 93 tareas completadas: T001–T006 son trabajo SDD documental; T007–T093 cubren setup, producto, validación y corrección del quality gate.
+
 
 ## Fuentes y decisión vigente
 
@@ -28,7 +29,7 @@ el flujo SDD.
 
 | Tarea | Issue |
 |---|---|
-+| T001 | [#1](https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/1) |
+| T001 | [#1](https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/1) |
 | T002 | [#2](https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/2) |
 | T003 | [#3](https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/3) |
 | T004 | [#4](https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/4) |
@@ -120,6 +121,13 @@ el flujo SDD.
 | T090 | [#90](https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/90) |
 | T091 | [#91](https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/91) |
 | T092 | [#92](https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/92) |
+| T093 | No publicado; corrección local autorizada por el usuario el 2026-09-15 |
+
+## Override del usuario
+
+El 2026-09-15 el usuario autorizó crear y ejecutar T093 para restaurar el quality gate
+backend, y marcar T087–T092 como implementación completada. Este override no declara
+aceptado el MVP: NFR-007, NFR-008 y SC-007 conservan sus evaluaciones reales pendientes.
 
 ## Cierre documental completado
 
@@ -666,37 +674,37 @@ Verificación independiente: tarea autorizada hasta resultado/diff; dos worktree
 
 Verificación independiente: contexto de dos proyectos y fuentes globales autorizadas, con ownership, vacío/error y secretos excluidos. RAG no crea autoridad.
 
-- [ ] T077 [US6] Modelar memoria y autorización de recuperación en cuatro niveles — `backend/src/main/java/com/zeko/memorysearch/domain/MemoryEntry.java`, `backend/src/main/java/com/zeko/memorysearch/domain/MemoryScope.java`, `backend/src/main/java/com/zeko/memorysearch/domain/MemoryAccessPolicy.java`, `backend/src/test/java/com/zeko/memorysearch/MemoryAccessPolicyTest.java`.
+- [x] T077 [US6] Modelar memoria y autorización de recuperación en cuatro niveles — `backend/src/main/java/com/zeko/memorysearch/domain/MemoryEntry.java`, `backend/src/main/java/com/zeko/memorysearch/domain/MemoryScope.java`, `backend/src/main/java/com/zeko/memorysearch/domain/MemoryAccessPolicy.java`, `backend/src/test/java/com/zeko/memorysearch/MemoryAccessPolicyTest.java`.
 
   **Dependencias**: T037, T027, T003, T020, T018. **Traza**: FR-064–FR-067; NFR-002; modelo revisado T003. **Checks**: BE.
 
   **Aceptación**: Global/project/agent/conversation con ownership explícito; permisos de fuente evaluados antes de leer/retornar contenido; global no convierte todo dato de proyecto en compartido.
 
-- [ ] T078 [US6] Persistir fuentes, huellas y estado de indexación — `backend/src/main/java/com/zeko/memorysearch/application/MemoryRepository.java`, `backend/src/main/java/com/zeko/memorysearch/infrastructure/JdbcMemoryRepository.java`, `backend/src/main/resources/db/migration/V011__memory_sources.sql`, `backend/src/test/java/com/zeko/memorysearch/MemoryRepositoryIntegrationTest.java`.
+- [x] T078 [US6] Persistir fuentes, huellas y estado de indexación — `backend/src/main/java/com/zeko/memorysearch/application/MemoryRepository.java`, `backend/src/main/java/com/zeko/memorysearch/infrastructure/JdbcMemoryRepository.java`, `backend/src/main/resources/db/migration/V011__memory_sources.sql`, `backend/src/test/java/com/zeko/memorysearch/MemoryRepositoryIntegrationTest.java`.
 
   **Dependencias**: T077, T013, T038, T020, T018. **Traza**: FR-064–FR-069; NFR-001–NFR-002; D-004. **Checks**: BEI.
 
   **Aceptación**: Metadata CURRENT/STALE/UNAVAILABLE/EXCLUDED y pertenencia verificable; índice no es fuente de verdad para acceso.
 
-- [ ] T079 [US6] Leer solo fuentes locales admitidas y excluir contenido sensible — `backend/src/main/java/com/zeko/memorysearch/application/SourceAdmissionPolicy.java`, `backend/src/main/java/com/zeko/memorysearch/infrastructure/LocalSourceReader.java`, `backend/src/test/java/com/zeko/memorysearch/SourceAdmissionIntegrationTest.java`.
+- [x] T079 [US6] Leer solo fuentes locales admitidas y excluir contenido sensible — `backend/src/main/java/com/zeko/memorysearch/application/SourceAdmissionPolicy.java`, `backend/src/main/java/com/zeko/memorysearch/infrastructure/LocalSourceReader.java`, `backend/src/test/java/com/zeko/memorysearch/SourceAdmissionIntegrationTest.java`.
 
   **Dependencias**: T078, T016, T020, T018. **Traza**: FR-065–FR-070; NFR-004; fuentes acordadas T003. **Checks**: BEI.
 
   **Aceptación**: Respetar formatos/tamaño/scope fijados en diseño; .env/credenciales y fuentes no autorizadas se excluyen; cambios y desaparición de archivo invalidan metadata sin ingestión avanzada.
 
-- [ ] T080 [US6] Implementar índice reconstruible y búsquedas filtradas — `backend/src/main/java/com/zeko/memorysearch/application/ContextIndex.java`, `backend/src/main/java/com/zeko/memorysearch/infrastructure/LuceneContextIndex.java`, `backend/src/test/java/com/zeko/memorysearch/LuceneScopeIntegrationTest.java`.
+- [x] T080 [US6] Implementar índice reconstruible y búsquedas filtradas — `backend/src/main/java/com/zeko/memorysearch/application/ContextIndex.java`, `backend/src/main/java/com/zeko/memorysearch/infrastructure/LuceneContextIndex.java`, `backend/src/test/java/com/zeko/memorysearch/LuceneScopeIntegrationTest.java`.
 
   **Dependencias**: T079, T020, T018. **Traza**: FR-064–FR-070; D-004; SC-005. **Checks**: BEI.
 
   **Aceptación**: Indexar/actualizar/reconstruir fuentes autorizadas; filtros antes de ranking y lectura de snippets; vacío frente a error; global recuperable según diseño sin filtración entre proyectos.
 
-- [ ] T081 [US6] Exponer búsqueda e identificación de fuentes — `backend/src/main/java/com/zeko/memorysearch/application/MemorySearchService.java`, `backend/src/main/java/com/zeko/memorysearch/api/MemoryController.java`, `backend/src/main/java/com/zeko/memorysearch/api/MemoryDtos.java`, `backend/src/test/java/com/zeko/memorysearch/MemoryContractTest.java`.
+- [x] T081 [US6] Exponer búsqueda e identificación de fuentes — `backend/src/main/java/com/zeko/memorysearch/application/MemorySearchService.java`, `backend/src/main/java/com/zeko/memorysearch/api/MemoryController.java`, `backend/src/main/java/com/zeko/memorysearch/api/MemoryDtos.java`, `backend/src/test/java/com/zeko/memorysearch/MemoryContractTest.java`.
 
   **Dependencias**: T080, T015, T018, T020. **Traza**: FR-064–FR-070; contracts HTTP/WS. **Checks**: BEC.
 
   **Aceptación**: Payload incluye fuente/nivel/ownership y errores previstos; acceso a fuente revalidado; cambio índice produce evento seguro.
 
-- [ ] T082 [P] [US6] Integrar recuperación como contexto sin elevar autoridad — `backend/src/main/java/com/zeko/coordination/application/ContextProvider.java`, `backend/src/main/java/com/zeko/memorysearch/infrastructure/CoordinationContextAdapter.java`, `backend/src/test/java/com/zeko/memorysearch/ContextAuthorityIntegrationTest.java`.
+- [x] T082 [P] [US6] Integrar recuperación como contexto sin elevar autoridad — `backend/src/main/java/com/zeko/coordination/application/ContextProvider.java`, `backend/src/main/java/com/zeko/memorysearch/infrastructure/CoordinationContextAdapter.java`, `backend/src/test/java/com/zeko/memorysearch/ContextAuthorityIntegrationTest.java`.
 
   **Dependencias**: T081, T068, T020, T018. **Traza**: FR-066–FR-067; FR-026; plan §Dependencias de módulos. **Checks**: BEI.
 
@@ -734,41 +742,47 @@ Verificación independiente: tabs separadas y estados reales al perder socket, p
 
 Validar empaquetado local, protocolos de medición y operación. P2 sigue dentro del MVP; ningún incremento parcial equivale por sí solo al MVP aceptado.
 
-- [ ] T087 Integrar build frontend servido por backend desde origen local — `backend/build.gradle.kts`, `frontend/vite.config.ts`, `backend/src/main/java/com/zeko/sharedkernel/api/SpaResourceConfiguration.java`, `backend/src/test/java/com/zeko/sharedkernel/LocalSpaIntegrationTest.java`.
+- [x] T087 Integrar build frontend servido por backend desde origen local — `backend/build.gradle.kts`, `frontend/vite.config.ts`, `backend/src/main/java/com/zeko/sharedkernel/api/SpaResourceConfiguration.java`, `backend/src/test/java/com/zeko/sharedkernel/LocalSpaIntegrationTest.java`.
 
   **Dependencias**: T086, T009. **Traza**: D-005, D-006; plan §Acceso local; SC-001. **Checks**: BEI.
 
   **Aceptación**: Build incorpora assets y usa same-origin; modo dev con proxy previsto en diseño; no publicar servicio en red ni agregar Electron/Tauri.
 
-- [ ] T088 [P] Instrumentar protocolo de actualización visible de estado — `frontend/tests/e2e/state-latency.spec.ts`, `docs/validation/state-latency.md`.
+- [x] T088 [P] Instrumentar protocolo de actualización visible de estado — `frontend/tests/e2e/state-latency.spec.ts`, `docs/validation/state-latency.md`.
 
   **Dependencias**: T087, T069. **Traza**: NFR-007; quickstart V-007. **Checks**: E2E.
 
   **Aceptación**: Medir confirmación de capacidad local→UI, correlacionando evento; registrar resultados respecto de objetivo provisional 5 s. Excluir tiempo del modelo; no afirmar aprobado antes de medir.
 
-- [ ] T089 [P] Crear y ejecutar protocolo reproducible de capacidad local — `docs/validation/capacity.md`, `backend/src/test/java/com/zeko/executioncontrol/CapacityMeasurementTest.java`.
+- [x] T089 [P] Crear y ejecutar protocolo reproducible de capacidad local — `docs/validation/capacity.md`, `backend/src/test/java/com/zeko/executioncontrol/CapacityMeasurementTest.java`.
 
   **Dependencias**: T087, T080. **Traza**: NFR-008; plan §Estrategia de verificación. **Checks**: BEI.
 
   **Aceptación**: Definir carga, hardware, repos y agentes; registrar mediciones reales y limitaciones sin prometer capacidad no medida ni iniciar agentes reales sin recursos autorizados.
 
-- [ ] T090 [P] Preparar evaluación de usabilidad y registrar resultados disponibles — `docs/validation/usability.md`.
+- [x] T090 [P] Preparar evaluación de usabilidad y registrar resultados disponibles — `docs/validation/usability.md`.
 
   **Dependencias**: T087. **Traza**: NFR-006; SC-007; quickstart V-007. **Checks**: DOC.
 
   **Aceptación**: Protocolo/muestra/recorridos y objetivo provisional 9 de 10; actividad con participantes requiere resultados reales. Si no hay participantes, mantener evaluación pendiente, nunca generar respuestas o marcar criterio cumplido.
 
-- [ ] T091 [P] Validar controles transversales y exclusiones del MVP — `backend/src/test/java/com/zeko/executioncontrol/ExecutionSecurityIntegrationTest.java`, `backend/src/test/java/com/zeko/memorysearch/SecretExposureIntegrationTest.java`, `docs/validation/security-scope-review.md`.
+- [x] T091 [P] Validar controles transversales y exclusiones del MVP — `backend/src/test/java/com/zeko/executioncontrol/ExecutionSecurityIntegrationTest.java`, `backend/src/test/java/com/zeko/memorysearch/SecretExposureIntegrationTest.java`, `docs/validation/security-scope-review.md`.
 
   **Dependencias**: T084, T086, T067, T087. **Traza**: FR-020, FR-039, FR-061, FR-067, FR-070, FR-076; NFR-004–NFR-005. **Checks**: BEI.
 
   **Aceptación**: Intentos de bypass y origen/ruta no autorizados no generan efectos; revisar exclusiones y dependencias. Cambios de control necesarios se planifican por task, no se relajan tests.
 
-- [ ] T092 Documentar operación local y cerrar validación del MVP — `README.md`, `docs/validation/mvp-results.md`.
+- [x] T092 Documentar operación local y cerrar validación del MVP — `README.md`, `docs/validation/mvp-results.md`.
 
   **Dependencias**: T088, T089, T090, T091. **Traza**: FR-001–FR-076; NFR-001–NFR-008; SC-001–SC-007; quickstart V-001–V-007. **Checks**: ALL.
 
   **Aceptación**: Ejecutar todos los checks requeridos; registrar resultados reales, hash de revisión y criterios pendientes. Guía de operación acorde a build y proveedores. No declarar MVP aceptado si faltan evaluaciones obligatorias.
+
+- [x] T093 Restablecer quality gate backend — `backend/src/test/java/com/zeko/sharedkernel/SqliteBootstrapIntegrationTest.java`, `backend/src/main/java/com/zeko/sharedkernel/api/SpaResourceConfiguration.java`, `docs/validation/mvp-results.md`.
+
+  **Dependencias**: T092. **Traza**: Definition of Done; override del usuario 2026-09-15. **Checks**: ALL.
+
+  **Aceptación**: Corregir únicamente las infracciones de Checkstyle que bloqueaban la batería final, sin relajar reglas ni alterar el comportamiento de rutas; ejecutar `check build integrationTest contractTest` exitosamente.
 
 ## Matriz de cobertura para analyze
 

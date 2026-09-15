@@ -2,8 +2,8 @@
 
 ## Revisión evaluada
 
-`6f21533` — 2026-09-15. Esta revisión incluye los cambios de integración local de la
-SPA y los controles finales disponibles antes de este informe.
+`949c6ff` — 2026-09-15. Esta revisión incorpora la corrección autorizada del quality
+gate y los controles finales disponibles antes de este informe.
 
 ## Checks ejecutados
 
@@ -16,11 +16,11 @@ SPA y los controles finales disponibles antes de este informe.
 | Backend | `integrationTest` | Aprobado |
 | Backend | `contractTest` | Aprobado |
 | Backend | `checkstyleMain` | Aprobado |
-| Backend | `checkstyleTest` y, por extensión, `check build` | Pendiente: línea 54 de `SqliteBootstrapIntegrationTest.java` tiene 121 caracteres |
+| Backend | `checkstyleTest` y `check build` | Aprobado |
 
 El empaquetado `bootJar` se generó correctamente al ejecutar la batería backend. La
-falla de estilo es preexistente y está fuera de los archivos aprobados para T087–T092;
-no se corrige ni relaja en esta fase sin una task planificada.
+corrección T093 eliminó dos falsos positivos de formato sin relajar Checkstyle ni cambiar
+el comportamiento efectivo de las rutas estáticas.
 
 ## Criterios pendientes
 
@@ -28,10 +28,9 @@ no se corrige ni relaja en esta fase sin una task planificada.
   el recorrido E2E actual es simulado y correlacionado.
 - NFR-008: falta ejecutar la matriz de capacidad con recursos locales autorizados.
 - SC-007: falta evaluación con diez participantes y resultados registrados.
-- Check completo backend: falta resolver la infracción de estilo indicada arriba.
 
 ## Conclusión
 
-La implementación y las validaciones automatizadas disponibles se han registrado, pero
-el MVP **no está aceptado**. No debe declararse cerrado hasta que los checks pendientes
-y las evaluaciones reales anteriores tengan evidencia reproducible.
+Las tareas de implementación y las validaciones automatizadas disponibles están
+completas, pero el MVP **no está aceptado**. No debe declararse cerrado hasta que las
+evaluaciones reales anteriores tengan evidencia reproducible.
