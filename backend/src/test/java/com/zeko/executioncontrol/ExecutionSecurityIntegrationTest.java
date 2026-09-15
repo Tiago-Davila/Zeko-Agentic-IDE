@@ -2,6 +2,7 @@ package com.zeko.executioncontrol;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -39,6 +40,7 @@ class ExecutionSecurityIntegrationTest {
         when(adapter.capability()).thenReturn(LocalCapability.FILESYSTEM);
 
         AuthorizedActionDispatcher dispatcher = dispatcher(approvals, worktrees, adapter);
+        clearInvocations(adapter);
 
         assertThatThrownBy(() -> dispatcher.dispatch(action, approvalId, ResourceId.newId()))
                 .isInstanceOfSatisfying(DomainError.class,
