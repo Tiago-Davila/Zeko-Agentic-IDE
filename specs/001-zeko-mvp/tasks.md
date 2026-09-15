@@ -969,3 +969,51 @@ separados. No modifican el alcance del MVP ni autorizan las capacidades excluida
   **Dependencias**: T061, T063–T068, T072–T074, T097. **Traza**: A06; FR-045–FR-057, FR-062–FR-063; SC-001–SC-003, SC-006; DOCX §§16, 18–20. **Checks**: BE, BEI, BEC.
 
   **Aceptación**: iniciar una ejecución reserva y activa un worktree de la combinación repositorio+task, ejecuta solo acciones clasificadas y aprobadas mediante adaptadores locales, registra estados/efectos, produce diff Git atribuible y preserva cambios previos; cancelación y reintento siguen siendo explícitos. No se agregan push, merge, publicación, cloud ni herramientas fuera del MVP.
+
+## Phase 12: Convergence — auditoría A08–A12
+
+Estas tareas corrigen los hallazgos pendientes de `AUD-MVP-20260915` después de
+T094–T099. Se mantienen los contratos, el stack local y las exclusiones del MVP;
+cada tarea requiere un diff y un commit propios.
+
+- [ ] T100 [A08] Reemplazar el índice en memoria por Lucene local reconstruible — `backend/src/main/java/com/zeko/memorysearch/application/ContextIndex.java`, `backend/src/main/java/com/zeko/memorysearch/infrastructure/LuceneContextIndex.java`, configuración local de índice y pruebas de reinicio/alcance.
+
+  **Dependencias**: T078–T080. **Traza**: A08; FR-064–FR-069; NFR-001; Constitución, «Modelo de producto y memoria». **Checks**: BE, BEI.
+
+  **Aceptación**: las entradas admitidas se indexan y consultan con Lucene local, sobreviven la reconstrucción desde metadata, filtran scope y ownership antes de devolver snippets y no sustituyen SQLite como fuente de metadata.
+
+- [ ] T101 [A09] Endurecer admisión y lectura de fuentes locales — `backend/src/main/java/com/zeko/memorysearch/application/SourceAdmissionPolicy.java`, `backend/src/main/java/com/zeko/memorysearch/infrastructure/LocalSourceReader.java` y pruebas de enlaces simbólicos, rutas físicas y secretos multilínea.
+
+  **Dependencias**: T079. **Traza**: A09; FR-065–FR-067; NFR-002, NFR-004; Constitución, «Modelo de producto y memoria». **Checks**: BEI.
+
+  **Aceptación**: toda fuente se resuelve bajo la raíz permitida antes de abrirse; un enlace simbólico, ruta exterior, formato excluido o contenido sensible, incluso distribuido en varias líneas, queda rechazado sin indexar ni exponer snippets.
+
+- [ ] T102 [A08] Conectar ingesta, recuperación segura y la superficie de memoria — `backend/src/main/java/com/zeko/memorysearch/application/MemorySearchService.java`, `backend/src/main/java/com/zeko/memorysearch/infrastructure/CoordinationContextAdapter.java`, `backend/src/main/java/com/zeko/coordination/application/AgentLoop.java`, `frontend/src/app/WorkspaceShell.tsx`, `frontend/src/features/memory/MemoryPanel.tsx`, `frontend/src/features/memory/memoryApi.ts` y pruebas correspondientes.
+
+  **Dependencias**: T100, T101, T103. **Traza**: A08; FR-064–FR-069, FR-072–FR-074; SC-005; NFR-001–NFR-004. **Checks**: BEI, BEC, FE, E2E.
+
+  **Aceptación**: una fuente local admitida puede registrarse e indexarse con ownership explícito; el agente recibe contexto como información de menor autoridad, y la UI muestra búsqueda, vacío y error dentro del proyecto activo sin convertir resultados en instrucciones o permisos.
+
+- [ ] T103 [A10] Completar los handlers aprobados para fuentes de memoria y decisiones de follow-up — `backend/src/main/java/com/zeko/memorysearch/api/MemoryController.java`, `backend/src/main/java/com/zeko/memorysearch/api/MemoryDtos.java`, `backend/src/main/java/com/zeko/coordination/api/FollowUpController.java`, DTOs/servicio de follow-up y pruebas HTTP/SQLite correspondientes.
+
+  **Dependencias**: T040, T081, T101. **Traza**: A10; FR-044, FR-064–FR-069, FR-072; NFR-002; `contracts/openapi.yaml`. **Checks**: BEC, BEI.
+
+  **Aceptación**: las rutas aprobadas de registro de fuente y decisión de follow-up tienen handlers same-origin, validan proyecto/ownership y devuelven los DTOs declarados; no introducen RBAC, acceso remoto ni contratos paralelos.
+
+- [ ] T104 [A11] Reemplazar pruebas nominales de ejecución, approvals y conflictos por recorridos verificables — `backend/src/test/java/com/zeko/executioncontrol/`, `frontend/tests/e2e/authorized-execution.spec.ts`, `frontend/tests/e2e/worktree-conflicts.spec.ts`, `frontend/tests/e2e/runtime-recovery.spec.ts` y soporte de prueba mínimo indispensable.
+
+  **Dependencias**: T098–T099. **Traza**: A11; T075–T076, T085–T086; FR-035–FR-063; SC-001–SC-003, SC-006. **Checks**: BEI, BEC, E2E.
+
+  **Aceptación**: las pruebas ejecutan una acción autorizada o denegada, verifican efectos y estado observables, reproducen conflicto de worktree y recuperación manual; no tratan texto estático, clases cargadas ni errores de proxy como evidencia funcional.
+
+- [ ] T105 [A11] Sustituir pruebas nominales de memoria por recorridos verificables — `backend/src/test/java/com/zeko/memorysearch/`, `frontend/tests/e2e/memory-scope.spec.ts` y soporte de prueba mínimo indispensable.
+
+  **Dependencias**: T100–T104. **Traza**: A11; T077–T084; FR-064–FR-069; NFR-001–NFR-004; SC-005. **Checks**: BEI, BEC, E2E.
+
+  **Aceptación**: las pruebas verifican ingestión, reconstrucción, scope y exclusión de secretos con datos temporales; no tratan títulos, nombres de clase ni errores de proxy como evidencia funcional.
+
+- [ ] T106 [A12] Reconciliar evidencia de aceptación y estado documental — `docs/validation/mvp-results.md`, `docs/validation/mvp-audit-2026-09-15.md` y evidencia de mediciones aplicable.
+
+  **Dependencias**: T100–T105. **Traza**: A12; T092; FR-001–FR-076; NFR-001–NFR-008; SC-001–SC-007. **Checks**: DOC.
+
+  **Aceptación**: la evidencia separa checks ejecutados de mediciones y aceptación pendientes, registra los hallazgos corregidos y nunca declara cumplidos criterios sin datos reales.
