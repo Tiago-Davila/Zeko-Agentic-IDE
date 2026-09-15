@@ -1,0 +1,51 @@
+import { expect, test } from './fixtures/localWorkspace';
+
+const TARGET_MILLISECONDS = 5_000;
+
+test('measures the local-confirmation-to-visible-state path with its correlation id', async ({ page }, testInfo) => {
+  let confirmationAt = 0;
+  let correlationId = '';
+
+  await page.route('/api/runtime/snapshot', async (route) => {
+    confirmationAt = performance.now();
+    correlationId = route.request().headers()['x-correlation-id'] ?? '';
+    await route.fulfill({
+      json: [runningExecution()],
+      headers: { 'X-Correlation-Id': correlationId },
+    });
+  });
+
+  await page.goto('/');
+  await page.getByRole('tab', { name: 'Runtime Canvas' }).click();
+  await expect(page.getByRole('article', { name: 'Ejecución 1' }).getByText(/Estado: RUNNING/)).toBeVisible();
+
+  const visibleAfterMilliseconds = performance.now() - confirmationAt;
+  await testInfo.attach('state-latency-simulated.json', {
+    body: JSON.stringify({
+      correlationId,
+      visibleAfterMilliseconds,
+      targetMilliseconds: TARGET_MILLISECONDS,
+      modelGenerationIncluded: false,
+      environment: 'simulated-ui-path',
+    }, null, 2),
+    contentType: 'application/json',
+  });
+
+  expect(correlationId).not.toBe('');
+  expect(visibleAfterMilliseconds).toBeLessThan(TARGET_MILLISECONDS);
+});
+
+function runningExecution() {
+  return {
+    id: '4f1a5678-1234-4a5b-9cde-123456789abc',
+    taskId: '2d8c5678-1234-4a5b-9cde-123456789abc',
+    attempt: 1,
+    state: 'RUNNING',
+    knownState: 'RUNNING',
+    templateId: '6a1b5678-1234-4a5b-9cde-123456789abc',
+    templateVersion: 1,
+    retryOfExecutionId: null,
+    cancellationRequested: false,
+    effects: [],
+  };
+}
