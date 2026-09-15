@@ -988,7 +988,7 @@ cada tarea requiere un diff y un commit propios.
 
   **Aceptación**: toda fuente se resuelve bajo la raíz permitida antes de abrirse; un enlace simbólico, ruta exterior, formato excluido o contenido sensible, incluso distribuido en varias líneas, queda rechazado sin indexar ni exponer snippets.
 
-- [ ] T102 [A08] Conectar ingesta, recuperación segura y la superficie de memoria — `backend/src/main/java/com/zeko/memorysearch/application/MemorySearchService.java`, `backend/src/main/java/com/zeko/memorysearch/infrastructure/CoordinationContextAdapter.java`, `backend/src/main/java/com/zeko/coordination/application/AgentLoop.java`, `frontend/src/app/WorkspaceShell.tsx`, `frontend/src/features/memory/MemoryPanel.tsx`, `frontend/src/features/memory/memoryApi.ts` y pruebas correspondientes.
+- [x] T102 [A08] Conectar ingesta, recuperación segura y la superficie de memoria — `backend/src/main/java/com/zeko/memorysearch/application/MemorySearchService.java`, `backend/src/main/java/com/zeko/memorysearch/infrastructure/CoordinationContextAdapter.java`, `backend/src/main/java/com/zeko/coordination/application/AgentLoop.java`, `frontend/src/app/WorkspaceShell.tsx`, `frontend/src/features/memory/MemoryPanel.tsx`, `frontend/src/features/memory/memoryApi.ts` y pruebas correspondientes.
 
   **Dependencias**: T100, T101, T103. **Traza**: A08; FR-064–FR-069, FR-072–FR-074; SC-005; NFR-001–NFR-004. **Checks**: BEI, BEC, FE, E2E.
 
