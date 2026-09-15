@@ -708,7 +708,7 @@ Verificación independiente: contexto de dos proyectos y fuentes globales autori
 
   **Aceptación**: Crear o seleccionar conversación explícita; la búsqueda envía su `conversationId`, no un `projectId` o agentId inferido. Resolver Project, conversación y AgentInstance cuando aplique antes de filtrar/rankear. Distinguir vacío/error/desactualizado y mostrar fuente, nivel, ownership e indexState sin exponer contenido excluido.
 
-- [ ] T084 [US6] Validar contexto de dos proyectos y protección de secretos — `frontend/tests/e2e/memory-scope.spec.ts`.
+- [x] T084 [US6] Validar contexto de dos proyectos y protección de secretos — `frontend/tests/e2e/memory-scope.spec.ts`.
 
   **Dependencias**: T083, T082, T075, T020, T018. **Traza**: US-006; SC-005; NFR-002, NFR-004; quickstart V-006. **Checks**: E2E.
 
