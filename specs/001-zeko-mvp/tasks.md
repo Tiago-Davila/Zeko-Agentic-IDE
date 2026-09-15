@@ -1006,7 +1006,7 @@ cada tarea requiere un diff y un commit propios.
 
   **Aceptación**: las pruebas ejecutan una acción autorizada o denegada, verifican efectos y estado observables, reproducen conflicto de worktree y recuperación manual; no tratan texto estático, clases cargadas ni errores de proxy como evidencia funcional.
 
-- [ ] T105 [A11] Sustituir pruebas nominales de memoria por recorridos verificables — `backend/src/test/java/com/zeko/memorysearch/`, `frontend/tests/e2e/memory-scope.spec.ts` y soporte de prueba mínimo indispensable.
+- [x] T105 [A11] Sustituir pruebas nominales de memoria por recorridos verificables — `backend/src/test/java/com/zeko/memorysearch/MemoryAccessPolicyTest.java`, `backend/src/test/java/com/zeko/memorysearch/MemoryRepositoryIntegrationTest.java`, `backend/src/test/java/com/zeko/memorysearch/LuceneScopeIntegrationTest.java`, `backend/src/test/java/com/zeko/memorysearch/MemoryContractTest.java`, `backend/src/test/java/com/zeko/memorysearch/ContextAuthorityIntegrationTest.java`, `backend/src/test/java/com/zeko/memorysearch/MemorySourceContractTest.java` y `frontend/tests/e2e/memory-scope.spec.ts`.
 
   **Dependencias**: T100–T104. **Traza**: A11; T077–T084; FR-064–FR-069; NFR-001–NFR-004; SC-005. **Checks**: BEI, BEC, E2E.
 
