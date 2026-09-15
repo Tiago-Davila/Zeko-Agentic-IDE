@@ -1000,7 +1000,7 @@ cada tarea requiere un diff y un commit propios.
 
   **Aceptación**: las rutas aprobadas de registro de fuente y decisión de follow-up tienen handlers same-origin, validan proyecto/ownership y devuelven los DTOs declarados; no introducen RBAC, acceso remoto ni contratos paralelos.
 
-- [ ] T104 [A11] Reemplazar pruebas nominales de ejecución, approvals y conflictos por recorridos verificables — `backend/src/test/java/com/zeko/executioncontrol/`, `frontend/tests/e2e/authorized-execution.spec.ts`, `frontend/tests/e2e/worktree-conflicts.spec.ts`, `frontend/tests/e2e/runtime-recovery.spec.ts` y soporte de prueba mínimo indispensable.
+- [x] T104 [A11] Reemplazar pruebas nominales de ejecución, approvals y conflictos por recorridos verificables — `backend/src/test/java/com/zeko/executioncontrol/`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/JdbcWorktreeRepository.java`, `frontend/src/features/runtime/RuntimeCanvas.tsx`, `frontend/tests/e2e/authorized-execution.spec.ts`, `frontend/tests/e2e/worktree-conflicts.spec.ts`, `frontend/tests/e2e/runtime-recovery.spec.ts` y soporte de prueba mínimo indispensable.
 
   **Dependencias**: T098–T099. **Traza**: A11; T075–T076, T085–T086; FR-035–FR-063; SC-001–SC-003, SC-006. **Checks**: BEI, BEC, E2E.
 
