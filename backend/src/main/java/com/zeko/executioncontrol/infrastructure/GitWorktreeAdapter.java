@@ -22,6 +22,12 @@ public class GitWorktreeAdapter implements GitWorkspacePort {
     if (Files.exists(target)) {
       throw DomainError.conflict("El destino de worktree ya existe");
     }
+    try {
+      Files.createDirectories(target.getParent());
+    } catch (IOException failure) {
+      throw DomainError.pathInvalid(
+          "No se pudo preparar el directorio del worktree local");
+    }
     List<String> command =
         List.of("git", "-C", repo.toString(), "worktree", "add", "--detach",
                 target.toString(),
@@ -36,9 +42,13 @@ public class GitWorktreeAdapter implements GitWorkspacePort {
     String baseline = baselineRevision == null || baselineRevision.isBlank()
                           ? "HEAD"
                           : baselineRevision;
-    return run(List.of("git", "-C", root.toString(), "diff", "--no-ext-diff",
-                       baseline, "--"),
-               root);
+    return redact(run(List.of("git", "-C", root.toString(), "diff", "--no-ext-diff",
+                              baseline, "--"), root));
+  }
+
+  private static String redact(String diff) {
+    return diff.replaceAll("(?is)(token|password|secret|authorization)=[^\\s]+",
+                           "$1=[REDACTED]");
   }
 
   private static String run(List<String> command, Path directory) {

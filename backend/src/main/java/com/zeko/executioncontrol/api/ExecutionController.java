@@ -1,6 +1,7 @@
 package com.zeko.executioncontrol.api;
 
 import com.zeko.executioncontrol.application.ExecutionService;
+import com.zeko.executioncontrol.application.ExecutionActivationService;
 import com.zeko.sharedkernel.domain.ResourceId;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -16,8 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class ExecutionController {
   private final ExecutionService executions;
-  public ExecutionController(ExecutionService executions) {
+  private final ExecutionActivationService activation;
+  public ExecutionController(ExecutionService executions,
+                             ExecutionActivationService activation) {
     this.executions = executions;
+    this.activation = activation;
   }
   @PostMapping("/tasks")
   public ResponseEntity<ExecutionDtos.TaskResponse>
@@ -43,7 +47,7 @@ public class ExecutionController {
                            : ResourceId.parse(input.retryOfExecutionId());
     return ResponseEntity.status(HttpStatus.ACCEPTED)
         .body(ExecutionDtos.Response.from(
-            executions.start(ResourceId.parse(taskId), retry)));
+            activation.start(ResourceId.parse(taskId), retry)));
   }
   @GetMapping("/executions/{executionId}")
   public ExecutionDtos.Response execution(@PathVariable String executionId) {
