@@ -12,6 +12,9 @@ public final class ConversationDtos {
                                      List<InstructionResponse> instructions) {}
   public record InstructionResponse(String id, String origin, String content,
                                     String precedence, String overrideOf) {}
+  public record ExchangeResponse(InstructionResponse instruction,
+                                 InstructionResponse response,
+                                 ConversationResponse conversation) {}
   public static ConversationResponse conversation(Conversation value) {
     return new ConversationResponse(
         value.id().asString(), value.projectId().asString(),
@@ -26,5 +29,12 @@ public final class ConversationDtos {
         value.id().asString(), value.origin().name(), value.content(),
         value.precedence().name(),
         value.overrideOf() == null ? null : value.overrideOf().asString());
+  }
+
+  public static ExchangeResponse exchange(
+      com.zeko.coordination.application.ConversationService.Exchange exchange) {
+    return new ExchangeResponse(instruction(exchange.instruction()),
+                                instruction(exchange.response()),
+                                conversation(exchange.conversation()));
   }
 }

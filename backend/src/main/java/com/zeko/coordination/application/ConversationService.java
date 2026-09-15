@@ -3,6 +3,7 @@ package com.zeko.coordination.application;
 import com.zeko.coordination.domain.Conversation;
 import com.zeko.coordination.domain.Instruction;
 import com.zeko.coordination.domain.InstructionPrecedence;
+import com.zeko.coordination.domain.AutonomyMode;
 import com.zeko.sharedkernel.domain.DomainError;
 import com.zeko.sharedkernel.domain.ResourceId;
 import java.time.Instant;
@@ -12,9 +13,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class ConversationService implements ConversationContextProvider {
   private final ConversationRepository conversations;
+  private final AgentLoop agentLoop;
 
-  public ConversationService(ConversationRepository conversations) {
+  public ConversationService(ConversationRepository conversations,
+                             AgentLoop agentLoop) {
     this.conversations = conversations;
+    this.agentLoop = agentLoop;
   }
 
   public Conversation create(ResourceId projectId,
@@ -60,6 +64,24 @@ public class ConversationService implements ConversationContextProvider {
     return instruction;
   }
 
+  public Exchange instructAndRespond(ResourceId conversationId, String content,
+                                     ResourceId overrideOf, String scope,
+                                     ResourceId related) {
+    Conversation conversation = find(conversationId);
+    Instruction instruction = instruct(conversationId, content, overrideOf,
+                                       scope, related);
+    String response = agentLoop.respond(conversationId, instruction.id(),
+                                        instruction.content(),
+                                        AutonomyMode.MANUAL);
+    Instruction responseInstruction = new Instruction(
+        ResourceId.newId(), conversationId, responseOrigin(conversation),
+        response, responsePrecedence(conversation), null, null,
+        instruction.id(), Instant.now());
+    conversations.append(responseInstruction);
+    return new Exchange(instruction, responseInstruction,
+                         find(conversationId));
+  }
+
   private static Instruction overriddenInstruction(Conversation conversation,
                                                    ResourceId overrideOf) {
     if (overrideOf == null) {
@@ -74,4 +96,20 @@ public class ConversationService implements ConversationContextProvider {
                 -> DomainError.validation("El override debe referenciar una " +
                                           "instruccion de la conversacion"));
   }
+
+  private static Instruction.Origin responseOrigin(Conversation conversation) {
+    return conversation.recipientType() == Conversation.RecipientType.PM
+        ? Instruction.Origin.PROJECT_MANAGER
+        : Instruction.Origin.AGENT;
+  }
+
+  private static InstructionPrecedence responsePrecedence(
+      Conversation conversation) {
+    return conversation.recipientType() == Conversation.RecipientType.PM
+        ? InstructionPrecedence.PROJECT_MANAGER
+        : InstructionPrecedence.AGENT;
+  }
+
+  public record Exchange(Instruction instruction, Instruction response,
+                         Conversation conversation) {}
 }

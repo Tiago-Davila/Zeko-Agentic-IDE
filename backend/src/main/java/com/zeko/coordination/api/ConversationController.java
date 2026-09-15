@@ -36,14 +36,15 @@ public class ConversationController {
         conversations.find(ResourceId.parse(conversationId)));
   }
   @PostMapping("/conversations/{conversationId}/messages")
-  public ResponseEntity<ConversationDtos.InstructionResponse>
+  public ResponseEntity<ConversationDtos.ExchangeResponse>
   message(@PathVariable String conversationId,
           @RequestBody ConversationDtos.InstructionInput input) {
-    return ResponseEntity.accepted().body(ConversationDtos.instruction(
-        conversations.instruct(ResourceId.parse(conversationId),
-                               input.content(), resourceId(input.overrideOf()),
-                               input.scope(),
-                               resourceId(input.relatedResourceId()))));
+    return ResponseEntity.accepted().body(ConversationDtos.exchange(
+        conversations.instructAndRespond(ResourceId.parse(conversationId),
+                                          input.content(),
+                                          resourceId(input.overrideOf()),
+                                          input.scope(),
+                                          resourceId(input.relatedResourceId()))));
   }
   private static ResourceId resourceId(String value) {
     return value == null ? null : ResourceId.parse(value);
