@@ -40,7 +40,12 @@ public class JdbcWorktreeRepository implements WorktreeRepository {
                   worktree.physicalPath(), worktree.state().name(),
                   id(worktree.ownerExecutionId()));
       return worktree;
-    } catch (org.springframework.dao.DataIntegrityViolationException conflict) {
+    } catch (org.springframework.dao.DataAccessException conflict) {
+      if (!(conflict instanceof org.springframework.dao.DataIntegrityViolationException)
+          && (conflict.getMessage() == null
+              || !conflict.getMessage().contains("SQLITE_CONSTRAINT"))) {
+        throw conflict;
+      }
       throw DomainError.conflict(
           "El worktree ya tiene un escritor o una task reservada");
     }

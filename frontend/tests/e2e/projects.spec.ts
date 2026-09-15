@@ -35,6 +35,15 @@ test('crea, reabre y conserva dos repositorios locales', async ({ page, localWor
     }
     await route.fulfill({ status: 201, json: project, headers: correlation(route) });
   });
+  await page.route(`**/api/projects/${project.id}/agent-templates`, async (route) => {
+    await route.fulfill({ json: [], headers: correlation(route) });
+  });
+  await page.route(`**/api/projects/${project.id}/agent-instances`, async (route) => {
+    await route.fulfill({ json: [], headers: correlation(route) });
+  });
+  await page.route(`**/api/projects/${project.id}/skills`, async (route) => {
+    await route.fulfill({ json: [], headers: correlation(route) });
+  });
   await page.route(`/api/projects/${project.id}/repositories`, async (route) => {
     const body = route.request().postDataJSON() as { path: string };
     const repository = {
@@ -75,6 +84,15 @@ test('reports an inaccessible repository path without changing the selected proj
   });
   await page.route('/api/projects', async (route) => {
     await route.fulfill({ json: [project], headers: correlation(route) });
+  });
+  await page.route(`**/api/projects/${project.id}/agent-templates`, async (route) => {
+    await route.fulfill({ json: [], headers: correlation(route) });
+  });
+  await page.route(`**/api/projects/${project.id}/agent-instances`, async (route) => {
+    await route.fulfill({ json: [], headers: correlation(route) });
+  });
+  await page.route(`**/api/projects/${project.id}/skills`, async (route) => {
+    await route.fulfill({ json: [], headers: correlation(route) });
   });
   await page.route(`/api/projects/${project.id}/repositories`, async (route) => {
     await route.fulfill({

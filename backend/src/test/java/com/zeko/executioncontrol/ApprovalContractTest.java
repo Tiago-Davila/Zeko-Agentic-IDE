@@ -1,5 +1,6 @@
 package com.zeko.executioncontrol;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -57,6 +58,14 @@ class ApprovalContractTest {
                 .andExpect(jsonPath("$.actionRevision").value(1))
                 .andExpect(jsonPath("$.resource").value("src/App.java"))
                 .andExpect(jsonPath("$.scope").value("worktree"));
+        mockMvc.perform(post("/api/approvals/" + pending.id() + "/decisions").cookie(session)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"actionRevision\":1,\"decision\":\"APPROVE\",\"reason\":\"revisado\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state").value("APPROVED"));
+        assertThat(approvals.findApproval(pending.id())).get()
+                .extracting(Approval::state)
+                .isEqualTo(Approval.State.APPROVED);
         mockMvc.perform(post("/api/approvals/" + pending.id() + "/decisions").cookie(session)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"actionRevision\":2,\"decision\":\"APPROVE\"}"))

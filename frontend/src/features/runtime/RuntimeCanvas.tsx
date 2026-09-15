@@ -36,6 +36,7 @@ export function RuntimeCanvas({ projectId = null, approvals }: RuntimeCanvasProp
   const [tasks, setTasks] = useState<readonly RuntimeTask[]>([]);
   const [loadedApprovals, setLoadedApprovals] = useState<readonly ApprovalDto[]>(approvals ?? []);
   const [conflicts, setConflicts] = useState<readonly RuntimeConflict[]>([]);
+  const [resolutionMessage, setResolutionMessage] = useState('');
   const [snapshotStatus, setSnapshotStatus] = useState<SnapshotStatus>('loading');
   const [snapshotError, setSnapshotError] = useState('');
   const [dataError, setDataError] = useState('');
@@ -147,6 +148,7 @@ export function RuntimeCanvas({ projectId = null, approvals }: RuntimeCanvasProp
   async function resolve(item: RuntimeConflict, resolution: 'CANCELLED' | 'REASSIGNED' | 'RESOLVED_MANUALLY', note: string) {
     const updated = await resolveConflict(item.taskId, resolution, note);
     setConflicts((current) => current.filter((conflictItem) => conflictItem.id !== updated.id));
+    setResolutionMessage('Resolución registrada localmente.');
   }
 
   const currentProjectKey = projectId ?? '';
@@ -162,6 +164,7 @@ export function RuntimeCanvas({ projectId = null, approvals }: RuntimeCanvasProp
     {snapshotStatus === 'loading' ? <p role="status">Cargando snapshot local…</p> : null}
     {snapshotError ? <p role="alert">{snapshotError} <button type="button" onClick={() => void loadSnapshot()}>Reintentar carga</button></p> : null}
     {dataError ? <p role="alert">{dataError}</p> : null}
+    {resolutionMessage ? <p role="status">{resolutionMessage}</p> : null}
     {snapshotStatus === 'ready' && projectLoaded && visibleExecutions.length === 0 ? <p>No hay ejecuciones conocidas para este proyecto.</p> : null}
     <div role="list" aria-label="Ejecuciones">{visibleExecutions.map((execution) => <div key={execution.id} role="listitem"><ExecutionCard execution={execution} /><ExecutionControls execution={execution} onUpdated={replace} /><ExecutionResultPanel executionId={execution.id} /><TracePanel resourceId={execution.id} /></div>)}</div>
     {visibleTasks.length > 0 ? <section aria-label="Tareas de Runtime"><h3>Tareas del proyecto</h3><ul>{visibleTasks.map((task) => <li key={task.id}>{task.title} · {task.state}</li>)}</ul></section> : null}

@@ -6,12 +6,32 @@ test('measures the local-confirmation-to-visible-state path with its correlation
   let confirmationAt = 0;
   let correlationId = '';
 
+  await page.route('/api/session/bootstrap', async (route) => route.fulfill({
+    json: {},
+    headers: { 'X-Correlation-Id': route.request().headers()['x-correlation-id'] ?? '' },
+  }));
+  await page.route('/api/projects', async (route) => route.fulfill({
+    json: [],
+    headers: { 'X-Correlation-Id': route.request().headers()['x-correlation-id'] ?? '' },
+  }));
   await page.route('/api/runtime/snapshot', async (route) => {
     confirmationAt = performance.now();
     correlationId = route.request().headers()['x-correlation-id'] ?? '';
     await route.fulfill({
       json: [runningExecution()],
       headers: { 'X-Correlation-Id': correlationId },
+    });
+  });
+  await page.route('/api/executions/4f1a5678-1234-4a5b-9cde-123456789abc/result', async (route) => {
+    await route.fulfill({
+      json: { ...runningExecution(), attributableDiff: '', previousChanges: '' },
+      headers: { 'X-Correlation-Id': route.request().headers()['x-correlation-id'] ?? '' },
+    });
+  });
+  await page.route('/api/traces/4f1a5678-1234-4a5b-9cde-123456789abc', async (route) => {
+    await route.fulfill({
+      json: [],
+      headers: { 'X-Correlation-Id': route.request().headers()['x-correlation-id'] ?? '' },
     });
   });
 
