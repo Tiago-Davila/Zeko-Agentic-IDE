@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -53,14 +54,28 @@ class MemorySourceContractTest {
       throws Exception {
     String projectId = createProject();
 
-    mockMvc.perform(post("/api/projects/{projectId}/memory-sources", projectId)
-            .cookie(session()).contentType(MediaType.APPLICATION_JSON)
-            .content("{\"path\":\"" + json(projectRoot.resolve("notes.txt"))
-                + "\",\"scope\":\"PROJECT\"}"))
+    MvcResult registration = mockMvc.perform(
+            post("/api/projects/{projectId}/memory-sources", projectId)
+                .cookie(session()).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"path\":\""
+                    + json(projectRoot.resolve("notes.txt"))
+                    + "\",\"scope\":\"PROJECT\"}"))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.id").isNotEmpty())
         .andExpect(jsonPath("$.scope").value("PROJECT"))
-        .andExpect(jsonPath("$.indexState").value("CURRENT"));
+        .andExpect(jsonPath("$.indexState").value("CURRENT"))
+        .andReturn();
+    String sourceId = JsonPath.read(
+        registration.getResponse().getContentAsString(), "$.id");
+
+    mockMvc.perform(MockMvcRequestBuilders.get(
+            "/api/projects/{projectId}/memory/search", projectId)
+            .cookie(session()).param("query", "documentacion"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.results[0].sourceId").value(sourceId))
+        .andExpect(jsonPath("$.results[0].level").value("PROJECT"))
+        .andExpect(jsonPath("$.results[0].excerpt")
+                       .value("documentacion local"));
   }
 
   @Test

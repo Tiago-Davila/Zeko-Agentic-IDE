@@ -1,97 +1,55 @@
 import type { Route } from '@playwright/test';
+
 import { expect, test } from './fixtures/localWorkspace';
 
-const project = {
-  id: 'project-a',
-  name: 'Proyecto A',
-  rootPath: 'C:/workspace/project-a',
-  repositories: [],
-};
-const otherProject = {
-  id: 'project-b',
-  name: 'Proyecto B',
-  rootPath: 'C:/workspace/project-b',
-  repositories: [],
-};
-const conversationId = 'conversation-a';
-const syntheticSecret = 'synthetic-secret-that-must-not-appear';
+const PROJECT_A = '1f2504e0-4f89-41d3-9a0c-0305e82c3301';
+const PROJECT_B = '2f2504e0-4f89-41d3-9a0c-0305e82c3301';
 
-test('keeps memory results local and scoped to the active conversation', async ({ page }) => {
-  const memoryRequests: { projectId: string; conversationId: string; query: string }[] = [];
+test('mantiene la memoria local aislada por proyecto y excluye secretos', async ({ page }) => {
+  await page.route('**/api/session/bootstrap', async (route) => json(route, {}));
+  await page.route('**/api/projects', async (route) => json(route, [
+    { id: PROJECT_A, name: 'Proyecto A', rootPath: '/tmp/proyecto-a', repositories: [] },
+    { id: PROJECT_B, name: 'Proyecto B', rootPath: '/tmp/proyecto-b', repositories: [] },
+  ]));
 
-  await page.route('http://127.0.0.1:5173/api/**', async (route) => {
-    const request = route.request();
-    const url = new URL(request.url());
-
-    if (url.pathname === '/api/session/bootstrap') {
-      await fulfill(route, {});
-      return;
-    }
-    if (url.pathname === '/api/projects' && request.method() === 'GET') {
-      await fulfill(route, [project, otherProject]);
-      return;
-    }
-    if (url.pathname === `/api/projects/${project.id}/conversations`) {
-      await fulfill(route, {
-        id: conversationId,
-        projectId: project.id,
-        recipientType: 'PM',
-        recipientId: project.id,
-      });
-      return;
-    }
-    if (url.pathname === `/api/projects/${project.id}/memory/search`) {
-      memoryRequests.push({
-        projectId: project.id,
-        conversationId: url.searchParams.get('conversationId') ?? '',
-        query: url.searchParams.get('query') ?? '',
-      });
-      await fulfill(route, {
-        results: [
-          {
-            sourceId: 'global-source',
-            level: 'GLOBAL',
-            ownerId: 'global',
-            source: 'global-context.md',
-            indexState: 'CURRENT',
-            excerpt: 'Contexto permitido para esta conversación.',
-          },
-          {
-            sourceId: 'conversation-source',
-            level: 'CONVERSATION',
-            ownerId: conversationId,
-            source: 'conversation-context.md',
-            indexState: 'STALE',
-            excerpt: '',
-          },
-        ],
-      });
-      return;
-    }
-    await fulfill(route, { code: 'not_found', message: 'Ruta local desconocida' }, 404);
+  await mockProjectDependencies(page, PROJECT_A);
+  await mockProjectDependencies(page, PROJECT_B);
+  await page.route(`**/api/projects/${PROJECT_A}/memory/search**`, async (route) => {
+    const query = new URL(route.request().url()).searchParams.get('query');
+    await json(route, query === 'secreto'
+      ? { results: [] }
+      : { results: [{ sourceId: 'source-a', level: 'PROJECT', excerpt: 'Arquitectura del proyecto A' }] });
   });
+  await page.route(`**/api/projects/${PROJECT_B}/memory/search**`, async (route) => json(route, {
+    results: [{ sourceId: 'source-b', level: 'PROJECT', excerpt: 'Arquitectura del proyecto B' }],
+  }));
 
   await page.goto('/');
-  await page.getByLabel('Abrir proyecto').selectOption(project.id);
-  await page.getByRole('button', { name: 'Abrir conversación con PM' }).click();
-  await expect(page.getByRole('status')).toHaveText('Conversación activa con PM.');
-
-  await page.getByLabel('Consulta de contexto').fill('contexto');
+  await page.getByRole('combobox', { name: 'Abrir proyecto' }).selectOption(PROJECT_A);
+  await page.getByRole('textbox', { name: 'Buscar contexto' }).fill('arquitectura');
   await page.getByRole('button', { name: 'Buscar' }).click();
+  await expect(page.getByText('fuente source-a: Arquitectura del proyecto A')).toBeVisible();
+  await expect(page.getByText(/source-b/)).toHaveCount(0);
 
-  await expect(page.getByLabel('Resultados de contexto')).toContainText('global-context.md');
-  await expect(page.getByLabel('Resultados de contexto')).toContainText('conversation-context.md');
-  await expect(page.locator('body')).not.toContainText(syntheticSecret);
-  expect(memoryRequests).toEqual([
-    { projectId: project.id, conversationId, query: 'contexto' },
-  ]);
+  await page.getByRole('textbox', { name: 'Buscar contexto' }).fill('secreto');
+  await page.getByRole('button', { name: 'Buscar' }).click();
+  await expect(page.getByText('No hay contexto local para esta búsqueda.')).toBeVisible();
+  await expect(page.getByText(/secret/i)).toHaveCount(0);
+
+  await page.getByRole('combobox', { name: 'Abrir proyecto' }).selectOption(PROJECT_B);
+  await page.getByRole('textbox', { name: 'Buscar contexto' }).fill('arquitectura');
+  await page.getByRole('button', { name: 'Buscar' }).click();
+  await expect(page.getByText('fuente source-b: Arquitectura del proyecto B')).toBeVisible();
+  await expect(page.getByText(/source-a/)).toHaveCount(0);
 });
 
-async function fulfill(route: Route, body: unknown, status = 200): Promise<void> {
-  await route.fulfill({
-    status,
-    contentType: 'application/json',
-    headers: { 'X-Correlation-Id': route.request().headers()['x-correlation-id'] },
-    body: JSON.stringify(body),
-  });
+async function mockProjectDependencies(page: import('@playwright/test').Page, projectId: string): Promise<void> {
+  await page.route(`**/api/projects/${projectId}/agent-templates`, async (route) => json(route, []));
+  await page.route(`**/api/projects/${projectId}/agent-instances`, async (route) => json(route, []));
+  await page.route(`**/api/projects/${projectId}/skills`, async (route) => json(route, []));
+}
+
+async function json(route: Route, body: unknown): Promise<void> {
+  const correlationId = route.request().headers()['x-correlation-id'] ?? '';
+  await route.fulfill({ json: body, headers: { 'X-Correlation-Id': correlationId } });
 }
