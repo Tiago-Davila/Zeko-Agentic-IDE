@@ -7,7 +7,6 @@ describe('ConversationPanel', () => {
     cleanup();
     vi.restoreAllMocks();
   });
-
   it('creates an explicit PM conversation before exposing its memory context', async () => {
     const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
       const path = String(input);
