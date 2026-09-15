@@ -4,7 +4,7 @@
 **Repositorio**: `Zeko-Agentic-IDE` (`C:/Users/Tiago/proyectos/Zeko-Agentic-IDE`)  
 **Rama de feature**: `feature/001-zeko-mvp`  
 **Estado**: Implementación y checks automatizados completados; la aceptación del MVP permanece pendiente de mediciones y evaluación reales.
-**Cantidad**: 93 tareas completadas: T001–T006 son trabajo SDD documental; T007–T093 cubren setup, producto, validación y corrección del quality gate.
+**Cantidad**: 99 tareas completadas: T001–T006 son trabajo SDD documental; T007–T099 cubren setup, producto, validación, corrección del quality gate y convergencia de auditoría.
 
 
 ## Fuentes y decisión vigente
@@ -934,37 +934,37 @@ Estas tareas corrigen hallazgos de la auditoría `AUD-MVP-20260915` y fueron
 autorizadas por el usuario el 2026-09-15. Cada una mantiene un diff y un commit
 separados. No modifican el alcance del MVP ni autorizan las capacidades excluidas.
 
-- [ ] T094 [A01] Conectar instrucciones de conversación con el agente operativo — `frontend/src/features/conversations/ConversationPanel.tsx`, `frontend/src/features/conversations/conversationApi.ts`, `backend/src/main/java/com/zeko/coordination/application/ConversationService.java`, `backend/src/main/java/com/zeko/coordination/application/AgentLoop.java`, `backend/src/main/java/com/zeko/coordination/api/ConversationController.java` y pruebas correspondientes.
+- [x] T094 [A01] Conectar instrucciones de conversación con el agente operativo — `frontend/src/features/conversations/ConversationPanel.tsx`, `frontend/src/features/conversations/conversationApi.ts`, `backend/src/main/java/com/zeko/coordination/application/ConversationService.java`, `backend/src/main/java/com/zeko/coordination/application/AgentLoop.java`, `backend/src/main/java/com/zeko/coordination/api/ConversationController.java` y pruebas correspondientes.
 
   **Dependencias**: T042, T043, T068. **Traza**: A01; FR-022–FR-029, FR-044–FR-046; SC-001. **Checks**: FE, BE, BEC.
 
   **Aceptación**: La UI crea o reutiliza una conversación, persiste el mensaje, muestra el historial y obtiene una respuesta del gateway local; el servicio invoca el bucle con la instrucción y conserva la precedencia/trazabilidad. No se amplían permisos ni se ejecutan acciones sin la cadena autorizada.
 
-- [ ] T095 [A02] Completar canvas XYFlow, instancias y gestión de skills visible — `frontend/package.json`, `frontend/package-lock.json`, `frontend/src/features/agents/AgentsCanvas.tsx`, `frontend/src/features/agents/AgentTemplateEditor.tsx`, `frontend/src/features/agents/agentApi.ts`, `frontend/src/features/skills/SkillPanel.tsx`, `frontend/src/features/skills/SkillBindingEditor.tsx` y pruebas correspondientes.
+- [x] T095 [A02] Completar canvas XYFlow, instancias y gestión de skills visible — `frontend/package.json`, `frontend/package-lock.json`, `frontend/src/features/agents/AgentsCanvas.tsx`, `frontend/src/features/agents/AgentTemplateEditor.tsx`, `frontend/src/features/agents/agentApi.ts`, `frontend/src/features/skills/SkillPanel.tsx`, `frontend/src/features/skills/SkillBindingEditor.tsx` y pruebas correspondientes.
 
   **Dependencias**: T034–T036, T042. **Traza**: A02; FR-009–FR-019, FR-021; SC-001; plan §Frontend y UI local. **Checks**: FE, build, E2E.
 
   **Aceptación**: Agents Canvas usa XYFlow para mostrar agentes y relaciones explicadas como configuración, permite crear una plantilla y una instancia, gestionar skills y visualizar bindings sin iniciar ejecuciones desde una arista. Las entidades plantilla/instancia/skill/binding permanecen separadas.
 
-- [ ] T096 [A03] Persistir y reflejar configuración de permiso y autonomía de una instancia — `frontend/src/features/agents/AgentsCanvas.tsx`, `frontend/src/features/agents/ModeSettings.tsx`, `frontend/src/features/agents/agentApi.ts` y pruebas correspondientes.
+- [x] T096 [A03] Persistir y reflejar configuración de permiso y autonomía de una instancia — `frontend/src/features/agents/AgentsCanvas.tsx`, `frontend/src/features/agents/ModeSettings.tsx`, `frontend/src/features/agents/agentApi.ts` y pruebas correspondientes.
 
   **Dependencias**: T049, T051, T095. **Traza**: A03; FR-030–FR-034, FR-072–FR-074; NFR-003. **Checks**: FE, BEC.
 
   **Aceptación**: La UI selecciona una instancia real, carga sus valores, persiste cada dimensión por separado y solo confirma después de una respuesta exitosa; errores, ausencia de instancia y guardado pendiente son visibles sin éxito falso.
 
-- [ ] T097 [A04] Reparar snapshot de Runtime y aislarlo por proyecto — `backend/src/main/java/com/zeko/executioncontrol/application/ExecutionRepository.java`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/JdbcExecutionRepository.java`, `backend/src/main/java/com/zeko/executioncontrol/application/ExecutionService.java`, `backend/src/main/java/com/zeko/executioncontrol/api/ExecutionController.java`, migración o pruebas correspondientes.
+- [x] T097 [A04] Reparar snapshot de Runtime y aislarlo por proyecto — `backend/src/main/java/com/zeko/executioncontrol/application/ExecutionRepository.java`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/JdbcExecutionRepository.java`, `backend/src/main/java/com/zeko/executioncontrol/application/ExecutionService.java`, `backend/src/main/java/com/zeko/executioncontrol/api/ExecutionController.java`, migración o pruebas correspondientes.
 
   **Dependencias**: T054, T069, T087. **Traza**: A04; FR-007–FR-008, FR-047–FR-048, FR-062; NFR-002–NFR-003. **Checks**: BEI, BEC.
 
   **Aceptación**: `/api/projects/{projectId}/runtime-snapshot` y la consulta usada por la UI devuelven solo ejecuciones del proyecto, ordenadas por columnas existentes del schema, sin `started_at` inexistente; el contrato y la prueba de SQLite real quedan alineados.
 
-- [ ] T098 [A05] Conectar Runtime Canvas a snapshot, WebSocket, approvals y estados de proveedor — `frontend/src/app/WorkspaceShell.tsx`, `frontend/src/app/WorkspaceContext.tsx`, `frontend/src/features/runtime/RuntimeCanvas.tsx`, `frontend/src/features/runtime/runtimeEvents.ts`, `frontend/src/features/runtime/runtimeApi.ts`, `frontend/src/features/runtime/ConflictPanel.tsx`, `frontend/src/features/approvals/approvalApi.ts` y pruebas correspondientes.
+- [x] T098 [A05] Conectar Runtime Canvas a snapshot, WebSocket, approvals y estados de proveedor — `frontend/src/app/WorkspaceShell.tsx`, `frontend/src/app/WorkspaceContext.tsx`, `frontend/src/features/runtime/RuntimeCanvas.tsx`, `frontend/src/features/runtime/runtimeEvents.ts`, `frontend/src/features/runtime/runtimeApi.ts`, `frontend/src/features/runtime/ConflictPanel.tsx`, `frontend/src/features/approvals/approvalApi.ts` y pruebas correspondientes.
 
   **Dependencias**: T050, T069–T071, T085–T086, T097. **Traza**: A05; FR-035, FR-038, FR-040, FR-047–FR-055, FR-062–FR-063, FR-071–FR-074; NFR-003, NFR-007. **Checks**: FE, build, E2E.
 
   **Aceptación**: Runtime recibe snapshot filtrado por proyecto, suscribe eventos y reconcilia secuencias, mantiene errores distintos de vacío, carga approvals/conflictos por datos reales y muestra Docker/Ollama afectados con reintento manual sin reanudar ejecuciones.
 
-- [ ] T099 [A06] Activar ejecución autorizada con worktree, adaptadores, efectos y diff real — `backend/src/main/java/com/zeko/executioncontrol/application/ExecutionService.java`, `backend/src/main/java/com/zeko/executioncontrol/application/AuthorizedActionDispatcher.java`, servicios/puertos de worktree y ejecución, `backend/src/main/java/com/zeko/executioncontrol/application/ExecutionResultQuery.java`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/JdbcExecutionRepository.java` y pruebas correspondientes.
+- [x] T099 [A06] Activar ejecución autorizada con worktree, adaptadores, efectos y diff real — `backend/src/main/java/com/zeko/executioncontrol/application/ExecutionService.java`, `backend/src/main/java/com/zeko/executioncontrol/application/AuthorizedActionDispatcher.java`, servicios/puertos de worktree y ejecución, `backend/src/main/java/com/zeko/executioncontrol/application/ExecutionResultQuery.java`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/JdbcExecutionRepository.java` y pruebas correspondientes.
 
   **Dependencias**: T061, T063–T068, T072–T074, T097. **Traza**: A06; FR-045–FR-057, FR-062–FR-063; SC-001–SC-003, SC-006; DOCX §§16, 18–20. **Checks**: BE, BEI, BEC.
 
