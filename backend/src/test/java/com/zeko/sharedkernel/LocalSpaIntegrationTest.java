@@ -53,10 +53,9 @@ class LocalSpaIntegrationTest {
     }
 
     @Test
-    void unaRutaDeLaSpaUsaElIndicePeroApiNoSeConvierteEnUi() throws Exception {
-        mockMvc.perform(get("/runtime"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("id=\"root\"")));
+    void lasRutasDesconocidasMantienenElContratoDeError() throws Exception {
+        mockMvc.perform(get("/ruta-inexistente"))
+                .andExpect(status().isNotFound());
 
         mockMvc.perform(get("/api/no-existe"))
                 .andExpect(status().isUnauthorized());
