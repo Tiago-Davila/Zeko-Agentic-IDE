@@ -187,10 +187,15 @@ la UI diferencia resultado vacío, fuente desactualizada y error sin revelar con
 
 Runtime Canvas consume el campo `provider` ya definido en `ExecutionDetail` y conserva
 el último snapshot confirmado del Project activo; sin Project no solicita un snapshot.
-Un estado `FAILED` o `UNAVAILABLE` con proveedor explícito marca solo Docker u Ollama
-como no disponible; si no existe proveedor confirmado, se muestra `unknown` y no se
-deduce una causa desde texto libre. Al recuperar conectividad, la UI recarga el snapshot
-observacional y no realiza POST de reintento ni reactiva una Execution.
+Execution-control persiste ese campo opcional solo cuando el catálogo cerrado
+`LocalCapability` identifica Docker u Ollama durante el despacho autorizado; no se
+acepta desde texto de usuario, detalle de error ni configuración libre. El snapshot
+`/projects/{projectId}/runtime-snapshot` filtra las Execution del Project y transporta
+ese dato tipado. Un estado `FAILED` o `UNAVAILABLE` con proveedor explícito marca solo
+Docker u Ollama como no disponible; si no existe proveedor confirmado, se muestra
+`unknown` y no se deduce una causa desde texto libre. Al recuperar conectividad, la UI
+recarga el snapshot observacional y no realiza POST de reintento ni reactiva una
+Execution.
 
 ### Correctivo de verificación local en Windows
 

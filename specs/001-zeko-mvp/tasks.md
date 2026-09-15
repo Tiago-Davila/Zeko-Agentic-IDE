@@ -718,11 +718,11 @@ Verificación independiente: contexto de dos proyectos y fuentes globales autori
 
 Verificación independiente: tabs separadas y estados reales al perder socket, proveedor o proceso; reconectar UI no reanuda Execution.
 
-- [ ] T085 [US7] Mostrar desconexión y proveedor afectado sin éxito falso — `frontend/src/app/WorkspaceShell.tsx`, `frontend/src/features/runtime/runtimeApi.ts`, `frontend/src/features/runtime/ProviderStatusPanel.tsx`, `frontend/src/features/runtime/ProviderStatusPanel.test.tsx`, `frontend/src/features/runtime/RuntimeCanvas.tsx`, `frontend/src/features/runtime/RuntimeCanvas.test.tsx`.
+- [ ] T085 [US7] Mostrar desconexión y proveedor afectado sin éxito falso — `backend/src/main/java/com/zeko/executioncontrol/domain/Execution.java`, `backend/src/main/java/com/zeko/executioncontrol/application/ExecutionRepository.java`, `backend/src/main/java/com/zeko/executioncontrol/application/ExecutionService.java`, `backend/src/main/java/com/zeko/executioncontrol/application/AuthorizedActionDispatcher.java`, `backend/src/main/java/com/zeko/executioncontrol/api/ExecutionController.java`, `backend/src/main/java/com/zeko/executioncontrol/api/ExecutionDtos.java`, `backend/src/main/java/com/zeko/executioncontrol/infrastructure/JdbcExecutionRepository.java`, `backend/src/main/resources/db/migration/V012__execution_provider.sql`, `backend/src/test/java/com/zeko/executioncontrol/ExecutionProviderTest.java`, `frontend/src/app/WorkspaceShell.tsx`, `frontend/src/features/runtime/runtimeApi.ts`, `frontend/src/features/runtime/ProviderStatusPanel.tsx`, `frontend/src/features/runtime/ProviderStatusPanel.test.tsx`, `frontend/src/features/runtime/RuntimeCanvas.tsx`, `frontend/src/features/runtime/RuntimeCanvas.test.tsx`.
 
-  **Dependencias**: T073, T069, T065, T020, T018. **Traza**: FR-062–FR-063, FR-071–FR-074; NFR-003; US-007. **Checks**: FE.
+  **Dependencias**: T073, T069, T065, T020, T018. **Traza**: FR-062–FR-063, FR-071–FR-074; NFR-003; US-007. **Checks**: BEC + FE.
 
-  **Aceptación**: Docker/Ollama se identifican solo desde el campo `provider` confirmado del snapshot; estado `FAILED` o `UNAVAILABLE` marca el proveedor afectado sin éxito falso. Desconexión conserva último estado, recuperación recarga snapshot y reintento es manual; no confundir socket reconectado con ejecución reanudada ni inferir proveedor desde texto libre.
+  **Aceptación**: Docker/Ollama se identifican solo desde el campo `provider` tipado y confirmado del snapshot, persistido desde `LocalCapability` durante un despacho autorizado; estado `FAILED` o `UNAVAILABLE` marca el proveedor afectado sin éxito falso. El snapshot se filtra por Project. Desconexión conserva último estado, recuperación recarga snapshot y reintento es manual; no confundir socket reconectado con ejecución reanudada ni inferir proveedor desde texto libre.
 
 - [ ] T086 [US7] Validar recuperación visible, estados y separación de canvases — `frontend/tests/e2e/runtime-recovery.spec.ts`.
 

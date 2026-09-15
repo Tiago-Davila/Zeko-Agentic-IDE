@@ -28,7 +28,7 @@ estado son enums de dominio, no texto libre.
 | Instruction | id, conversation_id, origen, contenido, precedencia, override_de, trazabilidad | Entrada de usuario, PM, agente o skill; conserva origen y precedencia. |
 | FollowUpProposal | id, instruction_id, agent_instance_id, propuesta, estado, confirmado_por, task_id | Seguimiento propuesto por `ASSISTED`; una confirmación puede crear una única Task vinculada. |
 | Task | id, project_id, repository_id, origen_instrucción, follow_up_proposal_id, estado, agente_asignado, motivo_bloqueo | Unidad de trabajo; puede tener varias Execution. |
-| Execution | id, task_id, intento, estado, template_version_snapshot, instance_snapshot, reintento_de, estado_conocido, efecto_resumen | Intento trazable; reintento manual crea fila nueva. |
+| Execution | id, task_id, intento, estado, template_version_snapshot, instance_snapshot, reintento_de, estado_conocido, provider?, efecto_resumen | Intento trazable; reintento manual crea fila nueva. `provider` solo admite Docker u Ollama confirmados por el catálogo local. |
 | ActionProposal | id, execution_id, tipo | Identidad estable de una acción propuesta; una Execution puede tener varias. |
 | ActionRevision | id, action_proposal_id, número, recurso_normalizado, directorio_trabajo, comando, argumentos, red_destino, efectos_esperados, clasificación | Versión inmutable de una acción que se clasifica, aprueba y ejecuta. |
 | Approval | id, action_revision_id, estado, decidido_por, decidido_en, motivo | Pendiente, aprobada, denegada o invalidada; decisión coincide con una revisión inmutable. |
@@ -100,6 +100,8 @@ la propuesta pasa a `EXPIRED` y no puede crear trabajo.
 Una solicitud de cancelación no cambia por sí sola a `CANCELLED`; el adaptador confirma
 detención. Tras interrupción se conserva último estado conocido. Un reintento manual
 crea otra Execution con `reintento_de`; no hay transición de reanudación automática.
+`provider` permanece nulo hasta que el despacho autorizado identifica explícitamente
+Docker u Ollama; los mensajes, detalles de error y texto libre no lo modifican.
 
 ### Approval
 
