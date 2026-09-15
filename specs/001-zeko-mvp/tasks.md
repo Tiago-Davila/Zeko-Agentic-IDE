@@ -994,7 +994,7 @@ cada tarea requiere un diff y un commit propios.
 
   **Aceptación**: una fuente local admitida puede registrarse e indexarse con ownership explícito; el agente recibe contexto como información de menor autoridad, y la UI muestra búsqueda, vacío y error dentro del proyecto activo sin convertir resultados en instrucciones o permisos.
 
-- [ ] T103 [A10] Completar los handlers aprobados para fuentes de memoria y decisiones de follow-up — `backend/src/main/java/com/zeko/memorysearch/api/MemoryController.java`, `backend/src/main/java/com/zeko/memorysearch/api/MemoryDtos.java`, `backend/src/main/java/com/zeko/coordination/api/FollowUpController.java`, DTOs/servicio de follow-up y pruebas HTTP/SQLite correspondientes.
+- [x] T103 [A10] Completar los handlers aprobados para fuentes de memoria y decisiones de follow-up — `backend/src/main/java/com/zeko/memorysearch/api/MemoryController.java`, `backend/src/main/java/com/zeko/memorysearch/api/MemoryDtos.java`, `backend/src/main/java/com/zeko/coordination/api/FollowUpController.java`, DTOs/servicio de follow-up y pruebas HTTP/SQLite correspondientes.
 
   **Dependencias**: T040, T081, T101. **Traza**: A10; FR-044, FR-064–FR-069, FR-072; NFR-002; `contracts/openapi.yaml`. **Checks**: BEC, BEI.
 
