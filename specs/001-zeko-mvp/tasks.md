@@ -4,7 +4,7 @@
 **Repositorio**: `Zeko-Agentic-IDE` (`C:/Users/Tiago/proyectos/Zeko-Agentic-IDE`)  
 **Rama de feature**: `feature/001-zeko-mvp`  
 **Estado**: Implementación y checks automatizados completados; la aceptación del MVP permanece pendiente de mediciones y evaluación reales.
-**Cantidad**: 99 tareas completadas: T001–T006 son trabajo SDD documental; T007–T099 cubren setup, producto, validación, corrección del quality gate y convergencia de auditoría.
+**Cantidad**: 106 tareas completadas: T001–T006 son trabajo SDD documental; T007–T106 cubren setup, producto, validación, corrección del quality gate y convergencia de auditoría.
 
 
 ## Fuentes y decisión vigente
