@@ -17,10 +17,11 @@ public class MemoryController {
   }
   @GetMapping("/search")
   public MemoryDtos.SearchResponse search(@PathVariable String projectId,
-                                          @RequestParam String ownerId,
+                                          @RequestParam String conversationId,
                                           @RequestParam String query) {
     return new MemoryDtos.SearchResponse(
-        search.search(ResourceId.parse(projectId), ResourceId.parse(ownerId), query)
+        search.search(ResourceId.parse(projectId),
+            ResourceId.parse(conversationId), query)
             .stream().map(MemoryDtos.Result::from).toList());
   }
 }

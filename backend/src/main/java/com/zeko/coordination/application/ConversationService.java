@@ -10,7 +10,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ConversationService {
+public class ConversationService implements ConversationContextProvider {
   private final ConversationRepository conversations;
 
   public ConversationService(ConversationRepository conversations) {
@@ -30,6 +30,18 @@ public class ConversationService {
     return conversations.findById(conversationId)
         .orElseThrow(
             () -> DomainError.notFound("Conversation", conversationId));
+  }
+
+  @Override
+  public ConversationContextProvider.Context resolve(ResourceId projectId,
+                                                      ResourceId conversationId) {
+    Conversation conversation = find(conversationId);
+    if (!conversation.projectId().equals(projectId)) {
+      throw DomainError.forbidden("La conversacion no pertenece al proyecto activo");
+    }
+    return new ConversationContextProvider.Context(
+        conversation.projectId(), conversation.id(), conversation.recipientType(),
+        conversation.recipientId());
   }
 
   public Instruction instruct(ResourceId conversationId, String content,
