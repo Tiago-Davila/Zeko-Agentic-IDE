@@ -10,7 +10,6 @@ public interface ContextIndex {
   default void rebuild(List<IndexedEntry> entries) {
     entries.forEach(entry -> index(entry.entry(), entry.content()));
   }
-
   default List<Result> search(MemoryAccessContext context, String query) {
     ResourceId ownerId = context.agentInstanceId();
     if (ownerId == null) {
@@ -19,10 +18,14 @@ public interface ContextIndex {
     return search(context.projectId(), ownerId, query);
   }
 
-  default List<Result> search(ResourceId projectId, ResourceId ownerId, String query) {
-    return List.of();
+  List<Result> search(ResourceId projectId, ResourceId ownerId, String query);
+  default List<Result> search(ResourceId projectId, List<ResourceId> ownerIds,
+                              String query) {
+    return ownerIds.stream()
+        .flatMap(ownerId -> search(projectId, ownerId, query).stream())
+        .distinct()
+        .toList();
   }
-
   record IndexedEntry(MemoryEntry entry, String content) {}
   record Result(ResourceId sourceId, String level, ResourceId ownerId, String source,
                 MemoryEntry.IndexState indexState, String excerpt) {

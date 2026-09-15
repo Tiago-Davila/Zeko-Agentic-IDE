@@ -103,8 +103,14 @@ public class LuceneContextIndex implements ContextIndex {
   @Override
   public List<Result> search(ResourceId projectId, ResourceId ownerId,
                              String query) {
+    return search(projectId, List.of(ownerId), query);
+  }
+
+  @Override
+  public List<Result> search(ResourceId projectId, List<ResourceId> ownerIds,
+                             String query) {
     Objects.requireNonNull(projectId, "El proyecto es obligatorio");
-    Objects.requireNonNull(ownerId, "El propietario es obligatorio");
+    Objects.requireNonNull(ownerIds, "Los propietarios son obligatorios");
     try (Directory directory = openDirectory()) {
       if (!DirectoryReader.indexExists(directory)) {
         return List.of();
@@ -112,7 +118,7 @@ public class LuceneContextIndex implements ContextIndex {
       try (DirectoryReader reader = DirectoryReader.open(directory);
            StandardAnalyzer analyzer = new StandardAnalyzer()) {
         IndexSearcher searcher = new IndexSearcher(reader);
-        var hits = searcher.search(scopedQuery(projectId, ownerId, query, analyzer),
+        var hits = searcher.search(scopedQuery(projectId, ownerIds, query, analyzer),
                                    MAX_RESULTS).scoreDocs;
         return Arrays.stream(hits)
             .map(hit -> document(searcher, hit.doc))
@@ -159,11 +165,11 @@ public class LuceneContextIndex implements ContextIndex {
     return document;
   }
 
-  private static Query scopedQuery(ResourceId projectId, ResourceId ownerId,
+  private static Query scopedQuery(ResourceId projectId, List<ResourceId> ownerIds,
                                    String text, StandardAnalyzer analyzer) {
     BooleanQuery.Builder query = new BooleanQuery.Builder();
     query.add(projectScope(projectId), Occur.FILTER);
-    query.add(ownerScope(ownerId), Occur.FILTER);
+    query.add(ownerScope(ownerIds), Occur.FILTER);
     Query content = new QueryBuilder(analyzer).createBooleanQuery(
         CONTENT, text == null ? "" : text);
     query.add(content == null ? new MatchAllDocsQuery() : content, Occur.MUST);
@@ -211,12 +217,15 @@ public class LuceneContextIndex implements ContextIndex {
     return scope.build();
   }
 
-  private static Query ownerScope(ResourceId ownerId) {
+  private static Query ownerScope(List<ResourceId> ownerIds) {
     BooleanQuery.Builder scope = new BooleanQuery.Builder();
     scope.add(new TermQuery(new Term(SCOPE, MemoryScope.GLOBAL.name())),
               Occur.SHOULD);
-    scope.add(new TermQuery(new Term(OWNER, ownerId.asString())),
+    scope.add(new TermQuery(new Term(SCOPE, MemoryScope.PROJECT.name())),
               Occur.SHOULD);
+    ownerIds.stream().filter(Objects::nonNull)
+        .map(owner -> new TermQuery(new Term(OWNER, owner.asString())))
+        .forEach(query -> scope.add(query, Occur.SHOULD));
     scope.setMinimumNumberShouldMatch(1);
     return scope.build();
   }

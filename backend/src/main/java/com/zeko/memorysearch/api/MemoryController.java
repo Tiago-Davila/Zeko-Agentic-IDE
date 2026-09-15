@@ -28,12 +28,16 @@ public class MemoryController {
 
   @GetMapping("/memory/search")
   public MemoryDtos.SearchResponse search(@PathVariable String projectId,
-                                          @RequestParam String conversationId,
+                                          @RequestParam(required = false) String conversationId,
+                                          @RequestParam(required = false) String ownerId,
                                           @RequestParam String query) {
+    ResourceId id = ResourceId.parse(projectId);
+    var results = conversationId != null
+        ? search.search(id, ResourceId.parse(conversationId), query)
+        : search.search(id, ResourceId.parse(ownerId == null ? projectId : ownerId), query,
+                        true);
     return new MemoryDtos.SearchResponse(
-        search.search(ResourceId.parse(projectId),
-            ResourceId.parse(conversationId), query)
-            .stream().map(MemoryDtos.Result::from).toList());
+        results.stream().map(MemoryDtos.Result::from).toList());
   }
 
   @PostMapping("/memory-sources")

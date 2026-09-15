@@ -58,6 +58,22 @@ class LuceneContextIndexIntegrationTest {
   }
 
   @Test
+  void onlyReturnsAgentContextToItsAuthorizedOwnerWithinTheProject() {
+    ResourceId projectId = ResourceId.newId();
+    ResourceId authorizedAgent = ResourceId.newId();
+    MemoryEntry agentEntry = entry(MemoryScope.AGENT, projectId, authorizedAgent,
+                                   MemoryEntry.IndexState.CURRENT, false);
+    LuceneContextIndex index = new LuceneContextIndex(indexRoot);
+    index.index(agentEntry, "contexto exclusivo del agente");
+
+    assertThat(index.search(projectId, List.of(authorizedAgent), "exclusivo"))
+        .extracting(ContextIndex.Result::sourceId)
+        .containsExactly(agentEntry.id());
+    assertThat(index.search(projectId, List.of(ResourceId.newId()), "exclusivo"))
+        .isEmpty();
+  }
+
+  @Test
   void rebuildsThePersistentIndexFromCurrentMetadataEntries() {
     ResourceId projectId = ResourceId.newId();
     ResourceId ownerId = ResourceId.newId();

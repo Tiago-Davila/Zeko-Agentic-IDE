@@ -1,53 +1,66 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
+
 import { searchMemory, type MemoryResult } from './memoryApi';
 
 interface MemoryPanelProps {
   readonly projectId: string | null;
-  readonly conversationId: string | null;
+  readonly conversationId?: string | null;
 }
 
 export function MemoryPanel({ projectId, conversationId }: MemoryPanelProps) {
   const [results, setResults] = useState<readonly MemoryResult[]>([]);
   const [query, setQuery] = useState('');
-  const [message, setMessage] = useState('');
-  const [searched, setSearched] = useState(false);
+  const [state, setState] = useState<'idle' | 'loading' | 'empty' | 'error' | 'results'>('idle');
 
-  async function search() {
-    if (!projectId || !conversationId || query.trim() === '') {
+  async function search(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const value = query.trim();
+    if (projectId === null || value.length === 0 || (conversationId !== undefined && conversationId === null)) {
       return;
     }
+    setState('loading');
     try {
-      const response = await searchMemory(projectId, conversationId, query);
+      const response = conversationId === undefined
+        ? await searchMemory(projectId, value)
+        : await searchMemory(projectId, conversationId, value);
       setResults(response.results);
-      setSearched(true);
-      setMessage('');
+      setState(response.results.length === 0 ? 'empty' : 'results');
     } catch {
       setResults([]);
-      setSearched(true);
-      setMessage('No se pudo consultar el contexto local.');
+      setState('error');
     }
   }
 
   return (
     <section aria-label="Memoria local">
       <h3>Contexto local</h3>
-      <label>
-        Consulta de contexto
-        <input value={query} onChange={(event) => setQuery(event.target.value)} />
-      </label>
-      <button type="button" disabled={!projectId || !conversationId || query.trim() === ''} onClick={() => void search()}>
-        Buscar
-      </button>
-      {message ? <p role="alert">{message}</p> : null}
-      {searched && !message && results.length === 0 ? <p role="status">No hay contexto permitido para esta conversación.</p> : null}
-      <ul aria-label="Resultados de contexto">
-        {results.map((result) => (
-          <li key={result.sourceId}>
-            {result.level} · {result.source} · owner {result.ownerId} · {result.indexState}
-            {result.excerpt ? `: ${result.excerpt}` : ''}
-          </li>
-        ))}
-      </ul>
+      <p>Los resultados son referencia de menor autoridad: no cambian permisos ni instrucciones.</p>
+      {projectId === null ? <p>Seleccioná un proyecto para consultar su memoria local.</p> : (
+        <form onSubmit={(event) => void search(event)}>
+          <label htmlFor="memory-query">{conversationId === undefined ? 'Buscar contexto' : 'Consulta de contexto'}</label>
+          <input
+            id="memory-query"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+          <button type="submit" disabled={state === 'loading' || (conversationId !== undefined && conversationId === null)}>
+            {state === 'loading' ? 'Buscando…' : 'Buscar'}
+          </button>
+        </form>
+      )}
+      {state === 'empty' ? <p>No hay contexto local para esta búsqueda.</p> : null}
+      {state === 'error' ? <p role="alert">No se pudo consultar el contexto local.</p> : null}
+      {state === 'results' ? (
+        <ul>
+          {results.map((result) => (
+            <li key={result.sourceId}>
+              <strong>{result.level}</strong>{result.source ? ` · ${result.source}` : ''}
+              {result.ownerId ? ` · owner ${result.ownerId}` : ''}
+              {result.indexState ? ` · ${result.indexState}` : ''}: {result.excerpt}
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </section>
   );
 }

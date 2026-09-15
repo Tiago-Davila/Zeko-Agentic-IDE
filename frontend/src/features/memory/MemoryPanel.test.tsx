@@ -1,40 +1,35 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { MemoryPanel } from './MemoryPanel';
-import { searchMemory } from './memoryApi';
 
-vi.mock('./memoryApi', () => ({ searchMemory: vi.fn() }));
+const { searchMemory } = vi.hoisted(() => ({ searchMemory: vi.fn() }));
+
+vi.mock('./memoryApi', () => ({ searchMemory }));
+
+import { MemoryPanel } from './MemoryPanel';
 
 describe('MemoryPanel', () => {
-  afterEach(cleanup);
-
-  it('requires an active conversation before searching local context', () => {
-    render(<MemoryPanel projectId="project" conversationId={null} />);
-
-    expect((screen.getByRole('button', { name: 'Buscar' }) as HTMLButtonElement).disabled).toBe(true);
+  afterEach(() => {
+    cleanup();
+    vi.resetAllMocks();
   });
 
-  it('shows safe source metadata returned for the active conversation', async () => {
-    vi.mocked(searchMemory).mockResolvedValue({
-      results: [{
-        sourceId: 'source',
-        level: 'CONVERSATION',
-        ownerId: 'conversation',
-        source: 'context.md',
-        indexState: 'CURRENT',
-        excerpt: 'Contexto permitido',
-      }],
-    });
-    render(<MemoryPanel projectId="project" conversationId="conversation" />);
+  it('explains that local context cannot grant authority without a project', () => {
+    render(<MemoryPanel projectId={null} />);
 
-    fireEvent.change(screen.getByLabelText('Consulta de contexto'), {
-      target: { value: 'contexto' },
-    });
+    expect(screen.getByText('Contexto local')).not.toBeNull();
+    expect(screen.getByText(/no cambian permisos ni instrucciones/i)).not.toBeNull();
+    expect(screen.getByText(/Seleccioná un proyecto/i)).not.toBeNull();
+  });
+
+  it('distinguishes an empty search from a local search error', async () => {
+    searchMemory.mockResolvedValueOnce({ results: [] }).mockRejectedValueOnce(new Error('offline'));
+    render(<MemoryPanel projectId="project-1" />);
+
+    fireEvent.change(screen.getByLabelText('Buscar contexto'), { target: { value: 'arquitectura' } });
     fireEvent.click(screen.getByRole('button', { name: 'Buscar' }));
+    await waitFor(() => expect(screen.getByText(/No hay contexto local/i)).not.toBeNull());
 
-    await waitFor(() => {
-      expect(searchMemory).toHaveBeenCalledWith('project', 'conversation', 'contexto');
-    });
-    expect(screen.getByText(/CONVERSATION · context.md · owner conversation · CURRENT/)).not.toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Buscar' }));
+    await waitFor(() => expect(screen.getByRole('alert')).not.toBeNull());
   });
 });

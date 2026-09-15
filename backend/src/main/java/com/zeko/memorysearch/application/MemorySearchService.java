@@ -34,4 +34,21 @@ public class MemorySearchService {
                    .isPresent())
         .toList();
   }
+
+  public List<ContextIndex.Result> search(ResourceId projectId,
+                                          List<ResourceId> ownerIds,
+                                          String query) {
+    return index.search(projectId, ownerIds, query)
+        .stream()
+        .filter(result -> entries.find(result.sourceId())
+            .filter(entry -> access.permits(entry, projectId, ownerIds))
+            .isPresent())
+        .toList();
+  }
+
+  public List<ContextIndex.Result> search(ResourceId projectId,
+                                          ResourceId ownerId, String query,
+                                          boolean ownerSearch) {
+    return search(projectId, List.of(ownerId), query);
+  }
 }
