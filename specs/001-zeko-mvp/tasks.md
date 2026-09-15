@@ -982,7 +982,7 @@ cada tarea requiere un diff y un commit propios.
 
   **Aceptación**: las entradas admitidas se indexan y consultan con Lucene local, sobreviven la reconstrucción desde metadata, filtran scope y ownership antes de devolver snippets y no sustituyen SQLite como fuente de metadata.
 
-- [ ] T101 [A09] Endurecer admisión y lectura de fuentes locales — `backend/src/main/java/com/zeko/memorysearch/application/SourceAdmissionPolicy.java`, `backend/src/main/java/com/zeko/memorysearch/infrastructure/LocalSourceReader.java` y pruebas de enlaces simbólicos, rutas físicas y secretos multilínea.
+- [x] T101 [A09] Endurecer admisión y lectura de fuentes locales — `backend/src/main/java/com/zeko/memorysearch/application/SourceAdmissionPolicy.java`, `backend/src/main/java/com/zeko/memorysearch/infrastructure/LocalSourceReader.java` y pruebas de enlaces simbólicos, rutas físicas y secretos multilínea.
 
   **Dependencias**: T079. **Traza**: A09; FR-065–FR-067; NFR-002, NFR-004; Constitución, «Modelo de producto y memoria». **Checks**: BEI.
 
