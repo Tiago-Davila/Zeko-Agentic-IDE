@@ -192,6 +192,15 @@ como no disponible; si no existe proveedor confirmado, se muestra `unknown` y no
 deduce una causa desde texto libre. Al recuperar conectividad, la UI recarga el snapshot
 observacional y no realiza POST de reintento ni reactiva una Execution.
 
+### Correctivo de verificación local en Windows
+
+El checkout debe preservar LF para fuentes Java porque Checkstyle lo exige. El
+repositorio declara esa regla mediante `.gitattributes`; no se normalizan diffs ajenos
+ni se relaja Checkstyle. Las pruebas de contrato que usan una base SQLite bajo
+`@TempDir` cierran su contexto Spring al finalizar la clase antes de que JUnit borre el
+directorio. Así se libera el pool y sus archivos WAL/SHM sin desactivar la limpieza
+temporal ni ocultar una falla de contrato.
+
 ## Estructura propuesta
 
 La estructura es una propuesta inicial, ya que el repositorio no contiene código.
