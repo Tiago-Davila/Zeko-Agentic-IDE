@@ -199,7 +199,8 @@ repositorio declara esa regla mediante `.gitattributes`; no se normalizan diffs 
 ni se relaja Checkstyle. Las pruebas de contrato que usan una base SQLite bajo
 `@TempDir` cierran su contexto Spring al finalizar la clase antes de que JUnit borre el
 directorio. Así se libera el pool y sus archivos WAL/SHM sin desactivar la limpieza
-temporal ni ocultar una falla de contrato.
+temporal ni ocultar una falla de contrato. El mismo correctivo conserva las reglas
+preexistentes de Checkstyle en la prueba de bootstrap de SQLite.
 
 ## Estructura propuesta
 

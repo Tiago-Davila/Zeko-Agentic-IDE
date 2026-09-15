@@ -172,11 +172,11 @@ Estas seis tareas documentales se completaron en la fase SDD propietaria antes d
 
 ### Correctivo de verificación local (2026-09-14)
 
-- [ ] T093 Reparar la reproducibilidad de los quality gates locales — `.gitattributes`, `backend/src/test/java/com/zeko/agentdesign/AgentApiContractTest.java`, `backend/src/test/java/com/zeko/agentdesign/SkillApiContractTest.java`, `backend/src/test/java/com/zeko/coordination/ConversationContractTest.java`, `backend/src/test/java/com/zeko/coordination/ModeSettingsContractTest.java`, `backend/src/test/java/com/zeko/executioncontrol/ApprovalContractTest.java`, `backend/src/test/java/com/zeko/projectcatalog/ProjectApiContractTest.java`, `backend/src/test/java/com/zeko/sharedkernel/HttpErrorsContractTest.java`, `backend/src/test/java/com/zeko/sharedkernel/LocalSessionContractTest.java`.
+- [ ] T093 Reparar la reproducibilidad de los quality gates locales — `.gitattributes`, `backend/src/test/java/com/zeko/agentdesign/AgentApiContractTest.java`, `backend/src/test/java/com/zeko/agentdesign/SkillApiContractTest.java`, `backend/src/test/java/com/zeko/coordination/ConversationContractTest.java`, `backend/src/test/java/com/zeko/coordination/ModeSettingsContractTest.java`, `backend/src/test/java/com/zeko/executioncontrol/ApprovalContractTest.java`, `backend/src/test/java/com/zeko/projectcatalog/ProjectApiContractTest.java`, `backend/src/test/java/com/zeko/sharedkernel/HttpErrorsContractTest.java`, `backend/src/test/java/com/zeko/sharedkernel/LocalSessionContractTest.java`, `backend/src/test/java/com/zeko/sharedkernel/SqliteBootstrapIntegrationTest.java`.
 
   **Dependencias**: ninguna; correctivo bloqueante encontrado durante la verificación de T083. **Traza**: constitución §7, D-010, perfiles BE/BEC. **Checks**: BEC.
 
-  **Aceptación**: Java se conserva como LF en checkout y Checkstyle no informa una violación de line endings. Cada contexto Spring que usa SQLite temporal se cierra antes de que JUnit elimine sus archivos; `contractTest` pasa sin desactivar la limpieza de temporales ni suprimir fallas.
+  **Aceptación**: Java se conserva como LF en checkout y Checkstyle no informa una violación de line endings ni de longitud de línea en las fuentes alcanzadas. Cada contexto Spring que usa SQLite temporal se cierra antes de que JUnit elimine sus archivos; `contractTest` pasa sin desactivar la limpieza de temporales ni suprimir fallas.
 
 - [x] T001 Sincronizar la resolución de autonomía ya aprobada con el diseño — `specs/001-zeko-mvp/plan.md`, `specs/001-zeko-mvp/research.md`, `specs/001-zeko-mvp/data-model.md`.
 
