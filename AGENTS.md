@@ -34,6 +34,69 @@ Para una funcionalidad, la fuente de verdad de producto es, en este orden: `cons
 
 ## 3. Spec-first / SDD
 
+### Excepción explícita del usuario para diseño UI/UX en este chat
+
+**Decisión y tarea documental:** `UX-OVERRIDE-20260915`, autorizada el 2026-09-15
+por el usuario en la conversación que solicitó la auditoría del MVP y «que en este
+chat se pueda empezar a programar sin necesidad de hacer una spec, SOLO PARA DISEÑO
+UI/UX». Evidencia y contexto: [auditoría del MVP](docs/validation/mvp-audit-2026-09-15.md).
+El alcance de escritura de esta tarea documental es únicamente `AGENTS.md`.
+
+Esta excepción aplica solo al trabajo de diseño UI/UX pedido en esa conversación,
+incluidas sus continuaciones después de resumir el contexto. No se extiende a otros
+chats, agentes o tareas por el solo hecho de leer este archivo. No tiene vencimiento
+por fin de turno; termina cuando el usuario la revoque o el trabajo salga del alcance
+de diseño UI/UX. No cambia los requisitos de aceptación del MVP.
+
+**Trabajo permitido sin spec nueva:** se puede escribir y editar código frontend
+para layout, estilos, tipografía, colores, espaciado, responsive, accesibilidad,
+componentes de presentación, navegación visual, microinteracciones y estado local
+de presentación. Incluye prototipos de pantallas, paneles y canvases dentro del MVP,
+y la incorporación visual de XYFlow, ya previsto por el stack, con sus archivos de
+dependencias cuando sea necesario. Se pueden reutilizar datos, adaptadores y handlers
+existentes conservando exactamente sus contratos, reglas y efectos. Los datos
+simulados para diseñar estados deben estar identificados como demostración y
+aislados del flujo operativo; no pueden aparentar ejecuciones, guardados ni permisos
+reales confirmados.
+
+Para ese alcance **no se exige crear o modificar `spec.md`, `plan.md` o `tasks.md`,
+ni recorrer las fases SDD como prerrequisito para programar UI/UX**. La petición
+concreta de diseño del usuario es la autorización de alcance; no se debe pedir otra
+confirmación por la mera ausencia de esos artefactos. Antes de editar, se registra
+brevemente el objetivo visual y los archivos previstos en la evidencia local de la
+tarea (`work/evidence/UI-<id>/`); al cerrar se agregan diff/commit, checks y resultado
+de revisión visual. Ese registro no es una spec ni requiere aprobación documental
+separada. Si aparecen archivos adicionales puramente visuales, se actualiza ese
+registro y se continúa dentro del alcance autorizado.
+
+**Límite obligatorio:** cambios de lógica de negocio, nuevas capacidades funcionales,
+APIs o contratos HTTP/WebSocket, persistencia o schemas, permisos, autonomía,
+approvals efectivos, ejecución, herramientas, RAG, aislamiento, Git/worktrees,
+arquitectura o sustituciones de stack siguen sujetos a SDD. Conectar o reparar esos
+comportamientos no se convierte en diseño UI/UX por hacerse desde un componente.
+Ante una tarea mixta, se completa la parte visual autorizada y se identifica la parte
+funcional que debe seguir SDD; no se usa la excepción para implementarla.
+
+Se mantienen las superficies separadas **Agents Canvas** y **Runtime Canvas**, las
+exclusiones del MVP, la separación de presentación e infraestructura, la protección
+de secretos, una tarea/un diff/un commit, y los checks aplicables. Para cambios de
+presentación se ejecutan lint/typecheck/build y las pruebas pertinentes, con revisión
+visual de las pantallas y estados afectados. La excepción no permite declarar el MVP
+completo ni ocultar fallos conocidos mediante cambios visuales.
+
+**Reglas afectadas e impacto:** por la precedencia explícita del usuario de la sección
+2, este override prevalece, solo dentro de su alcance, sobre las exigencias de
+spec/plan/task aprobados, secuencia SDD y actualización de planificación de las
+secciones 3, 6 y 10 de este archivo y de los principios I–III, Flujo SDD, Git/trazabilidad
+y Definition of Done de `constitution.md`. También prevalece sobre esas exigencias
+procedimentales en los artefactos de la feature y las skills. La trazabilidad se
+satisface mediante la petición de diseño, este override y la evidencia local; los
+controles de calidad y el resto de obligaciones siguen vigentes. Se conserva la
+constitución general y la spec sin cambios porque esta autorización es local a este
+chat, no una enmienda global ni una reducción del producto.
+
+### Regla general fuera de la excepción
+
 La especificación manda sobre la implementación. No se DEBE implementar una funcionalidad, comportamiento, endpoint, schema, pantalla ni cambio de arquitectura que no esté trazado a una spec, un plan y una tarea aprobada.
 
 El flujo obligatorio de GitHub Spec Kit es:
