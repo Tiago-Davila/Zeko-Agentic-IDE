@@ -1,8 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { WorkspaceContextProvider } from '../../src/app/WorkspaceContext';
-import { WorkspaceShell } from '../../src/app/WorkspaceShell';
+import { App } from '../../src/app/App';
 
 const { project, repository, projectApi } = vi.hoisted(() => {
   const mockedProject = {
@@ -44,7 +43,7 @@ describe('project workspace', () => {
     const select = await screen.findByRole('combobox', { name: 'Abrir proyecto' });
     fireEvent.change(select, { target: { value: project.id } });
 
-    await waitFor(() => expect(screen.getByLabelText('Estado del workspace').textContent).toContain('Zeko'));
+    await waitFor(() => expect(screen.getByLabelText('Configuración del proyecto').textContent).toContain('Zeko'));
   });
 
   it('associates repositories and keeps the active project visible', async () => {
@@ -57,14 +56,14 @@ describe('project workspace', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Asociar repositorio' }));
 
     await screen.findByRole('button', { name: repository.path });
-    expect(screen.getByLabelText('Estado del workspace').textContent).toContain(repository.path);
+    expect(screen.getByLabelText('Configuración del proyecto').textContent).toContain(repository.path);
   });
 });
 
+/*
+ * El alta de repositorios vive en el launcher: un proyecto sin repositorio configurado no
+ * puede abrir ninguna superficie, asi que estos recorridos empiezan ahi.
+ */
 function renderShell() {
-  return render(
-    <WorkspaceContextProvider>
-      <WorkspaceShell />
-    </WorkspaceContextProvider>,
-  );
+  return render(<App />);
 }

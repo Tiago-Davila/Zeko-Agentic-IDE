@@ -14,28 +14,28 @@ export function App() {
 }
 
 /*
- * Dos pantallas y una transicion: el launcher elige proyecto y el workspace trabaja
- * sobre el. No se agrega router porque es una app local de una sola ventana.
+ * Dos pantallas y una transicion. Al workspace solo se entra con un proyecto que ya tenga
+ * al menos un repositorio con ruta local: sin eso no hay nada sobre lo que operar.
  */
 function AppScreens() {
-  const [screen, setScreen] = useState<'launcher' | 'workspace'>('launcher');
   const [openedProject, setOpenedProject] = useState<ProjectDto | null>(null);
 
   return (
     <WorkspaceContextReader>
       {(workspace) =>
-        screen === 'launcher' ? (
+        openedProject === null ? (
           <ProjectLauncher
             onOpenProject={(project) => {
+              const first = project.repositories[0];
+              if (first === undefined) return;
               setOpenedProject(project);
               workspace.selectProject(project.id, project.name);
-              setScreen('workspace');
+              workspace.selectRepository(first.id, first.path);
             }}
-            onOpenWorkspace={() => setScreen('workspace')}
             onConnectionChange={workspace.setConnection}
           />
         ) : (
-          <WorkspaceShell initialProject={openedProject} onBackToLauncher={() => setScreen('launcher')} />
+          <WorkspaceShell initialProject={openedProject} onBackToLauncher={() => setOpenedProject(null)} />
         )
       }
     </WorkspaceContextReader>

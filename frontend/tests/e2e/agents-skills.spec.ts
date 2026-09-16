@@ -5,7 +5,7 @@ const PROJECT_ID = '9f2504e0-4f89-41d3-9a0c-0305e82c3301';
 test('mantiene las skills locales dentro del diseño y sin iniciar ejecuciones', async ({ page }) => {
   await page.route('**/api/session/bootstrap', async (route) => json(route, {}));
   await page.route('**/api/projects', async (route) => json(route, [
-    { id: PROJECT_ID, name: 'Zeko skills', rootPath: '/tmp/zeko-skills', repositories: [] },
+    { id: PROJECT_ID, name: 'Zeko skills', rootPath: '/tmp/zeko-skills', repositories: [{ id: 'aa000000-0000-4000-8000-000000000001', projectId: PROJECT_ID, path: '/tmp/zeko-repo', accessState: 'AVAILABLE' }] },
   ]));
   await page.route(`**/api/projects/${PROJECT_ID}/agent-templates`, async (route) => json(route, []));
   await page.route(`**/api/projects/${PROJECT_ID}/agent-instances`, async (route) => json(route, []));

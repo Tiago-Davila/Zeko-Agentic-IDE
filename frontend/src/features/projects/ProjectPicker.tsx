@@ -11,16 +11,15 @@ import { createProject, listProjects, type ProjectDto } from './projectApi';
 interface ProjectPickerProps {
   readonly onProjectSelected: (project: ProjectDto) => void;
   readonly onConnectionChange: (state: 'ready' | 'error') => void;
-  // 'launcher' muestra la galeria de tarjetas; 'compact' solo el selector y el alta.
-  readonly variant?: 'launcher' | 'compact' | undefined;
   readonly query?: string | undefined;
+  readonly selectedProjectId?: string | null | undefined;
 }
 
 export function ProjectPicker({
   onProjectSelected,
   onConnectionChange,
-  variant = 'compact',
   query = '',
+  selectedProjectId = null,
 }: ProjectPickerProps) {
   const [projects, setProjects] = useState<readonly ProjectDto[]>([]);
   const [name, setName] = useState('');
@@ -67,95 +66,28 @@ export function ProjectPicker({
     }
   }
 
-  const options = (
-    <>
-      <option value="" disabled>
-        Elegí un proyecto
-      </option>
-      {projects.map((project) => (
-        <option key={project.id} value={project.id}>
-          {project.name}
-        </option>
-      ))}
-    </>
-  );
-
-  function onSelect(event: { target: { value: string } }) {
-    selectProject(event.target.value, projects, onProjectSelected);
-  }
-
-  // En el launcher el selector va en una barra de herramientas y se nombra por aria-label;
-  // en la franja del workspace conserva su etiqueta visible.
-  const selector =
-    variant === 'launcher' ? (
-      <select
-        aria-label="Abrir proyecto"
-        defaultValue=""
-        className={`${inputStyles} w-52 cursor-pointer`}
-        onChange={onSelect}
-      >
-        {options}
-      </select>
-    ) : (
-      <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-chalk-400">Abrir proyecto</span>
-        <select defaultValue="" className={`${inputStyles} cursor-pointer`} onChange={onSelect}>
-          {options}
-        </select>
-      </label>
-    );
-
-  const form = (
-    <form onSubmit={(event) => void submit(event)} className="flex flex-col gap-3">
-      <Field
-        label="Nombre del proyecto"
-        value={name}
-        onChange={(event) => setName(event.target.value)}
-        placeholder="Zeko Agentic IDE"
-        required
-      />
-      <Field
-        label="Raíz local"
-        mono
-        value={rootPath}
-        onChange={(event) => setRootPath(event.target.value)}
-        placeholder="/home/usuario/proyecto"
-        required
-      />
-      <Button type="submit" variant="primary">
-        Crear proyecto
-      </Button>
-    </form>
-  );
-
-  if (variant === 'compact') {
-    return (
-      <section aria-labelledby="projects-heading" className="flex flex-wrap items-end gap-3">
-        <h3 id="projects-heading" className="sr-only">
-          Proyectos locales
-        </h3>
-        <div className="w-56">{selector}</div>
-        <details className="text-xs text-chalk-400">
-          <summary className="cursor-pointer select-none py-2 hover:text-chalk-200">Nuevo proyecto</summary>
-          <div className="mt-2 w-64 rounded-[var(--radius-panel)] border border-ink-700 bg-ink-900 p-3">{form}</div>
-        </details>
-        {error === null ? null : (
-          <p role="alert" className="text-xs text-state-failed">
-            {error}
-          </p>
-        )}
-      </section>
-    );
-  }
-
   return (
     <section aria-labelledby="projects-heading" className="flex min-h-0 flex-1 flex-col gap-4">
       <div className="flex items-center gap-3">
         <h3 id="projects-heading" className="text-lg font-semibold text-chalk-50">
-          Proyectos locales
+          Proyectos
         </h3>
         <div className="ml-auto flex items-center gap-2">
-          {selector}
+          <select
+            aria-label="Abrir proyecto"
+            defaultValue=""
+            className={`${inputStyles} w-52 cursor-pointer`}
+            onChange={(event) => selectProject(event.target.value, projects, onProjectSelected)}
+          >
+            <option value="" disabled>
+              Elegí un proyecto
+            </option>
+            {projects.map((project) => (
+              <option key={project.id} value={project.id}>
+                {project.name}
+              </option>
+            ))}
+          </select>
           <Button variant="primary" onClick={() => setCreating((open) => !open)} aria-expanded={creating}>
             Nuevo proyecto
           </Button>
@@ -163,7 +95,28 @@ export function ProjectPicker({
       </div>
 
       {creating ? (
-        <div className="max-w-md rounded-[var(--radius-panel)] border border-ink-700 bg-ink-900 p-4">{form}</div>
+        <form
+          onSubmit={(event) => void submit(event)}
+          className="flex max-w-md flex-col gap-3 rounded-[var(--radius-panel)] border border-ink-700 bg-ink-900 p-4"
+        >
+          <Field
+            label="Nombre del proyecto"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            required
+          />
+          <Field
+            label="Raíz del proyecto"
+            mono
+            value={rootPath}
+            onChange={(event) => setRootPath(event.target.value)}
+            placeholder="/home/usuario/proyecto"
+            required
+          />
+          <Button type="submit" variant="primary">
+            Crear proyecto
+          </Button>
+        </form>
       ) : null}
 
       {error === null ? null : (
@@ -174,16 +127,7 @@ export function ProjectPicker({
 
       {visible.length === 0 ? (
         <EmptyState
-          title={
-            projects.length === 0
-              ? 'Todavía no hay proyectos locales.'
-              : 'Ningún proyecto coincide con la búsqueda.'
-          }
-          description={
-            projects.length === 0
-              ? 'Creá uno apuntando a una carpeta de tu máquina. Un proyecto puede contener varios repositorios.'
-              : undefined
-          }
+          title={projects.length === 0 ? 'No hay proyectos.' : 'Sin coincidencias.'}
           action={
             projects.length === 0 && !creating ? (
               <Button variant="primary" onClick={() => setCreating(true)}>
@@ -197,7 +141,11 @@ export function ProjectPicker({
         <ul className="grid min-h-0 flex-1 auto-rows-min grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3 overflow-y-auto pr-1">
           {visible.map((project) => (
             <li key={project.id}>
-              <ProjectCard project={project} onOpen={() => onProjectSelected(project)} />
+              <ProjectCard
+                project={project}
+                selected={project.id === selectedProjectId}
+                onOpen={() => onProjectSelected(project)}
+              />
             </li>
           ))}
         </ul>
@@ -218,5 +166,5 @@ function selectProject(
 }
 
 function messageOf(failure: unknown): string {
-  return failure instanceof HttpClientError ? failure.message : 'No se pudo cargar el proyecto local';
+  return failure instanceof HttpClientError ? failure.message : 'No se pudo cargar el proyecto';
 }

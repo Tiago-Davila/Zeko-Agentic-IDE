@@ -108,7 +108,7 @@ test('reports an inaccessible repository path without changing the selected proj
   await page.getByRole('button', { name: 'Asociar repositorio' }).click();
 
   await expect(page.getByRole('alert')).toHaveText('Ruta inaccesible');
-  await expect(page.getByLabel('Estado del workspace')).toContainText('Zeko');
+  await expect(page.getByLabel('Configuración del proyecto')).toContainText('Zeko');
 });
 
 function correlation(route: Route): Record<string, string> {

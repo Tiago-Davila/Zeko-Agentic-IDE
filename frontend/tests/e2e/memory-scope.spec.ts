@@ -8,8 +8,8 @@ const PROJECT_B = '2f2504e0-4f89-41d3-9a0c-0305e82c3301';
 test('mantiene la memoria local aislada por proyecto y excluye secretos', async ({ page }) => {
   await page.route('**/api/session/bootstrap', async (route) => json(route, {}));
   await page.route('**/api/projects', async (route) => json(route, [
-    { id: PROJECT_A, name: 'Proyecto A', rootPath: '/tmp/proyecto-a', repositories: [] },
-    { id: PROJECT_B, name: 'Proyecto B', rootPath: '/tmp/proyecto-b', repositories: [] },
+    { id: PROJECT_A, name: 'Proyecto A', rootPath: '/tmp/proyecto-a', repositories: [{ id: 'aa000000-0000-4000-8000-00000000000a', projectId: PROJECT_A, path: '/tmp/proyecto-a/repo', accessState: 'AVAILABLE' }] },
+    { id: PROJECT_B, name: 'Proyecto B', rootPath: '/tmp/proyecto-b', repositories: [{ id: 'aa000000-0000-4000-8000-00000000000b', projectId: PROJECT_B, path: '/tmp/proyecto-b/repo', accessState: 'AVAILABLE' }] },
   ]));
 
   await mockProjectDependencies(page, PROJECT_A);
@@ -38,7 +38,9 @@ test('mantiene la memoria local aislada por proyecto y excluye secretos', async 
   await expect(page.getByText('No hay contexto local para esta búsqueda.')).toBeVisible();
   await expect(page.getByText(/secret/i)).toHaveCount(0);
 
+  await page.getByRole('button', { name: 'Proyectos' }).click();
   await page.getByRole('combobox', { name: 'Abrir proyecto' }).selectOption(PROJECT_B);
+  await page.getByRole('tab', { name: 'Librería' }).click();
   await page.getByRole('textbox', { name: 'Buscar contexto' }).fill('arquitectura');
   await page.getByRole('button', { name: 'Buscar' }).click();
   await expect(page.getByText('fuente source-b: Arquitectura del proyecto B')).toBeVisible();

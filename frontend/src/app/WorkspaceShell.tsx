@@ -4,7 +4,6 @@ import { EmptyState } from '../design/EmptyState';
 import { SplitPane } from '../design/SplitPane';
 import { panelId, tabId } from '../design/tabIds';
 import type { TabItem } from '../design/Tabs';
-import { ProjectPicker } from '../features/projects/ProjectPicker';
 import { RepositoryList } from '../features/projects/RepositoryList';
 import { AgentsCanvas } from '../features/agents/AgentsCanvas';
 import { ArchitectureCanvas } from '../features/architecture/ArchitectureCanvas';
@@ -12,7 +11,7 @@ import { ConversationPanel } from '../features/conversations/ConversationPanel';
 import { MemoryPanel } from '../features/memory/MemoryPanel';
 import { RuntimeCanvas } from '../features/runtime/RuntimeCanvas';
 import { TerminalPanel } from '../features/terminal/TerminalPanel';
-import type { ProjectDto, RepositoryDto } from '../features/projects/projectApi';
+import type { ProjectDto } from '../features/projects/projectApi';
 import { AppHeader } from './shell/AppHeader';
 import { AppSidebar } from './shell/AppSidebar';
 import { BottomDock } from './shell/BottomDock';
@@ -41,24 +40,10 @@ interface WorkspaceShellProps {
 
 export function WorkspaceShell({ initialProject = null, onBackToLauncher }: WorkspaceShellProps = {}) {
   const [activeSurface, setActiveSurface] = useState<WorkspaceSurface>('agents');
-  const [activeProject, setActiveProject] = useState<ProjectDto | null>(initialProject);
+  const activeProject = initialProject;
   const [dockTab, setDockTab] = useState<DockTab>('chat');
   const [dockCollapsed, setDockCollapsed] = useState(false);
   const [dockHeight, setDockHeight] = useState(260);
-
-  function selectProject(project: ProjectDto, select: (id: string, name: string) => void) {
-    setActiveProject(project);
-    select(project.id, project.name);
-  }
-
-  function addRepository(repository: RepositoryDto) {
-    setActiveProject((project) => {
-      if (project === null || project.id !== repository.projectId) {
-        return project;
-      }
-      return { ...project, repositories: [...project.repositories, repository] };
-    });
-  }
 
   return (
     <WorkspaceContextReader>
@@ -79,14 +64,10 @@ export function WorkspaceShell({ initialProject = null, onBackToLauncher }: Work
 
             {activeSurface === 'agents' ? (
               <div className="flex min-h-0 flex-1 flex-col">
-                <div className="flex shrink-0 flex-wrap items-start gap-6 border-b border-ink-700 bg-ink-900/40 px-4 py-2">
-                  <ProjectPicker
-                    onProjectSelected={(project) => selectProject(project, workspace.selectProject)}
-                    onConnectionChange={workspace.setConnection}
-                  />
+                <div className="flex shrink-0 items-center border-b border-ink-700 bg-ink-900/40 px-4 py-1.5">
                   <RepositoryList
                     project={activeProject}
-                    onRepositoryAdded={addRepository}
+                    activeRepositoryId={workspace.repositoryId}
                     onRepositorySelected={(repository) =>
                       workspace.selectRepository(repository.id, repository.path)
                     }

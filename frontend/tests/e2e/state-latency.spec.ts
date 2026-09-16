@@ -1,6 +1,7 @@
 import { expect, test } from './fixtures/localWorkspace';
 
 const TARGET_MILLISECONDS = 5_000;
+const PROJECT_ID = '5f2504e0-4f89-41d3-9a0c-0305e82c3301';
 
 test('measures the local-confirmation-to-visible-state path with its correlation id', async ({ page }, testInfo) => {
   let confirmationAt = 0;
@@ -11,14 +12,30 @@ test('measures the local-confirmation-to-visible-state path with its correlation
     headers: { 'X-Correlation-Id': route.request().headers()['x-correlation-id'] ?? '' },
   }));
   await page.route('/api/projects', async (route) => route.fulfill({
-    json: [],
+    json: [{
+      id: PROJECT_ID,
+      name: 'Zeko latency',
+      rootPath: '/tmp/zeko-latency',
+      repositories: [{
+        id: 'aa000000-0000-4000-8000-00000000000c',
+        projectId: PROJECT_ID,
+        path: '/tmp/zeko-latency/repo',
+        accessState: 'AVAILABLE',
+      }],
+    }],
     headers: { 'X-Correlation-Id': route.request().headers()['x-correlation-id'] ?? '' },
   }));
-  await page.route('/api/runtime/snapshot', async (route) => {
+  for (const path of ['agent-templates', 'agent-instances', 'skills', 'approvals']) {
+    await page.route(`**/api/projects/${PROJECT_ID}/${path}`, async (route) => route.fulfill({
+      json: [],
+      headers: { 'X-Correlation-Id': route.request().headers()['x-correlation-id'] ?? '' },
+    }));
+  }
+  await page.route(`**/api/projects/${PROJECT_ID}/runtime-snapshot`, async (route) => {
     confirmationAt = performance.now();
     correlationId = route.request().headers()['x-correlation-id'] ?? '';
     await route.fulfill({
-      json: [runningExecution()],
+      json: { projectId: PROJECT_ID, executions: [runningExecution()], tasks: [] },
       headers: { 'X-Correlation-Id': correlationId },
     });
   });
@@ -36,9 +53,8 @@ test('measures the local-confirmation-to-visible-state path with its correlation
   });
 
   await page.goto('/');
-  // El launcher es la pantalla inicial. Esta medición observa el snapshot global, sin
-  // proyecto, así que entra al workspace por la vía que no selecciona ninguno.
-  await page.getByRole('button', { name: 'Abrir workspace sin proyecto' }).click();
+  // El launcher es la pantalla inicial y solo deja abrir un proyecto ya configurado.
+  await page.getByRole('combobox', { name: 'Abrir proyecto' }).selectOption(PROJECT_ID);
   await page.getByRole('tab', { name: 'Runtime Canvas' }).click();
   await expect(page.getByRole('article', { name: 'Ejecución 1' }).getByText(/Estado: RUNNING/)).toBeVisible();
 

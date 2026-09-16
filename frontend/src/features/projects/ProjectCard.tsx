@@ -5,9 +5,10 @@ import type { ProjectDto } from './projectApi';
 interface ProjectCardProps {
   readonly project: ProjectDto;
   readonly onOpen: () => void;
+  readonly selected?: boolean | undefined;
 }
 
-export function ProjectCard({ project, onOpen }: ProjectCardProps) {
+export function ProjectCard({ project, onOpen, selected = false }: ProjectCardProps) {
   const repositories = project.repositories;
   const initials = project.name.slice(0, 2).toUpperCase();
 
@@ -15,7 +16,12 @@ export function ProjectCard({ project, onOpen }: ProjectCardProps) {
     <button
       type="button"
       onClick={onOpen}
-      className="group flex w-full items-start gap-3 rounded-[var(--radius-panel)] border border-ink-700 bg-ink-900 p-3 text-left transition-colors duration-150 hover:border-spray-lime/50 hover:bg-ink-850"
+      aria-pressed={selected}
+      className={`group flex w-full items-start gap-3 rounded-[var(--radius-panel)] border p-3 text-left transition-colors duration-150 ${
+        selected
+          ? 'border-spray-lime/50 bg-ink-850'
+          : 'border-ink-700 bg-ink-900 hover:border-spray-lime/50 hover:bg-ink-850'
+      }`}
     >
       <span
         aria-hidden="true"

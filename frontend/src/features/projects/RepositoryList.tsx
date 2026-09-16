@@ -8,16 +8,23 @@ import { addRepository, type ProjectDto, type RepositoryDto } from './projectApi
 
 interface RepositoryListProps {
   readonly project: ProjectDto | null;
-  readonly onRepositoryAdded: (repository: RepositoryDto) => void;
-  readonly onRepositorySelected: (repository: RepositoryDto) => void;
+  // Presente solo donde se configuran repositorios; hoy, el launcher.
+  readonly onRepositoryAdded?: ((repository: RepositoryDto) => void) | undefined;
+  readonly onRepositorySelected?: ((repository: RepositoryDto) => void) | undefined;
+  readonly activeRepositoryId?: string | null | undefined;
 }
 
-export function RepositoryList({ project, onRepositoryAdded, onRepositorySelected }: RepositoryListProps) {
+export function RepositoryList({
+  project,
+  onRepositoryAdded,
+  onRepositorySelected,
+  activeRepositoryId = null,
+}: RepositoryListProps) {
   const [path, setPath] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   if (project === null) {
-    return <p className="self-center text-xs text-chalk-400">Elegí un proyecto para asociar repositorios.</p>;
+    return null;
   }
   const selectedProject = project;
 
@@ -25,8 +32,8 @@ export function RepositoryList({ project, onRepositoryAdded, onRepositorySelecte
     event.preventDefault();
     try {
       const repository = await addRepository(selectedProject.id, path);
-      onRepositoryAdded(repository);
-      onRepositorySelected(repository);
+      onRepositoryAdded?.(repository);
+      onRepositorySelected?.(repository);
       setPath('');
       setError(null);
     } catch (failure) {
@@ -35,11 +42,7 @@ export function RepositoryList({ project, onRepositoryAdded, onRepositorySelecte
   }
 
   return (
-    <section aria-labelledby="repositories-heading" className="flex min-w-0 flex-col gap-2">
-      <h3 id="repositories-heading" className="text-xs font-medium text-chalk-400">
-        Repositorios de {selectedProject.name}
-      </h3>
-
+    <section aria-label="Repositorios" className="flex min-w-0 flex-col gap-2">
       {selectedProject.repositories.length > 0 ? (
         <ul className="flex flex-wrap items-center gap-1.5">
           {selectedProject.repositories.map((repository) => (
@@ -48,8 +51,13 @@ export function RepositoryList({ project, onRepositoryAdded, onRepositorySelecte
               <button
                 type="button"
                 aria-label={repository.path}
-                onClick={() => onRepositorySelected(repository)}
-                className="flex items-center gap-1.5 rounded-[var(--radius-control)] border border-ink-700 bg-ink-850 px-2 py-1 font-mono text-[11px] text-chalk-200 transition-colors hover:border-ink-600 hover:text-chalk-50"
+                aria-pressed={activeRepositoryId === repository.id}
+                onClick={() => onRepositorySelected?.(repository)}
+                className={`flex items-center gap-1.5 rounded-[var(--radius-control)] border px-2 py-1 font-mono text-[11px] transition-colors ${
+                  activeRepositoryId === repository.id
+                    ? 'border-spray-lime/50 bg-spray-lime/10 text-chalk-50'
+                    : 'border-ink-700 bg-ink-850 text-chalk-200 hover:border-ink-600 hover:text-chalk-50'
+                }`}
               >
                 {repository.path}
                 <StatePill state={repository.accessState} dense aria-hidden="true" />
@@ -59,20 +67,22 @@ export function RepositoryList({ project, onRepositoryAdded, onRepositorySelecte
         </ul>
       ) : null}
 
-      <form onSubmit={submit} className="flex items-end gap-2">
-        <label className="flex min-w-0 flex-col gap-1.5">
-          <span className="sr-only">Ruta del repositorio</span>
-          <input
-            aria-label="Ruta del repositorio"
-            value={path}
-            onChange={(event) => setPath(event.target.value)}
-            required
-            placeholder="/ruta/al/repositorio"
-            className={`${inputStyles} w-72 font-mono text-xs`}
-          />
-        </label>
-        <Button type="submit">Asociar repositorio</Button>
-      </form>
+      {onRepositoryAdded === undefined ? null : (
+        <form onSubmit={submit} className="flex items-end gap-2">
+          <label className="flex min-w-0 flex-1 flex-col gap-1.5">
+            <span className="sr-only">Ruta del repositorio</span>
+            <input
+              aria-label="Ruta del repositorio"
+              value={path}
+              onChange={(event) => setPath(event.target.value)}
+              required
+              placeholder="/ruta/al/repositorio"
+              className={`${inputStyles} font-mono text-xs`}
+            />
+          </label>
+          <Button type="submit">Asociar repositorio</Button>
+        </form>
+      )}
 
       {error === null ? null : (
         <p role="alert" className="text-[11px] text-state-failed">

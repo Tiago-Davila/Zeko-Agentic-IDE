@@ -91,7 +91,7 @@ async function installRoutes(
 }
 
 function project() {
-  return { id: PROJECT_ID, name: 'Zeko recovery', rootPath: '/tmp/zeko-recovery', repositories: [] };
+  return { id: PROJECT_ID, name: 'Zeko recovery', rootPath: '/tmp/zeko-recovery', repositories: [{ id: 'aa000000-0000-4000-8000-000000000001', projectId: PROJECT_ID, path: '/tmp/zeko-repo', accessState: 'AVAILABLE' }] };
 }
 
 function execution(state: 'RUNNING' | 'FAILED', knownState: string) {
