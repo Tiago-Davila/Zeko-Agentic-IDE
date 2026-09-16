@@ -26,9 +26,14 @@ const descriptions: Record<WorkspaceSurface, string> = {
   runtime: 'Observá ejecuciones, approvals, efectos y resultados confirmados.',
 };
 
-export function WorkspaceShell() {
+interface WorkspaceShellProps {
+  readonly initialProject?: ProjectDto | null | undefined;
+  readonly onBackToLauncher?: (() => void) | undefined;
+}
+
+export function WorkspaceShell({ initialProject = null, onBackToLauncher }: WorkspaceShellProps = {}) {
   const [activeSurface, setActiveSurface] = useState<WorkspaceSurface>('agents');
-  const [activeProject, setActiveProject] = useState<ProjectDto | null>(null);
+  const [activeProject, setActiveProject] = useState<ProjectDto | null>(initialProject);
 
   function selectProject(project: ProjectDto, select: (id: string, name: string) => void) {
     setActiveProject(project);
@@ -55,6 +60,7 @@ export function WorkspaceShell() {
             project={workspace.project}
             repository={workspace.repository}
             connection={workspace.connection}
+            {...(onBackToLauncher === undefined ? {} : { onBackToLauncher })}
           />
 
           <div className="flex min-h-0 flex-1">

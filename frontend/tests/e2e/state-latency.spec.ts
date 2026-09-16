@@ -36,6 +36,9 @@ test('measures the local-confirmation-to-visible-state path with its correlation
   });
 
   await page.goto('/');
+  // El launcher es la pantalla inicial. Esta medición observa el snapshot global, sin
+  // proyecto, así que entra al workspace por la vía que no selecciona ninguno.
+  await page.getByRole('button', { name: 'Abrir workspace sin proyecto' }).click();
   await page.getByRole('tab', { name: 'Runtime Canvas' }).click();
   await expect(page.getByRole('article', { name: 'Ejecución 1' }).getByText(/Estado: RUNNING/)).toBeVisible();
 

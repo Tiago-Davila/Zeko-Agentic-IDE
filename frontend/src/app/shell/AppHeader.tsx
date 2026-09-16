@@ -10,6 +10,7 @@ interface AppHeaderProps<T extends string> {
   readonly project: string;
   readonly repository: string;
   readonly connection: LocalConnectionState;
+  readonly onBackToLauncher?: (() => void) | undefined;
 }
 
 const connectionStyles: Record<LocalConnectionState, string> = {
@@ -37,6 +38,7 @@ export function AppHeader<T extends string>({
   project,
   repository,
   connection,
+  onBackToLauncher,
 }: AppHeaderProps<T>) {
   return (
     <header className="z-10 flex h-14 shrink-0 items-center gap-4 border-b border-ink-700 bg-ink-900 px-3">
@@ -46,6 +48,15 @@ export function AppHeader<T extends string>({
           <ZekoWordmark />
         </h1>
         <span aria-hidden="true" className="h-6 w-px shrink-0 bg-ink-700" />
+        {onBackToLauncher === undefined ? null : (
+          <button
+            type="button"
+            onClick={onBackToLauncher}
+            className="shrink-0 rounded-[var(--radius-control)] px-2 py-1 text-xs text-chalk-400 transition-colors hover:bg-ink-800 hover:text-chalk-50"
+          >
+            Proyectos
+          </button>
+        )}
         <nav aria-label="Contexto del workspace" className="flex min-w-0 items-center gap-1.5 text-xs">
           <span className="truncate font-medium text-chalk-200">{project}</span>
           <span aria-hidden="true" className="text-chalk-600">
