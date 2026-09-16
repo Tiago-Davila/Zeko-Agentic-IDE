@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { App } from '../../src/app/App';
@@ -20,7 +20,10 @@ describe('App', () => {
     // El launcher es la pantalla inicial; el workspace se monta al entrar desde ahí.
     fireEvent.click(screen.getByRole('button', { name: 'Abrir workspace sin proyecto' }));
 
-    expect(screen.getAllByRole('tab')).toHaveLength(2);
+    // Se cuentan las tabs de superficie, no todas las del documento: el panel inferior
+    // aporta su propio tablist y contarlas juntas ocultaría cuál de los dos cambió.
+    const surfaces = screen.getByRole('tablist', { name: 'Superficies del workspace' });
+    expect(within(surfaces).getAllByRole('tab')).toHaveLength(2);
     expect(screen.getByRole('complementary', { name: 'Estado del workspace' })).not.toBeNull();
   });
 });

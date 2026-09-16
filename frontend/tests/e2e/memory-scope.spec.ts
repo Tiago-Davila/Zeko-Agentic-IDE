@@ -26,6 +26,8 @@ test('mantiene la memoria local aislada por proyecto y excluye secretos', async 
 
   await page.goto('/');
   await page.getByRole('combobox', { name: 'Abrir proyecto' }).selectOption(PROJECT_A);
+  // La búsqueda de contexto vive en la pestaña Librería del panel inferior.
+  await page.getByRole('tab', { name: 'Librería' }).click();
   await page.getByRole('textbox', { name: 'Buscar contexto' }).fill('arquitectura');
   await page.getByRole('button', { name: 'Buscar' }).click();
   await expect(page.getByText('fuente source-a: Arquitectura del proyecto A')).toBeVisible();
