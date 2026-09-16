@@ -13,8 +13,12 @@ public interface ExecutionRepository {
   void saveExecution(Execution execution);
   Optional<Execution> findExecution(ResourceId executionId);
   List<Execution> findExecutions(ResourceId taskId);
-  List<Execution> findExecutionsForProject(ResourceId projectId);
-  List<Task> findTasksForProject(ResourceId projectId);
+  default List<Execution> findExecutionsForProject(ResourceId projectId) {
+    return findAllExecutions(projectId);
+  }
+  default List<Task> findTasksForProject(ResourceId projectId) {
+    return findTasks(projectId);
+  }
 
   List<Execution> findAllExecutions();
   List<Execution> findAllExecutions(ResourceId projectId);

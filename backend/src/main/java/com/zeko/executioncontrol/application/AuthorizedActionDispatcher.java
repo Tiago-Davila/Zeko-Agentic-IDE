@@ -8,6 +8,7 @@ import com.zeko.executioncontrol.domain.Worktree;
 import com.zeko.sharedkernel.domain.DomainError;
 import com.zeko.sharedkernel.domain.ResourceId;
 import java.util.Objects;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,6 +19,7 @@ public class AuthorizedActionDispatcher {
   private final CapabilityRegistry capabilities;
   private final ExecutionService executions;
 
+  @Autowired
   public AuthorizedActionDispatcher(ApprovalRepository approvals,
                                     PermissionPolicyService policies,
                                     WorktreeRepository worktrees,
@@ -28,6 +30,13 @@ public class AuthorizedActionDispatcher {
     this.worktrees = worktrees;
     this.capabilities = capabilities;
     this.executions = executions;
+  }
+
+  public AuthorizedActionDispatcher(ApprovalRepository approvals,
+                                    PermissionPolicyService policies,
+                                    WorktreeRepository worktrees,
+                                    CapabilityRegistry capabilities) {
+    this(approvals, policies, worktrees, capabilities, null);
   }
 
   public LocalActionResult dispatch(ActionProposal action,
@@ -57,12 +66,16 @@ public class AuthorizedActionDispatcher {
       throw DomainError.blocked("La ejecucion no es dueña del worktree");
     }
     LocalCapability capability = capability(action);
-    executions.identifyProvider(action.executionId(), capability);
+    if (executions != null) {
+      executions.identifyProvider(action.executionId(), capability);
+    }
     try {
       return capabilities.require(capability).execute(action);
     } catch (DomainError error) {
       if (error.code() == DomainError.Code.PROVIDER_UNAVAILABLE) {
-        executions.markProviderUnavailable(action.executionId(), capability);
+        if (executions != null) {
+          executions.markProviderUnavailable(action.executionId(), capability);
+        }
       }
       throw error;
     }

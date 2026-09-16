@@ -6,6 +6,7 @@ import com.zeko.sharedkernel.domain.ResourceId;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,10 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class ExecutionController {
   private final ExecutionService executions;
   private final ExecutionActivationService activation;
+  @Autowired
   public ExecutionController(ExecutionService executions,
                              ExecutionActivationService activation) {
     this.executions = executions;
     this.activation = activation;
+  }
+  public ExecutionController(ExecutionService executions) {
+    this(executions, null);
   }
   @PostMapping("/tasks")
   public ResponseEntity<ExecutionDtos.TaskResponse>
@@ -47,7 +52,8 @@ public class ExecutionController {
                            : ResourceId.parse(input.retryOfExecutionId());
     return ResponseEntity.status(HttpStatus.ACCEPTED)
         .body(ExecutionDtos.Response.from(
-            activation.start(ResourceId.parse(taskId), retry)));
+            activation == null ? executions.start(ResourceId.parse(taskId), retry)
+                : activation.start(ResourceId.parse(taskId), retry)));
   }
   @GetMapping("/executions/{executionId}")
   public ExecutionDtos.Response execution(@PathVariable String executionId) {

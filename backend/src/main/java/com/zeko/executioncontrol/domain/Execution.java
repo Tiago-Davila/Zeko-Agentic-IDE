@@ -36,6 +36,23 @@ public record
     effects = effects == null ? List.of() : List.copyOf(effects);
   }
 
+  public Execution(ResourceId id, ResourceId taskId, int attempt, State state,
+                   ExecutionSnapshot snapshot, ResourceId retryOf,
+                   String knownState, Object... legacy) {
+    this(id, taskId, attempt, state, snapshot, retryOf, knownState, null,
+         cancellation(legacy), effects(legacy));
+  }
+
+  private static boolean cancellation(Object[] legacy) {
+    return legacy.length > 0 && legacy[0] instanceof Boolean value && value;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static List<EffectRecord> effects(Object[] legacy) {
+    return legacy.length > 1 && legacy[1] instanceof List<?> value
+        ? (List<EffectRecord>) value : List.of();
+  }
+
   public Execution transition(State next, String nextKnownState) {
     Objects.requireNonNull(next, "El estado de ejecucion es obligatorio");
     if (state == State.CANCELLED || state == State.COMPLETED ||

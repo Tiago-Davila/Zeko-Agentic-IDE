@@ -48,6 +48,10 @@ public class LuceneContextIndex implements ContextIndex {
 
   private final Path indexRoot;
 
+  public LuceneContextIndex() {
+    this("");
+  }
+
   @Autowired
   public LuceneContextIndex(
       @Value("${zeko.memory.index-root:}") String configuredRoot) {

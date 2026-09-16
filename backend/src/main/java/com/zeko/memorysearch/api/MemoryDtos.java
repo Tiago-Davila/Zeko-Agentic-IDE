@@ -3,7 +3,6 @@ package com.zeko.memorysearch.api;
 import com.zeko.memorysearch.application.ContextIndex;
 import com.zeko.memorysearch.domain.MemoryEntry;
 import com.zeko.sharedkernel.domain.ResourceId;
-import com.zeko.memorysearch.domain.MemoryEntry;
 import java.util.List;
 
 public final class MemoryDtos {

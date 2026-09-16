@@ -4,6 +4,8 @@ import com.zeko.coordination.application.ConversationContextProvider;
 import com.zeko.memorysearch.domain.MemoryAccessPolicy;
 import com.zeko.sharedkernel.domain.ResourceId;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,15 +15,23 @@ public class MemorySearchService {
   private final ConversationContextProvider conversations;
   private final MemoryAccessPolicy access = new MemoryAccessPolicy();
 
+  @Autowired
   public MemorySearchService(MemoryRepository entries, ContextIndex index,
-                             ConversationContextProvider conversations) {
+                             @Lazy ConversationContextProvider conversations) {
     this.entries = entries;
     this.index = index;
     this.conversations = conversations;
   }
 
+  public MemorySearchService(MemoryRepository entries, ContextIndex index) {
+    this(entries, index, null);
+  }
+
   public List<ContextIndex.Result> search(ResourceId projectId,
                                           ResourceId conversationId, String query) {
+    if (conversations == null) {
+      return search(projectId, List.of(conversationId), query);
+    }
     MemoryAccessContext context = MemoryAccessContext.from(
         conversations.resolve(projectId, conversationId));
     return index.search(context, query)

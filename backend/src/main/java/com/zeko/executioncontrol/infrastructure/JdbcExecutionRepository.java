@@ -140,7 +140,7 @@ public class JdbcExecutionRepository implements ExecutionRepository {
   @Override
   public List<Execution> findAllExecutions(ResourceId projectId) {
     return jdbc.query("SELECT e.id, e.task_id, e.attempt, e.state, "
-                          + "e.retry_of, e.known_state, "
+                          + "e.retry_of, e.known_state, e.provider, "
                           + "e.cancellation_requested, s.template_id, "
                           + "s.template_version, s.agent_identity, s.context "
                           + "FROM executions e JOIN execution_snapshots s ON "
