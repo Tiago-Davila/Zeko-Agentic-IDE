@@ -24,6 +24,16 @@ oculta la ruta absoluta de forma deliberada.
 Por eso la solución es que el backend, que corre en la misma máquina, liste los directorios y
 la interfaz dibuje su propio explorador.
 
+## Clarifications
+
+### Sesión 2026-09-16
+
+- **P: ¿Desde dónde arranca el explorador?** R: En la raíz del proyecto activo, con
+  navegación hacia arriba habilitada hasta el home. Motivo: es donde viven los repositorios
+  en el caso normal, y no recorta el alcance elegido.
+- **P: ¿Qué hace con repositorios anidados (submódulos y worktrees)?** R: Los muestra,
+  distingue visualmente los tres tipos y advierte antes de asociar uno anidado.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Elegir un repositorio navegando el filesystem (Priority: P1)
@@ -94,7 +104,7 @@ rápido. Quitarlo sería una regresión.
 - ¿Qué pasa con directorios que contienen decenas de miles de entradas?
 - ¿Qué pasa si se intenta asociar un repositorio que el proyecto ya tiene asociado?
 - ¿Qué pasa cuando un repositorio es un submódulo o un worktree de git en vez de un repo
-  independiente?
+  independiente? *(resuelto en Clarifications: se muestra, se distingue y se advierte)*
 
 ## Requirements *(mandatory)*
 
@@ -128,11 +138,17 @@ rápido. Quitarlo sería una regresión.
   filesystem cuando la ruta no existe, no es un directorio o no se puede leer.
 - **FR-014**: El sistema MUST acotar la cantidad de entradas devueltas por listado y MUST
   indicar cuando el listado quedó truncado.
+- **FR-015**: El sistema MUST abrir el explorador posicionado en la raíz del proyecto activo,
+  y MUST permitir navegar hacia directorios ancestros hasta el límite de FR-003.
+- **FR-016**: El sistema MUST clasificar cada directorio que sea repositorio git como
+  independiente, submódulo o worktree, y MUST exponer esa clasificación en el listado.
+- **FR-017**: El sistema MUST advertir antes de asociar un repositorio que sea submódulo o
+  worktree, sin impedirlo.
 
 ### Key Entities *(include if feature involves data)*
 
 - **DirectoryEntry**: Un subdirectorio navegable. Atributos: nombre, ruta absoluta, si es
-  repositorio git, si es legible.
+  legible, y su clase de repositorio: ninguna, independiente, submódulo o worktree.
 - **DirectoryListing**: El resultado de listar una ruta. Atributos: ruta absoluta consultada,
   ruta del padre navegable si la hay, colección de `DirectoryEntry`, marca de truncamiento.
 
@@ -151,6 +167,8 @@ Ninguna de las dos se persiste: son proyecciones de solo lectura del filesystem.
   siquiera con los ocultos visibles.
 - **SC-005**: Asociar un repositorio elegido por el explorador produce exactamente el mismo
   resultado que asociarlo escribiendo su ruta.
+- **SC-006**: Los tres tipos de repositorio se clasifican correctamente en el 100% de los
+  casos de prueba, cubriendo repo independiente, worktree y submódulo.
 
 ## Assumptions
 
@@ -161,7 +179,12 @@ Ninguna de las dos se persiste: son proyecciones de solo lectura del filesystem.
   credenciales es un refinamiento de esa decisión, no una contradicción.
 - El explorador es de solo lectura: no crea, mueve, renombra ni borra directorios.
 - Se reutiliza `RepositoryInspector` para decidir si un directorio es un repositorio git, en
-  vez de introducir una segunda definición de "es un repo".
+  vez de introducir una segunda definición de "es un repo". Su contrato actual no distingue
+  submódulo ni worktree, así que FR-016 requiere extenderlo: se verificó que la distinción es
+  posible porque en un repo independiente `.git` es un directorio, mientras que en worktrees y
+  submódulos es un archivo con una línea `gitdir:` que apunta a `.git/worktrees/<n>` o a
+  `.git/modules/<n>` respectivamente. `git rev-parse --show-toplevel` devuelve éxito en los
+  tres casos, por lo que no alcanza por sí solo.
 - La feature no incluye descubrimiento automático ni escaneo recursivo del disco: la persona
   navega explícitamente.
 - La feature no incluye recordar ubicaciones favoritas ni historial de navegación.
