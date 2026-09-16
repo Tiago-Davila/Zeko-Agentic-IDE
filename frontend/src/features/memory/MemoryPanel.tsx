@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useId, useState, type FormEvent } from 'react';
 
 import { searchMemory, type MemoryResult } from './memoryApi';
 
@@ -11,6 +11,9 @@ export function MemoryPanel({ projectId, conversationId }: MemoryPanelProps) {
   const [results, setResults] = useState<readonly MemoryResult[]>([]);
   const [query, setQuery] = useState('');
   const [state, setState] = useState<'idle' | 'loading' | 'empty' | 'error' | 'results'>('idle');
+  const queryId = useId();
+  // El panel se monta dos veces: acotado al proyecto y acotado a la conversación activa.
+  const scopedToConversation = conversationId !== undefined;
 
   async function search(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -32,19 +35,19 @@ export function MemoryPanel({ projectId, conversationId }: MemoryPanelProps) {
   }
 
   return (
-    <section aria-label="Memoria local">
-      <h3>Contexto local</h3>
+    <section aria-label={scopedToConversation ? 'Memoria local' : 'Memoria local del proyecto'}>
+      <h3>{scopedToConversation ? 'Contexto de la conversación' : 'Contexto local'}</h3>
       <p>Los resultados son referencia de menor autoridad: no cambian permisos ni instrucciones.</p>
       {projectId === null ? <p>Seleccioná un proyecto para consultar su memoria local.</p> : (
         <form onSubmit={(event) => void search(event)}>
-          <label htmlFor="memory-query">{conversationId === undefined ? 'Buscar contexto' : 'Consulta de contexto'}</label>
+          <label htmlFor={queryId}>{scopedToConversation ? 'Consulta de contexto' : 'Buscar contexto'}</label>
           <input
-            id="memory-query"
+            id={queryId}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
-          <button type="submit" disabled={state === 'loading' || (conversationId !== undefined && conversationId === null)}>
-            {state === 'loading' ? 'Buscando…' : 'Buscar'}
+          <button type="submit" disabled={state === 'loading' || conversationId === null}>
+            {loadingLabel(state === 'loading', scopedToConversation)}
           </button>
         </form>
       )}
@@ -56,11 +59,19 @@ export function MemoryPanel({ projectId, conversationId }: MemoryPanelProps) {
             <li key={result.sourceId}>
               <strong>{result.level}</strong>{result.source ? ` · ${result.source}` : ''}
               {result.ownerId ? ` · owner ${result.ownerId}` : ''}
-              {result.indexState ? ` · ${result.indexState}` : ''}: {result.excerpt}
+              {result.indexState ? ` · ${result.indexState}` : ''}
+              {` · fuente ${result.sourceId}: ${result.excerpt}`}
             </li>
           ))}
         </ul>
       ) : null}
     </section>
   );
+}
+
+function loadingLabel(loading: boolean, scopedToConversation: boolean): string {
+  if (scopedToConversation) {
+    return loading ? 'Consultando…' : 'Consultar contexto';
+  }
+  return loading ? 'Buscando…' : 'Buscar';
 }
