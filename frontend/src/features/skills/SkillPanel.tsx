@@ -1,5 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 
+import { Badge } from '../../design/Badge';
+import { Button } from '../../design/Button';
+import { Field } from '../../design/Field';
 import { bindSkill, registerSkill, skills, type SkillBindingDto, type SkillDto } from './skillApi';
 
 interface SkillPanelProps {
@@ -20,7 +23,7 @@ export function SkillPanel({ projectId, instanceId = null, boundSkillIds = new S
     if (projectId !== null) void skills(projectId).then(setItems).catch(() => setItems([]));
   }, [projectId]);
 
-  async function create(event: React.FormEvent<HTMLFormElement>) {
+  async function create(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (projectId === null || !name.trim() || !path.trim()) return;
     setError('');
@@ -46,18 +49,89 @@ export function SkillPanel({ projectId, instanceId = null, boundSkillIds = new S
     }
   }
 
-  return <section aria-label="Skills de proyecto">
-    <h3>Skills locales</h3>
-    <p>Una skill describe contexto; no concede permisos ni herramientas.</p>
-    {projectId === null ? <p>Seleccioná un proyecto para gestionar skills.</p> : <>
-      <form onSubmit={(event) => void create(event)}>
-        <label>Nombre de skill<input aria-label="Nombre de skill" value={name} onChange={(event) => setName(event.target.value)} required /></label>
-        <label>Ruta SKILL.md<input aria-label="Ruta SKILL.md" value={path} onChange={(event) => setPath(event.target.value)} required /></label>
-        <button type="submit">Guardar skill</button>
-      </form>
-      <ul>{items.map((item) => <li key={item.id}><span>{item.name} · {item.scope}</span>{instanceId === null ? null : boundSkillIds.has(item.id) ? <strong> Asociada</strong> : <button type="button" onClick={() => void associate(item)}>Asociar a instancia</button>}</li>)}</ul>
-    </>}
-    {message ? <p role="status">{message}</p> : null}
-    {error ? <p role="alert">{error}</p> : null}
-  </section>;
+  return (
+    <section aria-label="Skills de proyecto" className="flex min-h-0 flex-col gap-3">
+      <header className="shrink-0">
+        <h3 className="text-xs font-semibold tracking-wide text-chalk-400 uppercase">Skills locales</h3>
+        <p className="text-[11px] text-chalk-600">
+          Una skill describe contexto; no concede permisos ni herramientas.
+        </p>
+      </header>
+
+      {projectId === null ? (
+        <p className="text-xs text-chalk-400">Seleccioná un proyecto para gestionar skills.</p>
+      ) : (
+        <>
+          <form
+            onSubmit={(event) => void create(event)}
+            className="flex shrink-0 flex-wrap items-end gap-2 rounded-[var(--radius-panel)] border border-ink-700 bg-ink-850 p-2"
+          >
+            <Field
+              label="Nombre de skill"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="java-springboot"
+              required
+              fieldClassName="min-w-40 flex-1"
+            />
+            <Field
+              label="Ruta SKILL.md"
+              mono
+              value={path}
+              onChange={(event) => setPath(event.target.value)}
+              required
+              fieldClassName="min-w-56 flex-1"
+            />
+            <Button type="submit">Guardar skill</Button>
+          </form>
+
+          {items.length === 0 ? (
+            <p className="text-xs text-chalk-400">Todavía no hay skills registradas en este proyecto.</p>
+          ) : (
+            <ul className="grid min-h-0 auto-rows-min grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-2 overflow-y-auto pr-1">
+              {items.map((item) => {
+                const bound = boundSkillIds.has(item.id);
+                return (
+                  <li
+                    key={item.id}
+                    className="flex flex-col gap-1.5 rounded-[var(--radius-panel)] border border-ink-700 bg-ink-850 p-2"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="min-w-0 truncate text-xs font-medium text-chalk-50">{item.name}</span>
+                      <Badge tone="muted" className="ml-auto">
+                        {item.scope}
+                      </Badge>
+                    </div>
+                    <span className="truncate font-mono text-[10px] text-chalk-600" title={item.skillPath}>
+                      {item.skillPath}
+                    </span>
+                    {instanceId === null ? null : bound ? (
+                      <Badge tone="info" className="self-start">
+                        Asociada
+                      </Badge>
+                    ) : (
+                      <Button size="sm" className="self-start" onClick={() => void associate(item)}>
+                        Asociar a instancia
+                      </Button>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </>
+      )}
+
+      {message ? (
+        <p role="status" className="shrink-0 text-[11px] text-state-completed">
+          {message}
+        </p>
+      ) : null}
+      {error ? (
+        <p role="alert" className="shrink-0 text-[11px] text-state-failed">
+          {error}
+        </p>
+      ) : null}
+    </section>
+  );
 }

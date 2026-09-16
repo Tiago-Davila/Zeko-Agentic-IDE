@@ -113,8 +113,10 @@ export function WorkspaceShell({ initialProject = null, onBackToLauncher }: Work
               </div>
             ) : null}
             {dockTab === 'library' ? (
-              <div className="p-3">
-                <MemoryPanel projectId={workspace.projectId} />
+              <div className="flex h-full min-h-0 divide-x divide-ink-700">
+                <div className="min-w-0 flex-1 overflow-auto p-3">
+                  <MemoryPanel projectId={workspace.projectId} />
+                </div>
               </div>
             ) : null}
             {dockTab === 'traces' ? (
