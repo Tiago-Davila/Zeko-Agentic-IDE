@@ -16,8 +16,9 @@ describe('MemoryPanel', () => {
   it('explains that local context cannot grant authority without a project', () => {
     render(<MemoryPanel projectId={null} />);
 
-    expect(screen.getByText('Contexto local')).not.toBeNull();
-    expect(screen.getByText(/no cambian permisos ni instrucciones/i)).not.toBeNull();
+    expect(screen.getByText('Contexto')).not.toBeNull();
+    // La afirmacion de autoridad se conserva, en forma mas breve.
+    expect(screen.getByText(/menor autoridad/i)).not.toBeNull();
     expect(screen.getByText(/Seleccioná un proyecto/i)).not.toBeNull();
   });
 

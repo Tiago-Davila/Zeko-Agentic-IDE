@@ -46,11 +46,11 @@ export function ModeSettings({
       setAutonomyMode(autonomy.autonomyMode);
       setLoadedInstanceId(instanceId);
       setFeedback('loaded');
-      setMessage('Configuración cargada desde la base local.');
+      setMessage('Configuración cargada.');
     }).catch(() => {
       if (!active) return;
       setFeedback('error');
-      setMessage('No se pudo cargar la configuración local de esta instancia.');
+      setMessage('No se pudo cargar la configuración.');
     });
     return () => {
       active = false;
@@ -77,7 +77,7 @@ export function ModeSettings({
       setMessage('Permiso guardado sin cambiar iniciativa.');
     } catch {
       setFeedback('error');
-      setMessage('No se pudo actualizar el permiso local.');
+      setMessage('No se pudo actualizar el permiso.');
     }
   }
 
@@ -101,7 +101,7 @@ export function ModeSettings({
       setMessage('Iniciativa guardada sin cambiar permisos.');
     } catch {
       setFeedback('error');
-      setMessage('No se pudo actualizar la iniciativa local.');
+      setMessage('No se pudo actualizar la iniciativa.');
     }
   }
 
@@ -116,8 +116,7 @@ export function ModeSettings({
   return (
     <Panel heading="Permiso e iniciativa" aria-label="Configuración independiente de modos">
       <p className="text-[11px] leading-relaxed text-chalk-400">
-        Permiso controla acciones y aprobación; iniciativa controla follow-ups. Son dimensiones
-        independientes.
+        Permiso e iniciativa son dimensiones independientes.
       </p>
 
       {instanceId === null ? (

@@ -137,7 +137,7 @@ export function AgentsCanvas({ projectId }: { readonly projectId: string | null 
       setIdentity('');
       setError('');
     } catch {
-      setError('No se pudo crear la instancia local de la plantilla.');
+      setError('No se pudo crear la instancia.');
     }
   }
 
@@ -149,8 +149,7 @@ export function AgentsCanvas({ projectId }: { readonly projectId: string | null 
     return (
       <div className="flex min-h-0 flex-1 items-center justify-center">
         <EmptyState
-          title="Seleccioná un proyecto para diseñar agentes."
-          description="El canvas muestra plantillas, instancias y skills del proyecto local activo."
+          title="Seleccioná un proyecto."
         />
       </div>
     );
@@ -176,15 +175,7 @@ export function AgentsCanvas({ projectId }: { readonly projectId: string | null 
             </div>
           }
           emptyState={
-            <EmptyState
-              title="Todavía no hay nada que dibujar."
-              description="Creá una plantilla en el panel de la derecha y el canvas va a mostrar la relación entre plantilla, instancia y skill."
-            />
-          }
-          overlay={
-            <span className="rounded-full border border-ink-700 bg-ink-900/90 px-2.5 py-1 text-[11px] text-chalk-400">
-              Las aristas son configuración: ninguna ejecuta un workflow.
-            </span>
+            <EmptyState title="Sin plantillas ni instancias." />
           }
         />
       </div>
@@ -214,7 +205,7 @@ export function AgentsCanvas({ projectId }: { readonly projectId: string | null 
             placeholder="Revisor de contratos"
           />
           {templatesList.length === 0 ? (
-            <p className="mt-3 text-xs text-chalk-400">Todavía no hay plantillas en este proyecto.</p>
+            <p className="mt-3 text-xs text-chalk-400">Sin plantillas.</p>
           ) : (
             <ul className="mt-3 flex flex-col gap-1.5">
               {templatesList.map((item) => (
@@ -236,7 +227,7 @@ export function AgentsCanvas({ projectId }: { readonly projectId: string | null 
 
         <Panel heading="Instancias">
           {instancesList.length === 0 ? (
-            <p className="text-xs text-chalk-400">Aún no hay instancias en este proyecto.</p>
+            <p className="text-xs text-chalk-400">Sin instancias.</p>
           ) : (
             <ul className="flex flex-col gap-1.5">
               {instancesList.map((item) => (

@@ -109,8 +109,7 @@ export function ArchitectureCanvas({ project }: ArchitectureCanvasProps) {
     return (
       <div className="flex min-h-0 flex-1 items-center justify-center">
         <EmptyState
-          title="Seleccioná un proyecto para diagramar su arquitectura."
-          description="El canvas parte de los repositorios registrados en el proyecto local."
+          title="Seleccioná un proyecto."
         />
       </div>
     );
@@ -150,14 +149,11 @@ export function ArchitectureCanvas({ project }: ArchitectureCanvasProps) {
             </div>
           }
           emptyState={
-            <EmptyState
-              title="Este proyecto todavía no tiene repositorios asociados."
-              description="Asociá un repositorio desde Agents Canvas y va a aparecer acá como nodo."
-            />
+            <EmptyState title="Sin repositorios." />
           }
           overlay={
             <span className="rounded-full border border-spray-magenta/50 bg-spray-magenta/10 px-2.5 py-1 text-[11px] text-spray-magenta">
-              El diagrama vive solo en esta sesión: no hay endpoint para guardarlo.
+              El diagrama no se guarda.
             </span>
           }
         />
@@ -207,11 +203,10 @@ export function ArchitectureCanvas({ project }: ArchitectureCanvasProps) {
 
         <Panel heading="Dependencias">
           <p className="text-[11px] leading-relaxed text-chalk-400">
-            Arrastrá desde el borde derecho de un nodo hasta otro para declarar una dependencia.
-            Las aristas describen el diseño; no generan código ni cambian el repositorio.
+            Arrastrá entre nodos para declarar una dependencia.
           </p>
           {dependencies.length === 0 ? (
-            <p className="mt-2 text-[11px] text-chalk-600">Todavía no declaraste dependencias.</p>
+            <p className="mt-2 text-[11px] text-chalk-600">Sin dependencias.</p>
           ) : (
             <ul className="mt-2 flex flex-col gap-1">
               {dependencies.map((edge) => (
@@ -236,10 +231,6 @@ export function ArchitectureCanvas({ project }: ArchitectureCanvasProps) {
           )}
         </Panel>
 
-        <p className="rounded-[var(--radius-control)] border border-spray-magenta/40 bg-spray-magenta/5 px-2 py-1.5 text-[11px] text-chalk-400">
-          Nada de esta superficie se guarda. El backend no expone persistencia de diagramas ni
-          generación de código a partir de ellos.
-        </p>
       </InspectorPanel>
     </section>
   );

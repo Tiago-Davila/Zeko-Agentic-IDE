@@ -71,7 +71,7 @@ export function ConversationPanel({ projectId }: { readonly projectId: string | 
       setHistory([]);
       setError('');
     } catch {
-      setError('No se pudo abrir la conversación local.');
+      setError('No se pudo abrir la conversación.');
     }
   }
 
@@ -90,7 +90,7 @@ export function ConversationPanel({ projectId }: { readonly projectId: string | 
       setHistory(exchange.conversation.instructions);
       setMessage('');
     } catch {
-      setError('No se pudo enviar la instrucción al backend local.');
+      setError('No se pudo enviar la instrucción.');
     } finally {
       setBusy(false);
     }
@@ -108,19 +108,14 @@ export function ConversationPanel({ projectId }: { readonly projectId: string | 
   return (
     <section aria-label="Conversación" className="flex h-full min-h-0 flex-col gap-3">
       <header className="flex shrink-0 flex-wrap items-center gap-2">
-        <h3 className="text-xs font-semibold tracking-wide text-chalk-400 uppercase">
-          Conversación con PM o agente
-        </h3>
+        <h3 className="text-xs font-semibold tracking-wide text-chalk-400 uppercase">Chat</h3>
         {activeConversation ? (
           <Badge tone="accent">PM</Badge>
         ) : null}
-        <p className="w-full text-[11px] text-chalk-600">
-          Podés instruir directamente al PM o a un agente; el origen queda trazado.
-        </p>
       </header>
 
       {projectId === null ? (
-        <EmptyState title="Seleccioná un proyecto para conversar." />
+        <EmptyState title="Seleccioná un proyecto." />
       ) : (
         <>
           <div className="flex shrink-0 items-center gap-2">
@@ -136,9 +131,7 @@ export function ConversationPanel({ projectId }: { readonly projectId: string | 
 
           <div aria-live="polite" className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pr-1">
             {history.length === 0 ? (
-              <p className="text-[11px] text-chalk-600">
-                Todavía no hay instrucciones en esta conversación.
-              </p>
+              <p className="text-[11px] text-chalk-600">Sin instrucciones.</p>
             ) : (
               history.map((item) => {
                 const tone = originOf(item.origin);

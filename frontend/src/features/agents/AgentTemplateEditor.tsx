@@ -23,7 +23,7 @@ export function AgentTemplateEditor({ projectId, onCreated }: AgentTemplateEdito
     setError('');
     void createTemplate(projectId, name, { role, prompt, model })
       .then(onCreated)
-      .catch(() => setError('No se pudo guardar la plantilla local.'));
+      .catch(() => setError('No se pudo guardar la plantilla.'));
   }
 
   return (
@@ -53,8 +53,8 @@ export function AgentTemplateEditor({ projectId, onCreated }: AgentTemplateEdito
           className={`${inputStyles} h-auto resize-y py-2 font-mono text-xs leading-relaxed`}
         />
       </label>
-      <Select label="Modelo local" value={model} onChange={(event) => setModel(event.target.value)}>
-        <option value="local">Ollama local</option>
+      <Select label="Modelo" value={model} onChange={(event) => setModel(event.target.value)}>
+        <option value="local">Ollama</option>
       </Select>
       <Button type="submit" variant="primary">
         Crear plantilla

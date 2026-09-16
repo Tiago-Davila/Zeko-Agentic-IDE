@@ -27,12 +27,6 @@ const surfaces: readonly TabItem<WorkspaceSurface>[] = [
   { value: 'architecture', label: 'Arquitectura' },
 ];
 
-const descriptions: Record<WorkspaceSurface, string> = {
-  agents: 'Diseñá agentes, plantillas y skills dentro del proyecto local.',
-  runtime: 'Observá ejecuciones, approvals, efectos y resultados confirmados.',
-  architecture: 'Diagramá repositorios, módulos y dependencias del proyecto local.',
-};
-
 interface WorkspaceShellProps {
   readonly initialProject?: ProjectDto | null | undefined;
   readonly onBackToLauncher?: (() => void) | undefined;
@@ -55,13 +49,6 @@ export function WorkspaceShell({ initialProject = null, onBackToLauncher }: Work
             aria-labelledby={tabId('surface', activeSurface)}
             className="flex h-full min-h-0 flex-col"
           >
-            <div className="shrink-0 border-b border-ink-700 bg-ink-900/60 px-4 py-2">
-              <h2 className="text-sm font-semibold text-chalk-50">
-                {surfaces.find((item) => item.value === activeSurface)?.label}
-              </h2>
-              <p className="text-xs text-chalk-400">{descriptions[activeSurface]}</p>
-            </div>
-
             {activeSurface === 'agents' ? (
               <div className="flex min-h-0 flex-1 flex-col">
                 <div className="flex shrink-0 items-center border-b border-ink-700 bg-ink-900/40 px-4 py-1.5">
@@ -104,10 +91,7 @@ export function WorkspaceShell({ initialProject = null, onBackToLauncher }: Work
               </div>
             ) : null}
             {dockTab === 'traces' ? (
-              <EmptyState
-                title="Sin recurso seleccionado."
-                description="Elegí una ejecución en Runtime Canvas para ver sus vínculos de evidencia."
-              />
+              <EmptyState title="Sin recurso seleccionado." />
             ) : null}
           </BottomDock>
         );

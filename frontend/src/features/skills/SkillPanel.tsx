@@ -32,9 +32,9 @@ export function SkillPanel({ projectId, instanceId = null, boundSkillIds = new S
       const skill = await registerSkill(projectId, name.trim(), path.trim());
       setItems((current) => [...current, skill]);
       setName('');
-      setMessage('Skill de proyecto guardada.');
+      setMessage('Skill guardada.');
     } catch {
-      setError('No se pudo guardar la skill local. Usá una ruta válida a SKILL.md.');
+      setError('Usá una ruta válida a SKILL.md.');
     }
   }
 
@@ -50,16 +50,14 @@ export function SkillPanel({ projectId, instanceId = null, boundSkillIds = new S
   }
 
   return (
-    <section aria-label="Skills de proyecto" className="flex min-h-0 flex-col gap-3">
+    <section aria-label="Skills" className="flex min-h-0 flex-col gap-3">
       <header className="shrink-0">
-        <h3 className="text-xs font-semibold tracking-wide text-chalk-400 uppercase">Skills locales</h3>
-        <p className="text-[11px] text-chalk-600">
-          Una skill describe contexto; no concede permisos ni herramientas.
-        </p>
+        <h3 className="text-xs font-semibold tracking-wide text-chalk-400 uppercase">Skills</h3>
+        <p className="text-[11px] text-chalk-600">No concede permisos ni herramientas.</p>
       </header>
 
       {projectId === null ? (
-        <p className="text-xs text-chalk-400">Seleccioná un proyecto para gestionar skills.</p>
+        <p className="text-xs text-chalk-400">Seleccioná un proyecto.</p>
       ) : (
         <>
           <form
@@ -86,7 +84,7 @@ export function SkillPanel({ projectId, instanceId = null, boundSkillIds = new S
           </form>
 
           {items.length === 0 ? (
-            <p className="text-xs text-chalk-400">Todavía no hay skills registradas en este proyecto.</p>
+            <p className="text-xs text-chalk-400">Sin skills.</p>
           ) : (
             <ul className="grid min-h-0 auto-rows-min grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-2 overflow-y-auto pr-1">
               {items.map((item) => {

@@ -13,7 +13,7 @@ test('mantiene las skills locales dentro del diseño y sin iniciar ejecuciones',
 
   await page.goto('/');
   await page.getByRole('combobox', { name: 'Abrir proyecto' }).selectOption(PROJECT_ID);
-  await expect(page.getByRole('heading', { name: 'Skills locales' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Skills' })).toBeVisible();
   await expect(page.getByText(/no concede permisos/i)).toBeVisible();
   await expect(page.getByRole('tab', { name: 'Runtime Canvas' })).toBeVisible();
 });

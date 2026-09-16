@@ -32,7 +32,7 @@ export function ProviderStatusPanel({ providers, onRetry }: ProviderStatusPanelP
       aria-label="Proveedores locales"
       className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1 border-b border-ink-700 bg-ink-900/60 px-4 py-1.5"
     >
-      <h3 className="sr-only">Proveedores locales</h3>
+      <h3 className="sr-only">Proveedores</h3>
       <ul className="flex flex-wrap items-center gap-3">
         {providers.map((provider) => (
           <li key={provider.provider} className="flex items-center gap-1.5 text-[11px]">
@@ -43,9 +43,7 @@ export function ProviderStatusPanel({ providers, onRetry }: ProviderStatusPanelP
           </li>
         ))}
       </ul>
-      <p className="text-[11px] text-chalk-600">
-        La reconexión de la interfaz no reanuda ejecuciones; el reintento siempre es manual.
-      </p>
+      <p className="text-[11px] text-chalk-600">Reconectar no reanuda ejecuciones.</p>
       {onRetry ? (
         <Button size="sm" variant="ghost" className="ml-auto" onClick={onRetry}>
           Reintentar conexión local

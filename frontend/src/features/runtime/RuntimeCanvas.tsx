@@ -97,7 +97,7 @@ export function RuntimeCanvas({ projectId = null, approvals }: RuntimeCanvasProp
       setSnapshotStatus('ready');
     } catch {
       setSnapshotStatus('error');
-      setSnapshotError('No se pudo cargar el estado de Runtime local.');
+      setSnapshotError('No se pudo cargar el estado de Runtime.');
     }
   }, [approvals, projectId, reconciler]);
 
@@ -123,10 +123,10 @@ export function RuntimeCanvas({ projectId = null, approvals }: RuntimeCanvasProp
           void acceptWireEvent(event.data);
         });
         socket.addEventListener('error', () => {
-          if (active) setSocketError('El canal de eventos local no está disponible; se conserva el último snapshot.');
+          if (active) setSocketError('Canal de eventos no disponible; se conserva el último snapshot.');
         });
       } catch {
-        if (active) setSocketError('No se pudo abrir el canal de eventos local; reintentá manualmente.');
+        if (active) setSocketError('No se pudo abrir el canal de eventos; reintentá manualmente.');
       }
     }
 
@@ -247,7 +247,7 @@ export function RuntimeCanvas({ projectId = null, approvals }: RuntimeCanvasProp
         {socketError || snapshotStatus === 'loading' || snapshotError || dataError || resolutionMessage ? (
           <div className="flex shrink-0 flex-col gap-1 border-b border-ink-700 px-4 py-1.5 text-[11px]">
             {socketError ? <p role="alert" className="text-state-waiting">{socketError}</p> : null}
-            {snapshotStatus === 'loading' ? <p role="status" className="text-chalk-400">Cargando snapshot local…</p> : null}
+            {snapshotStatus === 'loading' ? <p role="status" className="text-chalk-400">Cargando…</p> : null}
             {snapshotError ? (
               <p role="alert" className="flex items-center gap-2 text-state-failed">
                 {snapshotError}
@@ -283,15 +283,12 @@ export function RuntimeCanvas({ projectId = null, approvals }: RuntimeCanvasProp
           }
           emptyState={
             snapshotStatus === 'ready' && projectLoaded ? (
-              <EmptyState
-                title="No hay ejecuciones conocidas para este proyecto."
-                description="Las tareas y ejecuciones aparecen acá a medida que el backend las confirma."
-              />
+              <EmptyState title="Sin ejecuciones." />
             ) : undefined
           }
           overlay={
             <span className="rounded-full border border-ink-700 bg-ink-900/90 px-2.5 py-1 text-[11px] text-chalk-400">
-              Vista observacional: los nodos representan estado y no ejecutan workflows.
+              Vista observacional: no ejecuta workflows.
             </span>
           }
         />
@@ -317,7 +314,7 @@ export function RuntimeCanvas({ projectId = null, approvals }: RuntimeCanvasProp
         ))}
 
         {selectedExecution === undefined ? (
-          <p className="text-xs text-chalk-400">Seleccioná una ejecución en el canvas para ver su detalle.</p>
+          <p className="text-xs text-chalk-400">Sin ejecución seleccionada.</p>
         ) : (
           <>
             <ExecutionCard execution={selectedExecution} />

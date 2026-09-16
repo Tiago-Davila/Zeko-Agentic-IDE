@@ -41,20 +41,18 @@ export function MemoryPanel({ projectId, conversationId }: MemoryPanelProps) {
 
   return (
     <section
-      aria-label={scopedToConversation ? 'Memoria local' : 'Memoria local del proyecto'}
+      aria-label={scopedToConversation ? 'Memoria local' : 'Memoria del proyecto'}
       className="flex min-h-0 flex-col gap-2"
     >
       <header className="shrink-0">
         <h3 className="text-xs font-semibold tracking-wide text-chalk-400 uppercase">
-          {scopedToConversation ? 'Contexto de la conversación' : 'Contexto local'}
+          {scopedToConversation ? 'Contexto de la conversación' : 'Contexto'}
         </h3>
-        <p className="text-[11px] text-chalk-600">
-          Los resultados son referencia de menor autoridad: no cambian permisos ni instrucciones.
-        </p>
+        <p className="text-[11px] text-chalk-600">Referencia de menor autoridad.</p>
       </header>
 
       {projectId === null ? (
-        <p className="text-xs text-chalk-400">Seleccioná un proyecto para consultar su memoria local.</p>
+        <p className="text-xs text-chalk-400">Seleccioná un proyecto.</p>
       ) : (
         <form onSubmit={(event) => void search(event)} className="flex shrink-0 items-end gap-2">
           <label className="flex min-w-0 flex-1 flex-col gap-1" htmlFor={queryId}>
@@ -80,7 +78,7 @@ export function MemoryPanel({ projectId, conversationId }: MemoryPanelProps) {
       ) : null}
       {state === 'error' ? (
         <p role="alert" className="text-xs text-state-failed">
-          No se pudo consultar el contexto local.
+          No se pudo consultar el contexto.
         </p>
       ) : null}
       {state === 'results' ? (

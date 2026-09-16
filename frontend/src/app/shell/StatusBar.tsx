@@ -3,9 +3,9 @@ import type { ReactNode } from 'react';
 import { WorkspaceContextReader } from '../WorkspaceContext';
 
 const connectionLabels = {
-  connecting: 'Conectando al backend local',
-  ready: 'Backend local disponible',
-  error: 'Backend local no disponible',
+  connecting: 'Conectando',
+  ready: 'Conectado',
+  error: 'Sin conexión',
 } as const;
 
 const connectionDots = {
@@ -26,7 +26,7 @@ export function StatusBar() {
           aria-label="Estado del workspace"
           className="flex h-7 shrink-0 items-center gap-4 border-t border-ink-700 bg-ink-900 px-3 text-[11px]"
         >
-          <h2 className="sr-only">Estado local</h2>
+          <h2 className="sr-only">Estado</h2>
           <dl className="flex min-w-0 flex-1 items-center gap-4">
             <Entry term="Proyecto">{workspace.project}</Entry>
             <Entry term="Repositorio" mono>

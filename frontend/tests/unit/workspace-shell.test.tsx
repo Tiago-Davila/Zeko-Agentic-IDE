@@ -26,11 +26,11 @@ describe('WorkspaceShell', () => {
     renderShell();
 
     const status = screen.getByRole('complementary', { name: 'Estado del workspace' });
-    expect(status.textContent).toContain('Sin proyecto local seleccionado');
-    expect(status.textContent).toContain('Sin repositorio seleccionado');
-    expect(status.textContent).toContain('Sin tarea activa');
-    expect(status.textContent).toContain('Sin agente activo');
-    expect(status.textContent).toContain('Conectando al backend local');
+    expect(status.textContent).toContain('Sin proyecto');
+    expect(status.textContent).toContain('Sin repositorio');
+    expect(status.textContent).toContain('Sin tarea');
+    expect(status.textContent).toContain('Sin agente');
+    expect(status.textContent).toContain('Conectando');
   });
 
   /*

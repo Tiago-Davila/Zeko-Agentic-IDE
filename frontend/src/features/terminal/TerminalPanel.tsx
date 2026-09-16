@@ -17,7 +17,7 @@ export function TerminalPanel({ workingDirectory }: TerminalPanelProps) {
   const cwd = workingDirectory ?? 'sin worktree reservado';
 
   return (
-    <section aria-label="Terminal local" className="flex h-full min-h-0 flex-col">
+    <section aria-label="Terminal" className="flex h-full min-h-0 flex-col">
       <header className="flex shrink-0 flex-wrap items-center gap-2 border-b border-ink-700 px-3 py-2">
         <span className="text-xs font-semibold tracking-wide text-chalk-400 uppercase">Terminal</span>
         <Badge tone="muted" mono>

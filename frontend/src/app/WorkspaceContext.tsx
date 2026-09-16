@@ -23,10 +23,10 @@ const WorkspaceContext = createContext<WorkspaceContextValue | undefined>(undefi
 const initialWorkspace: WorkspaceState = {
   projectId: null,
   repositoryId: null,
-  project: 'Sin proyecto local seleccionado',
-  repository: 'Sin repositorio seleccionado',
-  task: 'Sin tarea activa',
-  agent: 'Sin agente activo',
+  project: 'Sin proyecto',
+  repository: 'Sin repositorio',
+  task: 'Sin tarea',
+  agent: 'Sin agente',
   connection: 'connecting',
 };
 
@@ -38,7 +38,7 @@ export function WorkspaceContextProvider({ children }: PropsWithChildren) {
       projectId,
       project: projectName,
       repositoryId: null,
-      repository: 'Sin repositorio seleccionado',
+      repository: 'Sin repositorio',
     }));
   }, []);
   const selectRepository = useCallback((repositoryId: string, repositoryPath: string) => {
