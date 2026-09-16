@@ -33,10 +33,27 @@ describe('WorkspaceShell', () => {
     expect(status.textContent).toContain('Conectando al backend local');
   });
 
-  it('does not introduce an architecture canvas', () => {
+  /*
+   * Esta prueba afirmaba que no existía un canvas de arquitectura, porque AGENTS.md lo
+   * excluye del MVP. El usuario autorizó explícitamente incorporarlo en la conversación de
+   * diseño UI/UX (override `UX-ARCH-20260915`), y su instrucción tiene precedencia 1 sobre
+   * las reglas del proyecto según AGENTS.md §2.
+   *
+   * La aserción se invierte de frente en vez de esquivarla nombrando la superficie en
+   * español para que el regex no coincida: eso habría escondido un cambio de alcance detrás
+   * de un rename. Lo que sí se mantiene es el límite real: la superficie es presentación,
+   * no persiste diagramas ni genera código.
+   */
+  it('mounts the architecture surface as a third separate canvas', () => {
     renderShell();
 
-    expect(screen.queryByText(/architecture canvas/i)).toBeNull();
+    expect(screen.getByRole('tab', { name: 'Arquitectura' })).not.toBeNull();
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Arquitectura' }));
+
+    expect(screen.getByRole('tabpanel', { name: 'Arquitectura' })).not.toBeNull();
+    expect(screen.queryByRole('tabpanel', { name: 'Agents Canvas' })).toBeNull();
+    expect(screen.queryByRole('tabpanel', { name: 'Runtime Canvas' })).toBeNull();
   });
 });
 

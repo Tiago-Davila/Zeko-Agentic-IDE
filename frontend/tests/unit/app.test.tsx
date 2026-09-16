@@ -22,8 +22,9 @@ describe('App', () => {
 
     // Se cuentan las tabs de superficie, no todas las del documento: el panel inferior
     // aporta su propio tablist y contarlas juntas ocultaría cuál de los dos cambió.
+    // Agents Canvas, Runtime Canvas y Arquitectura, cada una con su propia superficie.
     const surfaces = screen.getByRole('tablist', { name: 'Superficies del workspace' });
-    expect(within(surfaces).getAllByRole('tab')).toHaveLength(2);
+    expect(within(surfaces).getAllByRole('tab')).toHaveLength(3);
     expect(screen.getByRole('complementary', { name: 'Estado del workspace' })).not.toBeNull();
   });
 });

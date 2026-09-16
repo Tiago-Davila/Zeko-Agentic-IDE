@@ -7,6 +7,7 @@ import type { TabItem } from '../design/Tabs';
 import { ProjectPicker } from '../features/projects/ProjectPicker';
 import { RepositoryList } from '../features/projects/RepositoryList';
 import { AgentsCanvas } from '../features/agents/AgentsCanvas';
+import { ArchitectureCanvas } from '../features/architecture/ArchitectureCanvas';
 import { ConversationPanel } from '../features/conversations/ConversationPanel';
 import { MemoryPanel } from '../features/memory/MemoryPanel';
 import { RuntimeCanvas } from '../features/runtime/RuntimeCanvas';
@@ -19,16 +20,18 @@ import type { DockTab } from './shell/dockTabs';
 import { StatusBar } from './shell/StatusBar';
 import { WorkspaceContextReader } from './WorkspaceContext';
 
-type WorkspaceSurface = 'agents' | 'runtime';
+type WorkspaceSurface = 'agents' | 'runtime' | 'architecture';
 
 const surfaces: readonly TabItem<WorkspaceSurface>[] = [
   { value: 'agents', label: 'Agents Canvas' },
   { value: 'runtime', label: 'Runtime Canvas' },
+  { value: 'architecture', label: 'Arquitectura' },
 ];
 
 const descriptions: Record<WorkspaceSurface, string> = {
   agents: 'Diseñá agentes, plantillas y skills dentro del proyecto local.',
   runtime: 'Observá ejecuciones, approvals, efectos y resultados confirmados.',
+  architecture: 'Diagramá repositorios, módulos y dependencias del proyecto local.',
 };
 
 interface WorkspaceShellProps {
@@ -91,8 +94,10 @@ export function WorkspaceShell({ initialProject = null, onBackToLauncher }: Work
                 </div>
                 <AgentsCanvas projectId={workspace.projectId} />
               </div>
-            ) : (
+            ) : activeSurface === 'runtime' ? (
               <RuntimeCanvas projectId={workspace.projectId} />
+            ) : (
+              <ArchitectureCanvas project={activeProject} />
             )}
           </section>
         );

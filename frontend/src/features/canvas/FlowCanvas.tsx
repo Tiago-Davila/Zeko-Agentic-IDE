@@ -5,6 +5,7 @@ import {
   MiniMap,
   ReactFlow,
   ReactFlowProvider,
+  type Connection,
   type Edge,
   type EdgeTypes,
   type Node,
@@ -27,6 +28,12 @@ interface FlowCanvasProps {
   readonly fallback: ReactNode;
   readonly emptyState?: ReactNode | undefined;
   readonly overlay?: ReactNode | undefined;
+  /*
+   * Solo se habilita donde la arista es estado local de presentación. En Agents y Runtime
+   * queda apagado porque una arista ahí implicaría un binding o una dependencia real.
+   */
+  readonly connectable?: boolean | undefined;
+  readonly onConnect?: ((connection: Connection) => void) | undefined;
 }
 
 const defaultEdgeTypes: EdgeTypes = { config: ConfigEdge };
@@ -51,6 +58,8 @@ export function FlowCanvas({
   fallback,
   emptyState,
   overlay,
+  connectable = false,
+  onConnect,
 }: FlowCanvasProps) {
   const [minimapVisible, setMinimapVisible] = useState(true);
 
@@ -83,7 +92,8 @@ export function FlowCanvas({
           panOnScroll
           selectionOnDrag
           nodesDraggable
-          nodesConnectable={false}
+          nodesConnectable={connectable}
+          {...(onConnect === undefined ? {} : { onConnect })}
           elementsSelectable
           deleteKeyCode={null}
           proOptions={{ hideAttribution: false }}

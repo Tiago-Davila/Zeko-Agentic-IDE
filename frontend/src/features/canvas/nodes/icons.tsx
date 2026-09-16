@@ -66,6 +66,24 @@ export function ApprovalIcon() {
   );
 }
 
+export function RepositoryIcon() {
+  return (
+    <svg {...base} aria-hidden="true">
+      <path d="M5 4.5A1.5 1.5 0 016.5 3H19v14H6.5A1.5 1.5 0 005 18.5z" />
+      <path d="M5 18.5A1.5 1.5 0 016.5 17H19v4H6.5A1.5 1.5 0 015 19.5z" />
+    </svg>
+  );
+}
+
+export function ModuleIcon() {
+  return (
+    <svg {...base} aria-hidden="true">
+      <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z" />
+      <path d="M4 7.5l8 4.5 8-4.5M12 12v9" />
+    </svg>
+  );
+}
+
 export function FitIcon() {
   return (
     <svg {...base} width={15} height={15} aria-hidden="true">
