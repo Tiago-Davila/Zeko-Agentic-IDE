@@ -55,9 +55,11 @@ export function FlowCanvas({
   const [minimapVisible, setMinimapVisible] = useState(true);
 
   // jsdom no implementa ResizeObserver y ReactFlow no puede medir el contenedor.
+  // El sustituto conserva el overlay: es texto explicativo, no cromo decorativo.
   if (typeof ResizeObserver === 'undefined') {
     return (
       <div aria-label={label} className="flex-1">
+        {overlay}
         {fallback}
       </div>
     );

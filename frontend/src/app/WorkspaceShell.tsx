@@ -92,9 +92,7 @@ export function WorkspaceShell({ initialProject = null, onBackToLauncher }: Work
                 <AgentsCanvas projectId={workspace.projectId} />
               </div>
             ) : (
-              <div className="min-h-0 flex-1 overflow-auto p-4">
-                <RuntimeCanvas projectId={workspace.projectId} />
-              </div>
+              <RuntimeCanvas projectId={workspace.projectId} />
             )}
           </section>
         );

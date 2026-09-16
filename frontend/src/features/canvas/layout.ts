@@ -12,7 +12,8 @@ export interface Position {
 }
 
 export const COLUMN_WIDTH = 320;
-export const ROW_HEIGHT = 112;
+// Un nodo con fila de badges ronda los 120px; el alto de fila deja aire entre capas.
+export const ROW_HEIGHT = 156;
 export const ORIGIN_X = 48;
 export const ORIGIN_Y = 40;
 
