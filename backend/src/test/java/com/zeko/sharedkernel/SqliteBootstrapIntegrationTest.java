@@ -52,7 +52,7 @@ class SqliteBootstrapIntegrationTest {
                 "SELECT version FROM flyway_schema_history WHERE success = 1 ORDER BY installed_rank", String.class);
 
         assertThat(applied).containsExactly(
-                "001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011");
+                "001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011", "012");
         Integer bootstrapRows = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM metadata_bootstrap", Integer.class);
         assertThat(bootstrapRows).isEqualTo(1);

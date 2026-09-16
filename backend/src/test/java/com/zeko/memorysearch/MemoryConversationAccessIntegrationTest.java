@@ -56,10 +56,8 @@ class MemoryConversationAccessIntegrationTest {
 
     assertThat(results).extracting(ContextIndex.Result::source)
         .containsExactlyInAnyOrder("global.md", "project.md", "agent.md",
-            "conversation.md", "stale.md")
-        .doesNotContain("foreign.md", "secret.md");
-    assertThat(results).filteredOn(result -> result.source().equals("stale.md"))
-        .allSatisfy(result -> assertThat(result.excerpt()).isEmpty());
+            "conversation.md")
+        .doesNotContain("foreign.md", "secret.md", "stale.md");
     assertThat(results).extracting(ContextIndex.Result::excerpt)
         .doesNotContain("synthetic-secret");
   }
