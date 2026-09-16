@@ -7,6 +7,7 @@ import { EmptyState } from '../../design/EmptyState';
 import { Field } from '../../design/Field';
 import { Panel } from '../../design/Panel';
 import { StatePill } from '../../design/StatePill';
+import { InspectorPanel } from '../../app/shell/InspectorPanel';
 import { FlowCanvas } from '../canvas/FlowCanvas';
 import { useNodeLayout } from '../canvas/useNodeLayout';
 import type { LayoutNode } from '../canvas/layout';
@@ -188,7 +189,15 @@ export function AgentsCanvas({ projectId }: { readonly projectId: string | null 
         />
       </div>
 
-      <aside className="flex w-[340px] shrink-0 flex-col gap-3 overflow-y-auto border-l border-ink-700 bg-ink-900 p-3">
+      <InspectorPanel
+        label="Inspector de agentes"
+        heading="Inspector"
+        subheading={
+          selectedInstanceId === null
+            ? 'Sin instancia seleccionada'
+            : `Instancia ${instancesList.find((item) => item.id === selectedInstanceId)?.identity ?? selectedInstanceId}`
+        }
+      >
         <Panel heading="Nueva plantilla">
           <AgentTemplateEditor
             projectId={projectId}
@@ -266,7 +275,7 @@ export function AgentsCanvas({ projectId }: { readonly projectId: string | null 
             {error}
           </p>
         ) : null}
-      </aside>
+      </InspectorPanel>
     </section>
   );
 }
