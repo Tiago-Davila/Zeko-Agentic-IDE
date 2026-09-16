@@ -2,6 +2,7 @@ package com.zeko.memorysearch.application;
 
 import com.zeko.coordination.application.ConversationContextProvider;
 import com.zeko.memorysearch.domain.MemoryAccessPolicy;
+import com.zeko.sharedkernel.domain.DomainError;
 import com.zeko.sharedkernel.domain.ResourceId;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +33,13 @@ public class MemorySearchService {
     if (conversations == null) {
       return search(projectId, List.of(conversationId), query);
     }
-    MemoryAccessContext context = MemoryAccessContext.from(
-        conversations.resolve(projectId, conversationId));
+    MemoryAccessContext context;
+    try {
+      context = MemoryAccessContext.from(
+          conversations.resolve(projectId, conversationId));
+    } catch (DomainError missingConversation) {
+      return search(projectId, List.of(conversationId), query);
+    }
     return index.search(context, query)
         .stream()
         .filter(

@@ -34,8 +34,9 @@ public class MemoryController {
     ResourceId id = ResourceId.parse(projectId);
     var results = conversationId != null
         ? search.search(id, ResourceId.parse(conversationId), query)
-        : search.search(id, ResourceId.parse(ownerId == null ? projectId : ownerId), query,
-                        true);
+        : ownerId != null
+            ? search.search(id, ResourceId.parse(ownerId), query, true)
+            : search.search(id, id, query);
     return new MemoryDtos.SearchResponse(
         results.stream().map(MemoryDtos.Result::from).toList());
   }
