@@ -109,7 +109,19 @@ export function WorkspaceShell({ initialProject = null, onBackToLauncher }: Work
             />
 
             <div className="flex min-h-0 flex-1">
-              <AppSidebar />
+              <AppSidebar
+                activeTab={dockTab}
+                dockCollapsed={dockCollapsed}
+                onSelectTab={(tab) => {
+                  // Elegir el panel que ya esta abierto lo pliega; si no, lo abre en esa pestana.
+                  if (tab === dockTab && !dockCollapsed) {
+                    setDockCollapsed(true);
+                    return;
+                  }
+                  setDockTab(tab);
+                  setDockCollapsed(false);
+                }}
+              />
               <main className="flex min-h-0 min-w-0 flex-1 flex-col">
                 {dockCollapsed ? (
                   <>

@@ -66,6 +66,42 @@ export function ApprovalIcon() {
   );
 }
 
+export function ChatIcon() {
+  return (
+    <svg {...base} aria-hidden="true">
+      <path d="M20 14.5a2.5 2.5 0 01-2.5 2.5H9l-4 3.5v-3.5H6.5A2.5 2.5 0 014 14.5v-7A2.5 2.5 0 016.5 5h11A2.5 2.5 0 0120 7.5z" />
+    </svg>
+  );
+}
+
+export function LibraryIcon() {
+  return (
+    <svg {...base} aria-hidden="true">
+      <path d="M4 5h4v14H4zM10 5h4v14h-4z" />
+      <path d="M16.5 5.5l3.2.9-3.6 12.8-3.2-.9z" />
+    </svg>
+  );
+}
+
+export function TerminalIcon() {
+  return (
+    <svg {...base} aria-hidden="true">
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M7 9l3 3-3 3M13 15h4" />
+    </svg>
+  );
+}
+
+export function TraceIcon() {
+  return (
+    <svg {...base} aria-hidden="true">
+      <circle cx="6" cy="6" r="2.5" />
+      <circle cx="18" cy="18" r="2.5" />
+      <path d="M8.5 6H14a4 4 0 014 4v5.5" />
+    </svg>
+  );
+}
+
 export function RepositoryIcon() {
   return (
     <svg {...base} aria-hidden="true">
