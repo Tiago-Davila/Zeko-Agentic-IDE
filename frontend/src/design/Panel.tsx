@@ -6,13 +6,17 @@ interface PanelProps extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
   readonly heading?: ReactNode | undefined;
   readonly actions?: ReactNode | undefined;
   readonly bare?: boolean | undefined;
+  // El panel toma la altura disponible y desplaza su cuerpo, en vez de medir por contenido.
+  readonly fill?: boolean | undefined;
 }
 
-export function Panel({ heading, actions, bare = false, className, children, ...rest }: PanelProps) {
+export function Panel({ heading, actions, bare = false, fill = false, className, children, ...rest }: PanelProps) {
   return (
     <section
       className={cn(
-        'flex min-h-0 flex-col',
+        'flex flex-col',
+        // Sin `fill`, el panel mide por contenido y no se comprime dentro de un flex column.
+        fill ? 'min-h-0 flex-1' : 'shrink-0',
         bare ? '' : 'rounded-[var(--radius-panel)] border border-ink-700 bg-ink-900',
         className,
       )}
@@ -24,7 +28,7 @@ export function Panel({ heading, actions, bare = false, className, children, ...
           {actions === undefined ? null : <div className="flex items-center gap-1">{actions}</div>}
         </header>
       )}
-      <div className="min-h-0 flex-1 overflow-auto p-3">{children}</div>
+      <div className={cn('p-3', fill ? 'min-h-0 flex-1 overflow-auto' : '')}>{children}</div>
     </section>
   );
 }

@@ -73,9 +73,9 @@ export function WorkspaceShell() {
                   <p className="text-xs text-chalk-400">{descriptions[activeSurface]}</p>
                 </div>
 
-                <div className="min-h-0 flex-1 overflow-auto">
-                  {activeSurface === 'agents' ? (
-                    <div className="flex flex-col gap-4 p-4">
+                {activeSurface === 'agents' ? (
+                  <div className="flex min-h-0 flex-1 flex-col">
+                    <div className="flex shrink-0 flex-wrap items-start gap-6 border-b border-ink-700 bg-ink-900/40 px-4 py-2">
                       <ProjectPicker
                         onProjectSelected={(project) => selectProject(project, workspace.selectProject)}
                         onConnectionChange={workspace.setConnection}
@@ -87,16 +87,24 @@ export function WorkspaceShell() {
                           workspace.selectRepository(repository.id, repository.path)
                         }
                       />
-                      <AgentsCanvas projectId={workspace.projectId} />
-                      <ConversationPanel projectId={workspace.projectId} />
-                      <MemoryPanel projectId={workspace.projectId} />
                     </div>
-                  ) : (
-                    <div className="p-4">
-                      <RuntimeCanvas projectId={workspace.projectId} />
+
+                    <AgentsCanvas projectId={workspace.projectId} />
+
+                    <div className="flex h-[248px] shrink-0 divide-x divide-ink-700 border-t border-ink-700 bg-ink-900">
+                      <div className="min-w-0 flex-1 overflow-auto p-3">
+                        <ConversationPanel projectId={workspace.projectId} />
+                      </div>
+                      <div className="min-w-0 flex-1 overflow-auto p-3">
+                        <MemoryPanel projectId={workspace.projectId} />
+                      </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  <div className="min-h-0 flex-1 overflow-auto p-4">
+                    <RuntimeCanvas projectId={workspace.projectId} />
+                  </div>
+                )}
               </section>
             </main>
           </div>

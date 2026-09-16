@@ -93,6 +93,7 @@ export function FlowCanvas({
               zoomable
               ariaLabel="Minimapa del canvas"
               maskColor="var(--xy-minimap-mask-background-color)"
+              style={{ width: 168, height: 112 }}
               nodeColor={(node) =>
                 minimapTones[toneOf(typeof node.data.state === 'string' ? node.data.state : '')] ??
                 'var(--color-ink-600)'
