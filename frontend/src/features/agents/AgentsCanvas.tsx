@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Background, Controls, ReactFlow, type Edge, type Node } from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
 
 import { AgentTemplateEditor } from './AgentTemplateEditor';
 import { createInstance, instances, templates, type AgentInstanceDto, type AgentTemplateDto } from './agentApi';
