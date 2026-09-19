@@ -1,0 +1,85 @@
+# Zeko Agentic IDE - exclusiones de repositorio
+# Regla: nunca versionar secretos, datos locales ni artefactos generados.
+# Se conservan wrappers, lockfiles y fixtures no secretas por reproducibilidad.
+
+# --- Secretos y credenciales ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.credentials
+credentials.json
+secrets.json
+secrets.yml
+secrets.yaml
+
+# --- Datos locales del producto (SQLite, Lucene, worktrees) ---
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.migration.lock
+data/
+var/
+worktrees/
+index/
+lucene/
+
+# --- Logs ---
+*.log
+logs/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Evidencia local de desarrollo (no es trazabilidad de producto) ---
+work/evidence/
+
+# --- Backend: Gradle y compilación ---
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/gradle/wrapper/gradle-wrapper.jar
+out/
+bin/
+*.class
+backend/bin/
+
+# --- Frontend: Node y Vite ---
+node_modules/
+dist/
+dist-ssr/
+.vite/
+coverage/
+.eslintcache
+*.tsbuildinfo
+
+# --- Frontend: artefactos de Playwright ---
+playwright-report/
+blob-report/
+test-results/
+.playwright/
+frontend/tests/e2e/.tmp/
+
+# --- Entornos de IDE y sistema operativo ---
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Python auxiliar de scripts locales ---
+__pycache__/
+*.py[cod]
+.venv/

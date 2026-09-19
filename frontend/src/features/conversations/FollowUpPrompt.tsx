@@ -1,0 +1,1 @@
+export function FollowUpPrompt() { return <section aria-label="Confirmar seguimiento"><p>El modo Assisted requiere confirmación explícita antes de crear el seguimiento.</p><button type="button">Confirmar seguimiento</button><button type="button">Rechazar seguimiento</button></section>; }

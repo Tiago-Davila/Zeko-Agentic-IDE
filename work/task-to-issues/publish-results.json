@@ -1,0 +1,554 @@
+[
+  {
+    "task": "T001",
+    "action": "created",
+    "number": 1,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/1"
+  },
+  {
+    "task": "T002",
+    "action": "created",
+    "number": 2,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/2"
+  },
+  {
+    "task": "T003",
+    "action": "created",
+    "number": 3,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/3"
+  },
+  {
+    "task": "T004",
+    "action": "created",
+    "number": 4,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/4"
+  },
+  {
+    "task": "T005",
+    "action": "created",
+    "number": 5,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/5"
+  },
+  {
+    "task": "T006",
+    "action": "created",
+    "number": 6,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/6"
+  },
+  {
+    "task": "T007",
+    "action": "created",
+    "number": 7,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/7"
+  },
+  {
+    "task": "T008",
+    "action": "created",
+    "number": 8,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/8"
+  },
+  {
+    "task": "T011",
+    "action": "created",
+    "number": 9,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/9"
+  },
+  {
+    "task": "T009",
+    "action": "created",
+    "number": 10,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/10"
+  },
+  {
+    "task": "T010",
+    "action": "created",
+    "number": 11,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/11"
+  },
+  {
+    "task": "T012",
+    "action": "created",
+    "number": 12,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/12"
+  },
+  {
+    "task": "T013",
+    "action": "created",
+    "number": 13,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/13"
+  },
+  {
+    "task": "T014",
+    "action": "created",
+    "number": 14,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/14"
+  },
+  {
+    "task": "T016",
+    "action": "created",
+    "number": 15,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/15"
+  },
+  {
+    "task": "T015",
+    "action": "created",
+    "number": 16,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/16"
+  },
+  {
+    "task": "T017",
+    "action": "created",
+    "number": 17,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/17"
+  },
+  {
+    "task": "T018",
+    "action": "created",
+    "number": 18,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/18"
+  },
+  {
+    "task": "T019",
+    "action": "created",
+    "number": 19,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/19"
+  },
+  {
+    "task": "T020",
+    "action": "created",
+    "number": 20,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/20"
+  },
+  {
+    "task": "T021",
+    "action": "created",
+    "number": 21,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/21"
+  },
+  {
+    "task": "T044",
+    "action": "created",
+    "number": 22,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/22"
+  },
+  {
+    "task": "T022",
+    "action": "created",
+    "number": 23,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/23"
+  },
+  {
+    "task": "T023",
+    "action": "created",
+    "number": 24,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/24"
+  },
+  {
+    "task": "T027",
+    "action": "created",
+    "number": 25,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/25"
+  },
+  {
+    "task": "T045",
+    "action": "created",
+    "number": 26,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/26"
+  },
+  {
+    "task": "T024",
+    "action": "created",
+    "number": 27,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/27"
+  },
+  {
+    "task": "T028",
+    "action": "created",
+    "number": 28,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/28"
+  },
+  {
+    "task": "T029",
+    "action": "created",
+    "number": 29,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/29"
+  },
+  {
+    "task": "T037",
+    "action": "created",
+    "number": 30,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/30"
+  },
+  {
+    "task": "T046",
+    "action": "created",
+    "number": 31,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/31"
+  },
+  {
+    "task": "T047",
+    "action": "created",
+    "number": 32,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/32"
+  },
+  {
+    "task": "T053",
+    "action": "created",
+    "number": 33,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/33"
+  },
+  {
+    "task": "T025",
+    "action": "created",
+    "number": 34,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/34"
+  },
+  {
+    "task": "T030",
+    "action": "created",
+    "number": 35,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/35"
+  },
+  {
+    "task": "T031",
+    "action": "created",
+    "number": 36,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/36"
+  },
+  {
+    "task": "T038",
+    "action": "created",
+    "number": 37,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/37"
+  },
+  {
+    "task": "T039",
+    "action": "created",
+    "number": 38,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/38"
+  },
+  {
+    "task": "T048",
+    "action": "created",
+    "number": 39,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/39"
+  },
+  {
+    "task": "T055",
+    "action": "created",
+    "number": 40,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/40"
+  },
+  {
+    "task": "T058",
+    "action": "created",
+    "number": 41,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/41"
+  },
+  {
+    "task": "T077",
+    "action": "created",
+    "number": 42,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/42"
+  },
+  {
+    "task": "T026",
+    "action": "created",
+    "number": 43,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/43"
+  },
+  {
+    "task": "T032",
+    "action": "created",
+    "number": 44,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/44"
+  },
+  {
+    "task": "T034",
+    "action": "created",
+    "number": 45,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/45"
+  },
+  {
+    "task": "T040",
+    "action": "created",
+    "number": 46,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/46"
+  },
+  {
+    "task": "T050",
+    "action": "created",
+    "number": 47,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/47"
+  },
+  {
+    "task": "T054",
+    "action": "created",
+    "number": 48,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/48"
+  },
+  {
+    "task": "T062",
+    "action": "created",
+    "number": 49,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/49"
+  },
+  {
+    "task": "T078",
+    "action": "created",
+    "number": 50,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/50"
+  },
+  {
+    "task": "T033",
+    "action": "created",
+    "number": 51,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/51"
+  },
+  {
+    "task": "T041",
+    "action": "created",
+    "number": 52,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/52"
+  },
+  {
+    "task": "T049",
+    "action": "created",
+    "number": 53,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/53"
+  },
+  {
+    "task": "T056",
+    "action": "created",
+    "number": 54,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/54"
+  },
+  {
+    "task": "T079",
+    "action": "created",
+    "number": 55,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/55"
+  },
+  {
+    "task": "T035",
+    "action": "created",
+    "number": 56,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/56"
+  },
+  {
+    "task": "T043",
+    "action": "created",
+    "number": 57,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/57"
+  },
+  {
+    "task": "T051",
+    "action": "created",
+    "number": 58,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/58"
+  },
+  {
+    "task": "T057",
+    "action": "created",
+    "number": 59,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/59"
+  },
+  {
+    "task": "T080",
+    "action": "created",
+    "number": 60,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/60"
+  },
+  {
+    "task": "T036",
+    "action": "created",
+    "number": 61,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/61"
+  },
+  {
+    "task": "T042",
+    "action": "created",
+    "number": 62,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/62"
+  },
+  {
+    "task": "T052",
+    "action": "created",
+    "number": 63,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/63"
+  },
+  {
+    "task": "T059",
+    "action": "created",
+    "number": 64,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/64"
+  },
+  {
+    "task": "T060",
+    "action": "created",
+    "number": 65,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/65"
+  },
+  {
+    "task": "T081",
+    "action": "created",
+    "number": 66,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/66"
+  },
+  {
+    "task": "T061",
+    "action": "created",
+    "number": 67,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/67"
+  },
+  {
+    "task": "T083",
+    "action": "created",
+    "number": 68,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/68"
+  },
+  {
+    "task": "T063",
+    "action": "created",
+    "number": 69,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/69"
+  },
+  {
+    "task": "T064",
+    "action": "created",
+    "number": 70,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/70"
+  },
+  {
+    "task": "T067",
+    "action": "created",
+    "number": 71,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/71"
+  },
+  {
+    "task": "T065",
+    "action": "created",
+    "number": 72,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/72"
+  },
+  {
+    "task": "T066",
+    "action": "created",
+    "number": 73,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/73"
+  },
+  {
+    "task": "T069",
+    "action": "created",
+    "number": 74,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/74"
+  },
+  {
+    "task": "T072",
+    "action": "created",
+    "number": 75,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/75"
+  },
+  {
+    "task": "T068",
+    "action": "created",
+    "number": 76,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/76"
+  },
+  {
+    "task": "T070",
+    "action": "created",
+    "number": 77,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/77"
+  },
+  {
+    "task": "T071",
+    "action": "created",
+    "number": 78,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/78"
+  },
+  {
+    "task": "T074",
+    "action": "created",
+    "number": 79,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/79"
+  },
+  {
+    "task": "T082",
+    "action": "created",
+    "number": 80,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/80"
+  },
+  {
+    "task": "T073",
+    "action": "created",
+    "number": 81,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/81"
+  },
+  {
+    "task": "T075",
+    "action": "created",
+    "number": 82,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/82"
+  },
+  {
+    "task": "T085",
+    "action": "created",
+    "number": 83,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/83"
+  },
+  {
+    "task": "T076",
+    "action": "created",
+    "number": 84,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/84"
+  },
+  {
+    "task": "T084",
+    "action": "created",
+    "number": 85,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/85"
+  },
+  {
+    "task": "T086",
+    "action": "created",
+    "number": 86,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/86"
+  },
+  {
+    "task": "T087",
+    "action": "created",
+    "number": 87,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/87"
+  },
+  {
+    "task": "T088",
+    "action": "created",
+    "number": 88,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/88"
+  },
+  {
+    "task": "T089",
+    "action": "created",
+    "number": 89,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/89"
+  },
+  {
+    "task": "T090",
+    "action": "created",
+    "number": 90,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/90"
+  },
+  {
+    "task": "T091",
+    "action": "created",
+    "number": 91,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/91"
+  },
+  {
+    "task": "T092",
+    "action": "created",
+    "number": 92,
+    "url": "https://github.com/Tiago-Davila/Zeko-Agentic-IDE/issues/92"
+  }
+]

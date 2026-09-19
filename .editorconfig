@@ -1,0 +1,36 @@
+; Zeko Agentic IDE - convenciones de formato compartidas
+; Alineado con los checks de formato del backend y el lint del frontend.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+max_line_length = 120
+
+[*.{java,kt,kts}]
+indent_size = 4
+
+[*.{ts,tsx,js,jsx,mjs,cjs,json,jsonc,css,scss,html,yaml,yml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{bat,cmd}]
+end_of_line = crlf
+
+[gradlew]
+indent_size = 4
+
+[gradle/wrapper/gradle-wrapper.properties]
+indent_size = 2
+
+[Makefile]
+indent_style = tab
+
+[*.{sql,xml}]
+indent_size = 2
