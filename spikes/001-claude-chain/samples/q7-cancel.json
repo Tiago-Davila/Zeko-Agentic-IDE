@@ -1,0 +1,87 @@
+{
+  "kill": {
+    "how": "kill",
+    "spawnedPid": 13304,
+    "exit": null,
+    "signal": "SIGTERM",
+    "gotResult": false,
+    "lastEvents": [
+      "assistant thinking",
+      "assistant tool_use(PowerShell {\"command\":\"1..25 | % { Add-Content progreso.txt $_; Start-S)",
+      "rate_limit_event",
+      "system/task_started"
+    ],
+    "controlEvents": [],
+    "progresoAtExit": 4,
+    "progreso5sLater": 10,
+    "orphanStillWriting": true,
+    "procsAtExit": [
+      "18500:conhost.exe",
+      "19348:pwsh.exe"
+    ],
+    "procs5sLater": [
+      "18500:conhost.exe",
+      "19348:pwsh.exe"
+    ],
+    "finTxtExists": false,
+    "stderr": ""
+  },
+  "tree": {
+    "how": "taskkill-tree",
+    "spawnedPid": 11484,
+    "exit": 1,
+    "signal": null,
+    "gotResult": false,
+    "lastEvents": [
+      "assistant text(\"Voy a ejecutar el comando PowerShell tal cual, esperando a q\")",
+      "assistant tool_use(PowerShell {\"command\":\"1..25 | % { Add-Content progreso.txt $_; Start-S)",
+      "rate_limit_event",
+      "system/task_started"
+    ],
+    "controlEvents": [],
+    "progresoAtExit": 4,
+    "progreso5sLater": 4,
+    "orphanStillWriting": false,
+    "procsAtExit": [],
+    "procs5sLater": [],
+    "finTxtExists": false,
+    "stderr": ""
+  },
+  "interrupt": {
+    "how": "interrupt",
+    "spawnedPid": 11956,
+    "exit": 1,
+    "signal": null,
+    "gotResult": true,
+    "result": {
+      "subtype": "error_during_execution",
+      "is_error": true,
+      "terminal_reason": "aborted_tools"
+    },
+    "lastEvents": [
+      "system/task_notification",
+      "user tool_result(ERR \"The user doesn't want to proceed with this tool use. The to)",
+      "user text(\"[Request interrupted by user for tool use]\")",
+      "result/error_during_execution is_error=true turns=3 cost=$0.0310 \"\""
+    ],
+    "controlEvents": [
+      {
+        "type": "control_response",
+        "response": {
+          "subtype": "success",
+          "request_id": "cancel-1",
+          "response": {
+            "still_queued": []
+          }
+        }
+      }
+    ],
+    "progresoAtExit": 3,
+    "progreso5sLater": 3,
+    "orphanStillWriting": false,
+    "procsAtExit": [],
+    "procs5sLater": [],
+    "finTxtExists": false,
+    "stderr": ""
+  }
+}
