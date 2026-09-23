@@ -37,6 +37,19 @@ pisen el trabajo de otros ni actúen fuera del alcance asignado.
 - Q: Al rechazar un nodo de aprobación, ¿se detiene la rama o el run completo? → A: Solo la rama;
   las ramas independientes continúan.
 
+### Session 2026-09-23
+
+- Q: ¿Cuál es el valor por defecto del límite de concurrencia y es global o por agente? → A: Límite
+  global por proyecto, por defecto 8, configurable; sin sub-límite por agente.
+- Q: ¿Qué nivel de uso se considera "cerca del límite" y es configurable? → A: 90 % del uso
+  informado por el agente, configurable por proyecto.
+- Q: La copia aislada de un nodo cancelado, ¿se descarta automáticamente o se conserva? → A: Se
+  conserva siempre, marcada como no confiable; solo se elimina con confirmación explícita.
+- Q: ¿Zeko acepta Codex autenticado con cuenta de ChatGPT, clave de API o ambas? → A: Solo cuenta
+  de ChatGPT; la clave de API queda fuera de alcance.
+- Q: ¿En qué idioma se muestra la interfaz y hay selector de idioma? → A: Solo inglés, con los
+  textos centralizados en un catálogo; sin selector de idioma.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Abrir un proyecto y diseñar un flujo guardado (Priority: P1)
@@ -373,9 +386,10 @@ historial y el estado "interrumpido".
   instalado y autenticado, informar cuáles faltan y no iniciar el run si falta alguno.
 - **FR-026**: Un nodo MUST ejecutarse solo cuando todos sus predecesores terminaron "completados" o
   "aprobados".
-- **FR-027**: Los nodos sin dependencia entre sí MUST ejecutarse en paralelo respetando un límite de
-  concurrencia configurable [NEEDS CLARIFICATION: valor por defecto del límite y si es global o
-  por agente].
+- **FR-027**: Los nodos sin dependencia entre sí MUST ejecutarse en paralelo respetando un único
+  límite de concurrencia global por proyecto, con valor por defecto 8 y configurable por el
+  usuario. El sistema MUST NOT aplicar sub-límites por agente; la retención por uso de suscripción
+  (FR-053) es el único control específico por agente.
 - **FR-028**: El sistema MUST mostrar en tiempo real el estado de cada nodo: pendiente, ejecutando,
   esperando aprobación, aprobado, completado, bloqueado, fallido, cancelado u omitido.
 - **FR-029**: El sistema MUST mostrar la salida en vivo de cada nodo de agente.
@@ -435,8 +449,9 @@ historial y el estado "interrumpido".
 - **FR-047**: El sistema MUST NOT integrar, fusionar ni publicar cambios automáticamente.
 - **FR-048**: Los usuarios MUST poder eliminar las copias aisladas de un run, previa confirmación.
 - **FR-049**: La copia aislada de un nodo cancelado o interrumpido MUST marcarse como no confiable y
-  [NEEDS CLARIFICATION: ¿se descarta automáticamente o se conserva para inspección hasta que el
-  usuario la elimine?]. Las copias de nodos interrumpidos se conservan siempre (FR-062).
+  MUST conservarse para inspección; el sistema MUST NOT descartarla automáticamente. Solo se elimina
+  mediante la acción explícita del usuario con confirmación (FR-048). Las copias de nodos
+  interrumpidos se conservan bajo la misma regla (FR-062).
 
 **Costo y uso de la suscripción**
 
@@ -449,8 +464,8 @@ historial y el estado "interrumpido".
   agente lo informe.
 - **FR-053**: Cuando el uso de la suscripción de un agente supere el umbral de "cerca del límite",
   el sistema MUST NOT lanzar nuevos nodos de ese agente, MUST informarlo en esos nodos (que quedan
-  pendientes con el motivo visible) y MUST permitir que sigan los nodos de otros agentes. Umbral:
-  [NEEDS CLARIFICATION: ¿qué nivel de uso se considera "cerca del límite" y es configurable?].
+  pendientes con el motivo visible) y MUST permitir que sigan los nodos de otros agentes. El umbral
+  de "cerca del límite" MUST ser 90 % del uso informado por el agente, configurable por proyecto.
 
 **Persistencia de flujos**
 
@@ -485,8 +500,9 @@ historial y el estado "interrumpido".
 
 - **FR-064**: Windows y Linux MUST ser plataformas soportadas para ambos agentes. macOS queda para
   una versión posterior.
-- **FR-065**: El sistema MUST aceptar Codex autenticado mediante
-  [NEEDS CLARIFICATION: ¿cuenta de ChatGPT, clave de API o ambas?].
+- **FR-065**: El sistema MUST aceptar Codex autenticado únicamente mediante cuenta de ChatGPT
+  (suscripción del usuario). Un Codex autenticado solo con clave de API MUST tratarse como no
+  autenticado en la verificación previa al run (FR-025), informando el motivo.
 
 ### Non-Functional Requirements
 
@@ -514,6 +530,11 @@ historial y el estado "interrumpido".
   como máximo una interacción.
 - **NFR-012 (Usabilidad)**: Las diferencias de garantías entre agentes (confinamiento, datos de
   costo y datos de uso) se muestran en el nodo.
+- **NFR-013 (Localización)**: Todo texto visible al usuario, en el canvas y en la línea de comandos,
+  está en inglés. No hay selector de idioma en esta versión. Agregar un segundo idioma más adelante
+  no requiere modificar la interfaz: todos los textos visibles se resuelven desde un único origen
+  intercambiable. Los nombres de estado y de concepto escritos en español en este documento son
+  conceptuales; su texto visible es la etiqueta en inglés correspondiente.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -580,6 +601,8 @@ historial y el estado "interrumpido".
 ## Out of Scope
 
 - Agentes CLI distintos de Claude Code y Codex.
+- Codex autenticado mediante clave de API.
+- Interfaz en más de un idioma y selector de idioma.
 - Librería de agentes predefinidos con skills.
 - Canvas de arquitectura del proyecto.
 - Terminales interactivas donde el usuario toma control de un agente.
