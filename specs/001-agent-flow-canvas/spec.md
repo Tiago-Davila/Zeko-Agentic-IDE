@@ -66,6 +66,14 @@ pisen el trabajo de otros ni actúen fuera del alcance asignado.
 - Q: ¿Los nodos de Codex tienen acceso a red? → A: En Windows no; es una limitación visible del
   agente.
 
+### Session 2026-09-23 (post-plan clarification)
+
+- Q: En qué plataforma(s) debe validarse primero esta feature antes de comprometerse con Linux como plataforma igualmente soportada? → A: Windows first, then Linux in parallel. Windows es obligatorio con validación completa (spikes 001, 001b, quickstart manual). Linux se valida en paralelo durante implementación, pero no bloquea ship v1; cualquier incompatibilidad es tratada como hotfix post-v1.
+- Q: ¿Debe la regla FR-008 (un solo predecesor que modifique código) aplicarse también a nodos de solo lectura, o solo a través de nodos de aprobación? → A: Solo a través de nodos de aprobación, como dice la spec. Esto simplifica la lógica de validación del grafo.
+- Q: La comunicación entre agente y Zeko debe usar MCP (Principio VI) o puede diferirse usando stdout JSON + schema estricto (verificado en spikes)? → A: Diferir MCP a v1.1 (post-MVP). v1 usa stdout JSON verificado en `[001 §2, §5]` y `[001b §A]`. El servidor MCP se implementa en v1.1 cuando se agreguen Codex sin terminal (D-01) u otros agentes. Esto está documentado como excepción en Complexity Tracking.
+- Q: Para nodos sin terminal con alcance de escritura parcial (ej. `src/**`), ¿implementar prevención activa o solo detección post-ejecución? → A: Detección solo en v1. Prevención requiere verificación de flags de Claude no probados (U-02). El nodo muestra advertencia `SCOPE_ENFORCEMENT_DETECTION_ONLY`. Prevención se implementa en v1.1 tras spike de U-02.
+- Q: Cuando el usuario abre un flujo que se modificó en disco mientras estaba abierto en canvas, ¿mostrar diálogo de conflicto o solo rechazar guardar? → A: Alerta simple con dos botones: "Recargar" o "Descartar cambios locales". No merge en v1 (single-user). Agregar merge en v1.1 para colaboración futura.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Abrir un proyecto y diseñar un flujo guardado (Priority: P1)

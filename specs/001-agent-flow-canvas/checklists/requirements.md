@@ -32,8 +32,12 @@
 ## Notes
 
 - 2026-09-22: FR-022, FR-031 and FR-064 resolved (see the Clarifications section in spec.md).
-- 4 [NEEDS CLARIFICATION] markers remain (FR-027, FR-049, FR-053, FR-065), to be resolved with
-  `/speckit-clarify`. The user explicitly asked for all 7 ambiguities to be marked.
+- 2026-09-23 (post-plan clarification): 5 ambiguities resolved via `/speckit-clarify`:
+  - Platform validation order (Windows first, Linux in parallel)
+  - FR-008 scope (approval nodes only)
+  - Agent communication protocol (stdout JSON for v1, MCP deferred to v1.1)
+  - Partial scope enforcement (detection only for v1)
+  - File conflict handling (simple alert; merge future work)
 - The spec names git, Claude Code and Codex because they are domain requirements set by the user,
   not implementation choices.
-- Items marked incomplete require spec updates before `/speckit-clarify` or `/speckit-plan`.
+- All items marked complete. Clarifications section expanded with post-plan decisions.
