@@ -46,9 +46,25 @@ pisen el trabajo de otros ni actúen fuera del alcance asignado.
 - Q: La copia aislada de un nodo cancelado, ¿se descarta automáticamente o se conserva? → A: Se
   conserva siempre, marcada como no confiable; solo se elimina con confirmación explícita.
 - Q: ¿Zeko acepta Codex autenticado con cuenta de ChatGPT, clave de API o ambas? → A: Solo cuenta
-  de ChatGPT; la clave de API queda fuera de alcance.
+  de ChatGPT; la clave de API queda fuera de alcance. *(Reemplazada en la sesión siguiente.)*
 - Q: ¿En qué idioma se muestra la interfaz y hay selector de idioma? → A: Solo inglés, con los
   textos centralizados en un catálogo; sin selector de idioma.
+
+### Session 2026-09-23 (revisión tras el spike técnico de Codex)
+
+- Q: ¿Un nodo de Codex puede ejecutarse sin terminal? → A: No. Codex no puede leer archivos sin
+  terminal, así que sus nodos siempre la tienen. Su confinamiento es solo de escritura: no puede
+  escribir fuera de su copia aislada, pero sí leer fuera de ella.
+- Q: ¿La lista de comandos permitidos aplica a Codex? → A: No en esta versión; solo a Claude Code.
+- Q: ¿Cómo se aplica la regla de acción denegada a un agente que no informa denegaciones? → A: La
+  regla aplica solo cuando el agente las informa. Para Codex, el nodo muestra que esa verificación
+  no está disponible.
+- Q: ¿Cómo se aplica el límite de turnos a Codex? → A: No se aplica; para Codex solo rige el límite
+  de tiempo, y el nodo lo muestra.
+- Q: ¿Zeko acepta Codex autenticado con cuenta de ChatGPT, clave de API o ambas? → A: Ambas. La
+  cuenta de ChatGPT es la forma principal; la clave de API se soporta marcada como no verificada.
+- Q: ¿Los nodos de Codex tienen acceso a red? → A: En Windows no; es una limitación visible del
+  agente.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -115,15 +131,17 @@ cambia y que el estado final y su motivo son visibles en cada nodo.
    quedan "omitidos" con el motivo visible y las ramas independientes siguen ejecutándose.
 7. **Dado** un agente que declara "completado" pero lista bloqueos, **Cuando** termina, **Entonces**
    el nodo queda "bloqueado" y se muestra la inconsistencia.
-8. **Dado** un agente que declara "completado" pero al que se le denegó una acción durante la
-   ejecución, **Cuando** termina, **Entonces** el nodo queda "bloqueado" con la acción denegada
-   visible.
+8. **Dado** un agente que informa denegaciones y declara "completado" pero al que se le denegó una
+   acción durante la ejecución, **Cuando** termina, **Entonces** el nodo queda "bloqueado" con la
+   acción denegada visible. Si el agente no informa denegaciones, el nodo muestra que esa
+   verificación no está disponible.
 9. **Dado** un agente que termina sin entregar reporte, **Cuando** Zeko se lo pide una segunda vez y
    tampoco lo entrega, **Entonces** el nodo queda "fallido" con ese motivo.
 10. **Dado** un agente cuyo reporte lista archivos distintos de los realmente modificados en su
     copia aislada, **Cuando** termina, **Entonces** el nodo muestra la discrepancia.
-11. **Dado** un nodo que supera su tiempo máximo o su límite de turnos, **Cuando** se alcanza el
-    límite, **Entonces** Zeko detiene la ejecución y el nodo queda "fallido" sin importar el reporte.
+11. **Dado** un nodo que supera su tiempo máximo o, si su agente admite límite de turnos, su límite
+    de turnos, **Cuando** se alcanza el límite, **Entonces** Zeko detiene la ejecución y el nodo
+    queda "fallido" sin importar el reporte.
 12. **Dado** un nodo A que modificó código y un nodo B que depende de A, **Cuando** B se ejecuta,
     **Entonces** B parte del estado de código que dejó A y recibe el resultado completo de A.
 13. **Dado** un run terminado, **Cuando** el usuario inspecciona el repositorio original,
@@ -177,7 +195,8 @@ que la revisión ve los cambios y el reporte completo de la implementación.
 2. **Dado** un nodo de Codex que depende de uno de Claude Code que modificó código, **Cuando** se
    ejecuta, **Entonces** parte de los cambios de ese nodo y recibe su resultado completo.
 3. **Dado** un nodo de agente configurado, **Cuando** el usuario cambia su agente, **Entonces** se
-   conservan instrucciones, criterios, alcance, terminal y límites.
+   conservan instrucciones, criterios, alcance, terminal y límites, y el nodo indica qué opciones
+   no aplican al nuevo agente.
 4. **Dado** reportes de ambos agentes, **Cuando** el usuario los inspecciona, **Entonces** tienen la
    misma forma y los mismos campos.
 
@@ -185,8 +204,9 @@ que la revisión ve los cambios y el reporte completo de la implementación.
 
 ### User Story 5 - Controlar terminal y confinamiento de cada nodo (Priority: P2)
 
-Por defecto un nodo solo puede leer y modificar archivos dentro de su alcance, sin terminal. El
-usuario puede habilitar la terminal de forma explícita y ve siempre el nivel real de confinamiento
+Por defecto un nodo de Claude Code solo puede leer y modificar archivos dentro de su alcance, sin
+terminal. El usuario puede habilitar la terminal de forma explícita. Un nodo de Codex siempre tiene
+terminal y solo está confinado en escritura. El usuario ve siempre el nivel real de confinamiento
 de cada nodo según su agente y configuración.
 
 **Why this priority**: es la garantía de seguridad que permite delegar trabajo a agentes sin
@@ -198,8 +218,8 @@ aislada, ni siquiera con rutas relativas o enlaces.
 
 **Acceptance Scenarios**:
 
-1. **Dado** un nodo de agente nuevo, **Cuando** el usuario lo agrega, **Entonces** la terminal está
-   deshabilitada.
+1. **Dado** un nodo de Claude Code nuevo, **Cuando** el usuario lo agrega, **Entonces** la terminal
+   está deshabilitada.
 2. **Dado** un nodo sin terminal cuyo agente permite confinamiento, **Cuando** el agente intenta
    leer o escribir fuera de su copia aislada, incluso con rutas relativas o enlaces, **Entonces** la
    acción se deniega y queda registrada en el nodo.
@@ -212,6 +232,12 @@ aislada, ni siquiera con rutas relativas o enlaces.
 6. **Dado** un nodo sin terminal con un agente que no garantiza confinamiento, **Cuando** el usuario
    inicia un run, **Entonces** el nodo se ejecuta y la advertencia de "no confinado" sigue visible
    en el nodo durante y después de la ejecución.
+7. **Dado** un nodo de Codex, **Cuando** el usuario lo ve en el canvas, **Entonces** la terminal
+   figura siempre habilitada, sin opción de deshabilitarla ni de indicar comandos permitidos, y el
+   nodo se muestra como "confinado solo en escritura", indicando que puede leer fuera de su copia
+   aislada.
+8. **Dado** un nodo de Codex, **Cuando** el agente intenta escribir fuera de su copia aislada,
+   incluso con rutas relativas, enlaces o comandos, **Entonces** la escritura no ocurre.
 
 ---
 
@@ -315,6 +341,11 @@ historial y el estado "interrumpido".
 - El disco se llena al crear una copia aislada: el nodo queda "fallido" con ese motivo.
 - Todos los agentes del flujo superan el umbral de uso: el run queda en espera con el motivo visible
   y el usuario puede cancelarlo.
+- Un nodo de Codex en Windows necesita red (por ejemplo, para instalar dependencias): la acción
+  falla por falta de red; el nodo termina según su reporte y la limitación de red estaba visible en
+  el nodo desde antes de ejecutarlo (FR-066).
+- Un nodo de Codex supera el umbral de uso de la suscripción mientras se ejecuta: el nodo en curso
+  termina normalmente; la retención (FR-053) aplica a los nodos que se lanzan después.
 
 ## Requirements *(mandatory)*
 
@@ -348,7 +379,8 @@ historial y el estado "interrumpido".
 - **FR-011**: El nodo de agente MUST configurarse con: agente CLI (Claude Code o Codex),
   instrucciones de la tarea, criterios de aceptación, alcance de rutas que puede modificar, uso de
   terminal (con lista opcional de comandos permitidos) y límites de tiempo máximo, turnos y
-  reintentos. Todo nodo nuevo recibe límites por defecto finitos.
+  reintentos. Todo nodo nuevo recibe límites por defecto finitos. Las opciones que el agente del
+  nodo no admite (FR-017, FR-018, FR-032) MUST mostrarse como no aplicables para ese agente.
 - **FR-012**: El nodo de aprobación humana MUST pausar su rama hasta que el usuario apruebe o
   rechace, mostrando un resumen de lo producido por sus predecesores.
 
@@ -356,27 +388,40 @@ historial y el estado "interrumpido".
 
 - **FR-013**: Un flujo MUST poder combinar nodos de Claude Code y de Codex.
 - **FR-014**: Un nodo MUST poder depender de un nodo ejecutado por un agente distinto.
-- **FR-015**: Cambiar el agente de un nodo MUST conservar el resto de su configuración.
+- **FR-015**: Cambiar el agente de un nodo MUST conservar el resto de su configuración. Si alguna
+  opción conservada no aplica al nuevo agente, el nodo MUST indicarlo; volver al agente anterior la
+  recupera sin cambios.
 - **FR-016**: Las reglas de validación, ejecución, estado final y paso de resultados MUST ser las
   mismas para todos los agentes; agregar un agente nuevo en el futuro no debe cambiarlas.
 
 **Terminal y confinamiento**
 
-- **FR-017**: Por defecto, un nodo de agente MUST NOT poder ejecutar comandos de terminal y solo
-  puede modificar archivos dentro de su alcance de rutas.
-- **FR-018**: Los usuarios MUST poder habilitar la terminal de un nodo de forma explícita, indicando
-  opcionalmente la lista de comandos permitidos; si se indica, los demás comandos se deniegan.
-- **FR-019**: Un nodo sin terminal cuyo agente lo permita MUST quedar confinado: no puede leer ni
-  escribir fuera de su copia aislada, incluso mediante rutas relativas o enlaces.
-- **FR-020**: Un nodo con terminal, o ejecutado por un agente que no garantiza confinamiento, MUST
-  considerarse no confinado.
-- **FR-021**: El canvas MUST mostrar en cada nodo su nivel real de confinamiento y el motivo cuando
-  no está confinado.
+- **FR-017**: Por defecto, un nodo de Claude Code MUST NOT poder ejecutar comandos de terminal y
+  solo puede modificar archivos dentro de su alcance de rutas. Un nodo de Codex MUST ejecutarse
+  siempre con terminal, porque ese agente no puede leer archivos sin ella; para Codex no existe la
+  opción de deshabilitarla.
+- **FR-018**: En los nodos de Claude Code, los usuarios MUST poder habilitar la terminal de forma
+  explícita, indicando opcionalmente la lista de comandos permitidos; si se indica, los demás
+  comandos se deniegan. La lista de comandos permitidos no está disponible para Codex en esta
+  versión, y el nodo MUST mostrarla como no aplicable.
+- **FR-019**: Un nodo de Claude Code sin terminal MUST quedar confinado: no puede leer ni escribir
+  fuera de su copia aislada, incluso mediante rutas relativas o enlaces. Un nodo de Codex MUST
+  quedar confinado solo en escritura: no puede escribir fuera de su copia aislada, incluso mediante
+  rutas relativas, enlaces o comandos, pero puede leer archivos fuera de ella.
+- **FR-020**: Un nodo de Claude Code con terminal, o ejecutado por un agente que no garantiza
+  confinamiento, MUST considerarse no confinado. Un nodo de Codex MUST considerarse "confinado solo
+  en escritura".
+- **FR-021**: El canvas MUST mostrar en cada nodo su nivel real de confinamiento ("confinado",
+  "confinado solo en escritura" o "no confinado") y el motivo cuando no está confinado por
+  completo. Para un nodo "confinado solo en escritura", el motivo MUST indicar que puede leer fuera
+  de su copia aislada.
 - **FR-022**: Cuando un agente no puede confinar un nodo sin terminal, el sistema MUST permitir
   ejecutarlo mostrando una advertencia visible de "no confinado" en el nodo, antes, durante y
   después de la ejecución y en el historial del run.
-- **FR-023**: Toda acción denegada a un agente (fuera de alcance, fuera de la copia aislada o
-  comando no permitido) MUST quedar registrada y visible en el nodo.
+- **FR-023**: Toda acción denegada que el agente informe (fuera de alcance, fuera de la copia
+  aislada o comando no permitido) MUST quedar registrada y visible en el nodo. Cuando el agente no
+  informa denegaciones, como Codex, el nodo MUST mostrar que la verificación de acciones denegadas
+  no está disponible para ese agente, antes, durante y después de la ejecución.
 
 **Ejecución**
 
@@ -394,14 +439,19 @@ historial y el estado "interrumpido".
   esperando aprobación, aprobado, completado, bloqueado, fallido, cancelado u omitido.
 - **FR-029**: El sistema MUST mostrar la salida en vivo de cada nodo de agente.
 - **FR-030**: Los usuarios MUST poder cancelar un run completo o un nodo individual; una
-  cancelación MUST NOT dejar procesos del agente ejecutándose.
+  cancelación MUST NOT dejar procesos del agente ejecutándose, incluidos los comandos que el agente
+  haya lanzado. Cuando el agente no ofrece una interrupción ordenada, como Codex, la cancelación
+  MUST detener el agente y todos sus procesos de forma forzada, y el nodo queda "cancelado" por
+  decisión de Zeko sin esperar confirmación ni reporte del agente.
 - **FR-031**: Si un nodo queda bloqueado, fallido, cancelado o rechazado, sus dependientes (directos
   e indirectos) MUST NOT ejecutarse y MUST quedar "omitidos" con el motivo; las ramas independientes
   continúan. Al rechazar un nodo de aprobación, el sistema MUST detener solo la rama del nodo
   rechazado; el resto del run continúa.
 - **FR-032**: El sistema MUST aplicar los límites de tiempo, turnos y reintentos de cada nodo;
   superar tiempo o turnos detiene la ejecución. Los reintentos se aplican solo cuando la ejecución
-  termina con error y nunca superan el límite configurado.
+  termina con error y nunca superan el límite configurado. El límite de turnos aplica solo a los
+  agentes que lo admiten; para Codex solo rigen los límites de tiempo y reintentos, y el nodo MUST
+  mostrar que el límite de turnos no aplica.
 
 **Resultado de cada nodo**
 
@@ -417,6 +467,7 @@ historial y el estado "interrumpido".
      reporte.
   3. Sin reporte válido tras un único pedido adicional → "fallido".
   4. Se denegó alguna acción durante la ejecución → "bloqueado", aunque el agente declare éxito.
+     Esta regla solo se evalúa con agentes que informan denegaciones (FR-023).
   5. Reporte que declara "fallido" → "fallido"; que declara "bloqueado" → "bloqueado".
   6. Reporte que declara "completado" pero lista bloqueos → "bloqueado", mostrando la
      inconsistencia.
@@ -456,12 +507,16 @@ historial y el estado "interrumpido".
 **Costo y uso de la suscripción**
 
 - **FR-050**: Cada nodo MUST mostrar al terminar su costo y consumo según lo que informe su agente;
-  cada run MUST mostrar el total.
+  cada run MUST mostrar el total. Codex informa consumo pero no costo en dinero, con cualquiera de
+  sus formas de autenticación; el costo de sus nodos se muestra como "no disponible" y el total del
+  run que los incluya, como parcial (FR-051).
 - **FR-051**: Un dato que el agente no informe MUST mostrarse como "no disponible"; un total que
   incluya datos no disponibles MUST indicarse como parcial; nunca se muestra un valor estimado sin
   marcarlo como estimado.
 - **FR-052**: El sistema MUST mostrar el nivel de uso de la suscripción de cada agente cuando el
-  agente lo informe.
+  agente lo informe, junto con el momento de la última lectura. Codex no informa su uso mientras
+  un nodo se ejecuta: su nivel se actualiza al terminar cada nodo de ese agente, o al consultarlo
+  antes de lanzar uno, y el canvas MUST indicar que no es un valor en vivo.
 - **FR-053**: Cuando el uso de la suscripción de un agente supere el umbral de "cerca del límite",
   el sistema MUST NOT lanzar nuevos nodos de ese agente, MUST informarlo en esos nodos (que quedan
   pendientes con el motivo visible) y MUST permitir que sigan los nodos de otros agentes. El umbral
@@ -500,9 +555,14 @@ historial y el estado "interrumpido".
 
 - **FR-064**: Windows y Linux MUST ser plataformas soportadas para ambos agentes. macOS queda para
   una versión posterior.
-- **FR-065**: El sistema MUST aceptar Codex autenticado únicamente mediante cuenta de ChatGPT
-  (suscripción del usuario). Un Codex autenticado solo con clave de API MUST tratarse como no
-  autenticado en la verificación previa al run (FR-025), informando el motivo.
+- **FR-065**: El sistema MUST aceptar Codex autenticado mediante cuenta de ChatGPT (suscripción del
+  usuario), que es la forma principal, o mediante clave de API. La clave de API MUST mostrarse como
+  forma de autenticación "no verificada" en la verificación previa al run (FR-025) y en los nodos de
+  Codex. La verificación previa MUST informar la forma de autenticación que efectivamente usará
+  cada nodo.
+- **FR-066**: En Windows, los nodos de Codex MUST NOT tener acceso a red, y el nodo MUST mostrar esa
+  limitación antes, durante y después de la ejecución. Las acciones que requieren red fallan dentro
+  del nodo.
 
 ### Non-Functional Requirements
 
@@ -520,16 +580,19 @@ historial y el estado "interrumpido".
 - **NFR-006 (Seguridad)**: Ningún agente se ejecuta sin una acción explícita del usuario.
 - **NFR-007 (Seguridad)**: Ningún archivo de flujo, registro ni evento contiene secretos o
   credenciales.
-- **NFR-008 (Seguridad)**: Todo nodo de agente tiene límites finitos de tiempo, turnos y
-  reintentos aplicados por Zeko; no existe forma de configurar una ejecución sin límite.
-- **NFR-009 (Seguridad)**: Por defecto, con cualquiera de los dos agentes, un nodo no tiene terminal
-  ni permisos más allá de su alcance.
+- **NFR-008 (Seguridad)**: Todo nodo de agente tiene límites finitos de tiempo y reintentos, y de
+  turnos cuando su agente lo admite, aplicados por Zeko; no existe forma de configurar una ejecución
+  sin límite de tiempo.
+- **NFR-009 (Seguridad)**: Por defecto, un nodo de Claude Code no tiene terminal ni permisos más
+  allá de su alcance. Un nodo de Codex siempre tiene terminal y no puede escribir fuera de su copia
+  aislada.
 - **NFR-010 (Usabilidad)**: Un usuario nuevo arma y ejecuta un flujo de dos nodos de agente en menos
   de 5 minutos.
 - **NFR-011 (Usabilidad)**: El motivo de un fallo, bloqueo u omisión es visible desde el nodo con
   como máximo una interacción.
-- **NFR-012 (Usabilidad)**: Las diferencias de garantías entre agentes (confinamiento, datos de
-  costo y datos de uso) se muestran en el nodo.
+- **NFR-012 (Usabilidad)**: Las diferencias de garantías entre agentes (confinamiento, terminal,
+  comandos permitidos, detección de acciones denegadas, límite de turnos, acceso a red, forma de
+  autenticación, datos de costo y datos de uso) se muestran en el nodo.
 - **NFR-013 (Localización)**: Todo texto visible al usuario, en el canvas y en la línea de comandos,
   está en inglés. No hay selector de idioma en esta versión. Agregar un segundo idioma más adelante
   no requiere modificar la interfaz: todos los textos visibles se resuelven desde un único origen
@@ -545,8 +608,11 @@ historial y el estado "interrumpido".
   El nodo de agente incluye agente, instrucciones, criterios de aceptación, alcance de rutas,
   terminal, comandos permitidos y límites.
 - **Conexión**: relación de dependencia entre un nodo origen y un nodo destino.
-- **Agente CLI**: herramienta externa soportada, con sus capacidades declaradas: si garantiza
-  confinamiento, si informa costo, si informa consumo y si informa uso de la suscripción.
+- **Agente CLI**: herramienta externa soportada, con sus capacidades declaradas: nivel de
+  confinamiento que garantiza, si admite nodos sin terminal, si admite lista de comandos
+  permitidos, si informa acciones denegadas, si admite límite de turnos, si tiene acceso a red por
+  plataforma, si informa costo, si informa consumo, si informa uso de la suscripción y en qué
+  momento, y formas de autenticación aceptadas con su estado de verificación.
 - **Run**: ejecución de un flujo; tiene fecha, duración, estado general (en curso, terminado,
   cancelado, interrumpido), costo total y ejecuciones de nodo.
 - **Ejecución de nodo**: resultado de un nodo en un run: estado final, motivo, reporte, archivos
@@ -574,7 +640,8 @@ historial y el estado "interrumpido".
   reporte ausente, inconsistencia, discrepancia de archivos), el nodo termina con el estado que
   indican las reglas y su motivo es visible, con ambos agentes.
 - **SC-006**: En el 100 % de las pruebas de confinamiento, un nodo confinado no logra leer ni
-  escribir fuera de su copia aislada, incluidas rutas relativas y enlaces.
+  escribir fuera de su copia aislada, y un nodo confinado solo en escritura no logra escribir fuera
+  de ella, incluidas rutas relativas y enlaces.
 - **SC-007**: Guardar y reabrir un flujo reproduce nodos, conexiones, configuración y posiciones sin
   diferencias en el 100 % de los casos.
 - **SC-008**: Un mismo flujo ejecutado desde el canvas y desde la línea de comandos produce los
@@ -588,8 +655,8 @@ historial y el estado "interrumpido".
   instala ni gestiona sus credenciales.
 - Las copias aisladas parten del último estado confirmado del repositorio; los cambios sin
   confirmar no se incluyen y Zeko lo avisa al iniciar el run.
-- "Acción necesaria denegada" se interpreta de forma conservadora: cualquier acción denegada durante
-  la ejecución hace que el nodo quede "bloqueado".
+- "Acción necesaria denegada" se interpreta de forma conservadora: cualquier acción denegada que el
+  agente informe durante la ejecución hace que el nodo quede "bloqueado".
 - Un reintento parte del mismo estado de código inicial del nodo, descartando la copia del intento
   anterior.
 - La retención por "cerca del límite" solo aplica a agentes que informan su uso de suscripción.
@@ -601,7 +668,8 @@ historial y el estado "interrumpido".
 ## Out of Scope
 
 - Agentes CLI distintos de Claude Code y Codex.
-- Codex autenticado mediante clave de API.
+- Nodos de Codex sin terminal, lista de comandos permitidos y límite de turnos para Codex.
+- Acceso a red para nodos de Codex en Windows.
 - Interfaz en más de un idioma y selector de idioma.
 - Librería de agentes predefinidos con skills.
 - Canvas de arquitectura del proyecto.
