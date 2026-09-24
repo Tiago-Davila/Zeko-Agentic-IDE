@@ -1,0 +1,15 @@
+{
+  "type": "item.started",
+  "item": {
+    "id": "item_2",
+    "type": "mcp_tool_call",
+    "server": "zekofs",
+    "tool": "read_file",
+    "arguments": {
+      "path": "datos.txt"
+    },
+    "result": null,
+    "error": null,
+    "status": "in_progress"
+  }
+}
