@@ -1,0 +1,11 @@
+{
+  "type": "item.completed",
+  "item": {
+    "id": "item_3",
+    "type": "command_execution",
+    "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'git --version'",
+    "aggregated_output": "git version 2.47.1.windows.2\n",
+    "exit_code": 0,
+    "status": "completed"
+  }
+}

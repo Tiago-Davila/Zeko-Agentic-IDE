@@ -1,0 +1,156 @@
+{
+  "streamUsage": {
+    "a": {
+      "input_tokens": 13961,
+      "cached_input_tokens": 11008,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 5,
+      "reasoning_output_tokens": 0
+    },
+    "b": {
+      "input_tokens": 13970,
+      "cached_input_tokens": 13056,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 119,
+      "reasoning_output_tokens": 0
+    }
+  },
+  "streamHasCost": false,
+  "streamHasRateLimits": false,
+  "rolloutRateLimits": {
+    "a": {
+      "limit_id": "codex",
+      "limit_name": null,
+      "primary": {
+        "used_percent": 2,
+        "window_minutes": 300,
+        "resets_at": 1790311228
+      },
+      "secondary": {
+        "used_percent": 27,
+        "window_minutes": 10080,
+        "resets_at": 1790624161
+      },
+      "credits": {
+        "has_credits": false,
+        "unlimited": false,
+        "balance": null
+      },
+      "individual_limit": null,
+      "spend_control_reached": null,
+      "plan_type": "team",
+      "rate_limit_reached_type": null
+    },
+    "b": {
+      "limit_id": "codex",
+      "limit_name": null,
+      "primary": {
+        "used_percent": 2,
+        "window_minutes": 300,
+        "resets_at": 1790311228
+      },
+      "secondary": {
+        "used_percent": 27,
+        "window_minutes": 10080,
+        "resets_at": 1790624161
+      },
+      "credits": {
+        "has_credits": false,
+        "unlimited": false,
+        "balance": null
+      },
+      "individual_limit": null,
+      "spend_control_reached": null,
+      "plan_type": "team",
+      "rate_limit_reached_type": null
+    }
+  },
+  "rolloutTotalUsage": {
+    "a": {
+      "input_tokens": 13961,
+      "cached_input_tokens": 11008,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 5,
+      "reasoning_output_tokens": 0,
+      "total_tokens": 13966
+    },
+    "b": {
+      "input_tokens": 13970,
+      "cached_input_tokens": 13056,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 119,
+      "reasoning_output_tokens": 0,
+      "total_tokens": 14089
+    }
+  },
+  "rolloutTaskComplete": {
+    "a": {
+      "type": "task_complete",
+      "turn_id": "01a0d5d6-754a-7231-8464-41391c056c20",
+      "last_agent_message": "ok",
+      "started_at": 1790293996,
+      "completed_at": 1790293999,
+      "duration_ms": 2671,
+      "time_to_first_token_ms": 2590
+    },
+    "b": {
+      "type": "task_complete",
+      "turn_id": "01a0d5d6-84ab-7ae1-b324-8dd30415802e",
+      "last_agent_message": "Un árbol de Git abre otro lugar,  \nla misma historia, distinto umbral.  \nUna rama despierta sin desordenar  \nla mesa donde trabaja la principal.  \n\nCada worktree guarda su propio rincón,  \ncon archivos, cambios y dirección;  \nvas de un camino al otro al andar,  \nsin tener que cerrar para empezar.  \n\nSi una idea se atasca, dejala partir:  \notra rama te espera, lista para seguir.  \nY al terminar, con cuidado al volver,  \nquitás el camino, no lo que querés conservar.",
+      "started_at": 1790294000,
+      "completed_at": 1790294008,
+      "duration_ms": 7928,
+      "time_to_first_token_ms": 2793
+    }
+  },
+  "rolloutTokenCountSample": {
+    "timestamp": "2026-09-24T23:53:28.738Z",
+    "ordinal": 13,
+    "type": "event_msg",
+    "payload": {
+      "type": "token_count",
+      "info": {
+        "total_token_usage": {
+          "input_tokens": 13970,
+          "cached_input_tokens": 13056,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 119,
+          "reasoning_output_tokens": 0,
+          "total_tokens": 14089
+        },
+        "last_token_usage": {
+          "input_tokens": 13970,
+          "cached_input_tokens": 13056,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 119,
+          "reasoning_output_tokens": 0,
+          "total_tokens": 14089
+        },
+        "model_context_window": 258400
+      },
+      "rate_limits": {
+        "limit_id": "codex",
+        "limit_name": null,
+        "primary": {
+          "used_percent": 2,
+          "window_minutes": 300,
+          "resets_at": 1790311228
+        },
+        "secondary": {
+          "used_percent": 27,
+          "window_minutes": 10080,
+          "resets_at": 1790624161
+        },
+        "credits": {
+          "has_credits": false,
+          "unlimited": false,
+          "balance": null
+        },
+        "individual_limit": null,
+        "spend_control_reached": null,
+        "plan_type": "team",
+        "rate_limit_reached_type": null
+      }
+    }
+  }
+}

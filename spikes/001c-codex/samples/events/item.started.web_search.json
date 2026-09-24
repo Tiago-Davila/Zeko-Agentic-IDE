@@ -1,0 +1,11 @@
+{
+  "type": "item.started",
+  "item": {
+    "id": "exec-8791f249-5f8a-4415-8514-51dae4198a6b",
+    "type": "web_search",
+    "query": "",
+    "action": {
+      "type": "other"
+    }
+  }
+}
