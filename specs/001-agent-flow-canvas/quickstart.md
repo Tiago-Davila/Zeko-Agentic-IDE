@@ -12,7 +12,8 @@ Referencias: [contracts/flow-file.md](./contracts/flow-file.md), [contracts/cli.
 - Windows 10 u 11 x64, PowerShell 7.
 - Node.js 24 LTS, pnpm 9 o superior, git 2.40 o superior.
 - Claude Code instalado y autenticado (`claude --version`).
-- Codex instalado (el binario real, P-01) y autenticado con cuenta de ChatGPT.
+- Codex instalado por npm (Zeko lanza el binario nativo `codex.exe`, no el shim; research R-13) y
+  autenticado con cuenta de ChatGPT (`codex login status` con exit 0).
 - Zeko compilado: `pnpm install`, `pnpm build`, y `pnpm --filter desktop dev` para la app o
   `pnpm --filter cli link --global` para la CLI.
 
@@ -160,6 +161,10 @@ segundo a `progress.txt` durante 60 s. Hay un nodo `after` que depende de `slow`
   (R-10). El nodo termina según su reporte, probablemente Blocked.
 - Discrepancia (FR-037): en cualquier nodo cuyo `filesChanged` declarado difiera de lo observado,
   el nodo muestra las listas `undeclared` / `declaredNotObserved`, y su estado no cambia por eso.
+- Escritura fuera de alcance (FR-036.4, FR-037, US5-3): con un nodo de alcance parcial (por ejemplo
+  `src/**`) al que se le pide modificar también `docs/x.md`, el nodo queda **Blocked** con
+  `WRITE_OUTSIDE_SCOPE` y `docs/x.md` en la lista, aunque el agente declare Completed. Vale para
+  ambos agentes.
 
 ## Escenario 6: flujo mixto Claude → Codex (US4; FR-013–016, FR-040, FR-041, FR-050–052, FR-065, FR-066)
 
@@ -171,7 +176,9 @@ segundo a `progress.txt` durante 60 s. Hay un nodo `after` que depende de `slow`
 1. Antes de ejecutar, inspeccioná el nodo `review` (Codex).
 2. Ejecutá y aprobá en `gate`.
 3. Cambiá el agente de `review` a claude-code y volvé a codex.
-4. Repetí la prueba con una clave de API de OpenAI configurada según P-07.
+4. Repetí la prueba con una clave de API de OpenAI elegida para el nodo (Zeko la inyecta como
+   `CODEX_API_KEY` solo en ese proceso; research R-19). Verificá que la clave no aparece en el
+   historial ni en los logs (NFR-007).
 
 **Resultado esperado**:
 
@@ -181,17 +188,25 @@ segundo a `progress.txt` durante 60 s. Hay un nodo `after` que depende de `slow`
   - **Write-only confined** con "can read outside its workspace";
   - "No network on Windows";
   - "Denied-action check not available";
-  - uso de suscripción "not live".
+  - uso de suscripción "not live";
+  - el modelo del nodo (`gpt-6-luna`, esfuerzo `low`).
   (FR-017–023, FR-032, FR-066, NFR-012)
 - La verificación previa informa la forma de autenticación efectiva por nodo (FR-065).
 - `review` parte del commit de `implement`, que la aprobación transporta, y su prompt contiene el
   resultado completo de `implement` en `<zeko-predecessor-results>` (FR-040, FR-041).
 - Los reportes de ambos nodos tienen los mismos campos (FR-035).
+- Si `review` intentó escribir (es de solo lectura), el nodo muestra esas denegaciones como
+  **inferred**, y su estado no cambia por ellas (FR-023).
+- Si se borra a mano `models` de `review` en el archivo, el run igual arranca: el nodo muestra
+  `MODEL_DEFAULTED` y el historial registra el modelo del proyecto que se usó (FR-011a).
 - El costo de `review` figura "not available". El total del run figura **partial** y
   **estimated** (FR-050, FR-051). El uso de Codex se actualiza al terminar el nodo, con la hora de
   lectura (FR-052).
-- Al cambiar de agente se conservan instrucciones, criterios, alcance, terminal y límites. Al
-  volver a codex, todo queda igual (FR-015).
+- Al cambiar de agente se conservan instrucciones, criterios, alcance, terminal y límites, y el
+  nodo toma el modelo de claude-code (el guardado o, si no había, el default del proyecto). Al
+  volver a codex, todo queda igual, incluido su modelo (FR-015).
+- La verificación previa y el nodo muestran la forma de autenticación, nunca el email de la cuenta
+  (NFR-007, FR-065).
 - Con clave de API, la verificación previa y el nodo muestran "API key (unverified)" (FR-065).
 
 ## Escenario 7 (complementario): recuperación tras cierre (US8; FR-062, NFR-005)

@@ -28,6 +28,7 @@ Se persisten en `.zeko/` (Principio V). El formato está en
 | `schemaVersion` | `1` | — | obligatorio | FR-054 |
 | `concurrencyLimit` | int | 8 | 1..64 | FR-027 |
 | `usageNearLimitThreshold` | número | 0.9 | 0.5..1.0 | FR-053 |
+| `defaultModels` | `{claude-code: {model}, codex: {model, reasoningEffort}}` | los que trae Zeko (ver [contracts/flow-file.md](./contracts/flow-file.md#configuración-del-proyecto-zekoconfigyaml)) | misma forma que `models` del nodo; nunca el default del propio agente | FR-011, FR-011a |
 
 Si el archivo no existe, se usan los defaults. Zeko solo lo escribe cuando el usuario cambia un
 valor.
@@ -57,6 +58,7 @@ Campos comunes: `id`, `type`, `label?`, `position {x:int, y:int}` (FR-055).
 | Campo | Tipo | Default al crear | Regla | FR |
 |---|---|---|---|---|
 | `agent` | `claude-code` \| `codex` | `claude-code` | adaptador registrado | FR-011, FR-013 |
+| `models` | `{claude-code?: {model}, codex?: {model, reasoningEffort}}` | entrada del agente inicial, copiada de `defaultModels` del proyecto | opcional en el schema; si falta la entrada del agente actual → advertencia `MODEL_DEFAULTED` y se usa el default del proyecto (research R-27). Dentro de la entrada de Codex, `reasoningEffort` es obligatorio: sin él, `SCHEMA_ERROR` | FR-011, FR-011a, FR-015 |
 | `instructions` | string multilínea | — | no vacío | FR-011 |
 | `acceptanceCriteria` | string[] | `[]` | | FR-011 |
 | `writeScope` | string[] (globs relativos a la raíz, separador `/`) | `["**"]` | sin `..`, sin rutas absolutas; `[]` = solo lectura | FR-011, FR-017 |
@@ -66,7 +68,8 @@ Campos comunes: `id`, `type`, `label?`, `position {x:int, y:int}` (FR-055).
 | `limits.maxTurns` | int | 40 | 1..500; se conserva aunque no aplique | FR-032 |
 | `limits.maxRetries` | int | 1 | 0..5 | FR-032, NFR-008 |
 
-Cambiar `agent` no borra ningún campo (FR-015). Qué campos se muestran como "not applicable" y cuál
+Cambiar `agent` no borra ningún campo (FR-015); si el agente nuevo no tiene entrada en `models`, el
+editor le copia la de `defaultModels`. Qué campos se muestran como "not applicable" y cuál
 es el valor *efectivo* lo deciden las capacidades del adaptador
 ([contracts/adapter.md §Capacidades](./contracts/adapter.md#matriz-de-capacidades)). Por ejemplo,
 para Codex la terminal efectiva es `true` aunque `terminal.enabled` sea `false`.
@@ -94,19 +97,23 @@ Cada error lleva `code`, `nodeId?` y `edgeId?`, más la ubicación en el archivo
 | `CYCLE` | error | el grafo tiene un ciclo (se informan los nodos del ciclo). En edición, `validateEdge` rechaza la arista antes de crearla. | FR-007 |
 | `DISCONNECTED_NODE` | error | nodo no alcanzable desde la entrada | casos límite |
 | `APPROVAL_WITHOUT_PREDECESSOR` | error | una aprobación necesita al menos un predecesor | FR-012 |
-| `MULTIPLE_CODE_SOURCES` | error | un nodo de agente (o una aprobación con dependientes de agente) recibe más de una fuente de código distinta, según `codeSource` (research R-22) | FR-008 |
+| `MULTIPLE_CODE_SOURCES` | error | un nodo de agente (o una aprobación con dependientes de agente) recibe más de una fuente de código distinta, según `inputSources` (research R-22) | FR-008 |
 | `INVALID_LIMIT` | error | límite fuera de rango o ausente | NFR-008 |
 | `SCOPE_PATH_NOT_FOUND` | warning | un glob de `writeScope` no coincide con ningún archivo del `HEAD` | casos límite |
+| `MODEL_DEFAULTED` | warning | el nodo no tiene entrada en `models` para su agente; se usará `defaultModels` del proyecto. **No** impide ejecutar | FR-011a |
 | `OPTION_NOT_APPLICABLE` | info | la opción configurada no aplica al agente (terminal, lista de comandos, turnos) | FR-011, FR-015 |
 
-`codeSource(n)`:
+`codeSource(n)`, lo que `n` transmite a sus dependientes (el linaje solo pasa a través de
+aprobaciones, FR-008):
 
 - entrada → `∅`;
 - agente con `writeScope ≠ []` → `{n}`;
-- aprobación, o agente con `writeScope = []` → la unión de `codeSource` de sus predecesores.
+- agente con `writeScope = []` (solo lectura) → `∅`;
+- aprobación → la unión de `codeSource` de sus predecesores.
 
-El error `MULTIPLE_CODE_SOURCES` se produce cuando esa unión, calculada sobre los predecesores, tiene
-más de un elemento.
+`inputSources(n)` = la unión de `codeSource` de los predecesores de `n`. El error
+`MULTIPLE_CODE_SOURCES` se produce cuando `inputSources(n)` tiene más de un elemento. La base de un
+nodo de agente es el `resultCommit` de su única fuente, o el `baseCommit` del run si está vacío.
 
 ### Nivel de confinamiento derivado (función pura en `core`)
 
@@ -122,7 +129,9 @@ La función solo mira las capacidades del adaptador, nunca el id del agente (FR-
 Advertencias por nodo derivadas de las capacidades (NFR-012): `DENIAL_CHECK_NOT_AVAILABLE`,
 `TURN_LIMIT_NOT_APPLICABLE`, `NO_NETWORK_ON_PLATFORM`, `COST_NOT_REPORTED`, `USAGE_NOT_LIVE`,
 `READONLY_COMMANDS_AUTO_APPROVED`, `AUTH_API_KEY_UNVERIFIED`, `SCOPE_ENFORCEMENT_DETECTION_ONLY`
-(mientras U-02 esté abierto).
+(mientras U-02 esté abierto; una escritura fuera de alcance detectada bloquea el nodo). Además, por
+nodo: `MODEL_DEFAULTED` (FR-011a) y, al terminar, `MODEL_MISMATCH` si el agente informa otro modelo
+(research R-27).
 
 ---
 
@@ -153,6 +162,7 @@ Advertencias por nodo derivadas de las capacidades (NFR-012): `DENIAL_CHECK_NOT_
 |---|---|---|---|
 | `id`, `runId`, `nodeId`, `nodeType` | | | FR-063 |
 | `agentId?` | | agente que ejecutó el nodo | FR-060 |
+| `model?` | `{model, reasoningEffort?, source: 'node' \| 'project_default', effective?}` | resuelto al crear el NodeRun; `effective` es el que informó el agente | FR-011a |
 | `status` | `NodeStatus` | ver §3 | FR-028 |
 | `reason?` | `{code: ReasonCode, params}` | siempre presente en estados terminales distintos de `completed` y `approved` | FR-039, NFR-011 |
 | `hold?` | `USAGE_NEAR_LIMIT` | mientras está `pending` retenido | FR-053 |
@@ -167,6 +177,7 @@ Advertencias por nodo derivadas de las capacidades (NFR-012): `DENIAL_CHECK_NOT_
 | `discrepancies?` | `{undeclared[], declaredNotObserved[], scopeViolations[], historyRewritten}` | | FR-037, research R-10 |
 | `denials?` | `Denial[]` | **ausente** si el agente no informa denegaciones | FR-023 |
 | `denialCheck` | `applied` \| `not_available` | | FR-023 |
+| `inferredDenials?` | `{source, message, target?}[]` | solo agentes que no informan denegaciones; se muestran como "inferidas" y no cambian el estado | FR-023 |
 | `inconsistency?` | `COMPLETED_WITH_BLOCKERS` | | FR-036.6 |
 | `cost?` | `{amountUsd, basis: 'billed' \| 'list_price_estimate' \| 'unknown'}` | ausente si el agente no lo informa | FR-050, FR-051 |
 | `consumption?` | `{inputTokens?, outputTokens?, cacheReadTokens?, cacheCreationTokens?}` | | FR-050 |
@@ -220,7 +231,10 @@ Es una función pura de `core` que implementa FR-036 en el orden exacto de la sp
 - `outcome: ProcessOutcome` (el definitivo del último intento de tipo `agent` o `infra_retry`)
 - `reportState` + `report?` (tras el pedido adicional, si hizo falta)
 - `denials?` + `capabilities.reportsDenials`
-- `observedFiles`
+- `observedFiles` + `writeScope` (de ahí salen `scopeViolations`)
+
+Las `inferredDenials` **no** son entrada de la función: se muestran, pero no deciden el estado
+(FR-023).
 
 Evaluación, en orden. La primera regla que coincide decide el resultado:
 
@@ -233,14 +247,17 @@ Evaluación, en orden. La primera regla que coincide decide el resultado:
 | 2d | `outcome.kind = infra_failure` (reintentos de infra agotados) | `failed` | `INFRA_FAILURE_EXHAUSTED` | FR-036.2, R-18 |
 | 2e | `outcome.kind = spawn_failed` | `failed` | `AGENT_UNAVAILABLE` / `AGENT_NOT_AUTHENTICATED` | casos límite |
 | 3 | `reportState ∈ {absent, invalid}` | `failed` | `REPORT_MISSING` / `REPORT_INVALID` | FR-036.3, FR-038 |
-| 4 | `capabilities.reportsDenials` y `denials.length > 0` | `blocked` | `ACTION_DENIED` (params: denials) | FR-036.4, FR-023 |
+| 4a | `capabilities.reportsDenials` y `denials.length > 0` | `blocked` | `ACTION_DENIED` (params: denials) | FR-036.4, FR-023 |
+| 4b | `scopeViolations.length > 0` (con cualquier agente) | `blocked` | `WRITE_OUTSIDE_SCOPE` (params: files) | FR-036.4, FR-037, US5-3 |
 | 5a | `report.status = FAILED` | `failed` | `AGENT_REPORTED_FAILED` | FR-036.5 |
 | 5b | `report.status = BLOCKED` | `blocked` | `AGENT_REPORTED_BLOCKED` | FR-036.5 |
 | 6 | `report.status = COMPLETED` y `blockers.length > 0` | `blocked` | `REPORTED_COMPLETED_WITH_BLOCKERS` (+ `inconsistency`) | FR-036.6 |
 | 7 | en cualquier otro caso | `completed` | — | FR-036.7 |
 
-Aparte de las reglas, y **sin cambiar el estado**, la función siempre calcula `discrepancies`
-(FR-037) y fija `denialCheck = reportsDenials ? 'applied' : 'not_available'` (FR-023).
+Aparte de las reglas, la función siempre calcula `discrepancies` (FR-037) y fija
+`denialCheck = reportsDenials ? 'applied' : 'not_available'` (FR-023). De `discrepancies`, solo
+`scopeViolations` cambia el estado (regla 4b); `undeclared`, `declaredNotObserved` y
+`historyRewritten` se muestran sin cambiarlo.
 
 ---
 
@@ -337,13 +354,15 @@ runs(
 
 node_runs(
   id TEXT PK, run_id TEXT FK→runs, node_id TEXT, node_type TEXT, agent_id TEXT NULL,
+  model TEXT NULL /*JSON {model, reasoningEffort?, source, effective?}; FR-011a*/,
   status TEXT, reason_code TEXT NULL, reason_params TEXT /*JSON*/, hold TEXT NULL,
   confinement_level TEXT, confinement_reason TEXT NULL, warnings TEXT /*JSON*/,
   base_commit TEXT NULL, result_commit TEXT NULL,
   report TEXT NULL /*JSON*/, report_state TEXT,
   observed_files TEXT NULL, discrepancies TEXT NULL,
   denials TEXT NULL /*NULL = el agente no informa; '[]' = informa y no hubo*/,
-  denial_check TEXT, inconsistency TEXT NULL,
+  denial_check TEXT, inferred_denials TEXT NULL /*JSON; solo agentes que no informan*/,
+  inconsistency TEXT NULL,
   cost_usd REAL NULL, cost_basis TEXT NULL, consumption TEXT NULL,
   started_at INTEGER NULL, ended_at INTEGER NULL,
   UNIQUE(run_id, node_id))
@@ -419,7 +438,7 @@ credenciales antes de guardarse (research R-23).
 | `agent.tool_call` | `toolUseId?`, `name`, `input` | FR-063 ("acción reportada") |
 | `agent.tool_result` | `toolUseId?`, `ok`, `content` (truncado a 64 KiB con marca) | FR-063 |
 | `agent.permission_denied` | `tool`, `reason`, `input?` | FR-023, FR-063 |
-| `agent.sandbox_rejection` | `line` (stderr) | FR-063, research T-06 |
+| `agent.inferred_denial` | `source`, `message`, `target?` | FR-023, FR-063, research T-06 |
 | `agent.usage` | `consumption`, `cost?` | FR-050 |
 | `agent.subscription_usage` | `AgentUsageReading` | FR-052 |
 | `agent.stderr` | `line` | diagnóstico |
