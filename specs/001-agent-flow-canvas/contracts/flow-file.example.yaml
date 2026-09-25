@@ -1,0 +1,84 @@
+# .zeko/flows/implement-and-review.flow.yaml
+# Flujo de ejemplo del contrato. Es válido: un solo nodo de entrada, sin ciclos, y cada nodo de
+# agente tiene como máximo una fuente de código (research R-22).
+schemaVersion: 1
+id: implement-and-review
+name: Implement and review
+nodes:
+  - id: goal
+    type: input
+    position: { x: 0, y: 120 }
+    objective: |
+      Add input validation to the signup form so that invalid emails are rejected
+      with a clear message.
+
+  - id: implement
+    type: agent
+    label: Implement validation
+    position: { x: 280, y: 60 }
+    agent: claude-code
+    instructions: |
+      Implement the objective. Keep changes inside the signup module.
+      Run no commands; the terminal is disabled for this node.
+    acceptanceCriteria:
+      - Invalid emails show "Enter a valid email address".
+      - Existing signup behavior is unchanged for valid input.
+    writeScope:
+      - src/signup/**
+      - tests/signup/**
+    terminal:
+      enabled: false
+      allowedCommands: []
+    limits:
+      timeoutMinutes: 30
+      maxTurns: 40
+      maxRetries: 1
+
+  - id: docs
+    type: agent
+    label: Update docs
+    position: { x: 280, y: 220 }
+    agent: claude-code
+    instructions: |
+      Document the new validation rule in the user guide.
+    acceptanceCriteria:
+      - docs/signup.md mentions the email rule.
+    writeScope:
+      - docs/**
+    terminal:
+      enabled: false
+      allowedCommands: []
+    limits:
+      timeoutMinutes: 15
+      maxTurns: 20
+      maxRetries: 0
+
+  - id: gate
+    type: approval
+    label: Review before second opinion
+    position: { x: 560, y: 60 }
+
+  - id: review
+    type: agent
+    label: Independent review
+    position: { x: 820, y: 60 }
+    agent: codex
+    instructions: |
+      Review the changes made by the implementation node. Report problems as blockers
+      if acceptance criteria are not met. Do not modify files.
+    acceptanceCriteria:
+      - Every acceptance criterion of the implementation node is checked.
+    writeScope: []              # solo lectura: no es fuente de código (FR-008)
+    terminal:
+      enabled: false            # se conserva (FR-015); Codex usa siempre terminal (FR-017)
+      allowedCommands: []       # no aplica a Codex (FR-018)
+    limits:
+      timeoutMinutes: 20
+      maxTurns: 40              # se conserva; no aplica a Codex (FR-032)
+      maxRetries: 1
+
+edges:
+  - { from: goal, to: docs }
+  - { from: goal, to: implement }
+  - { from: gate, to: review }
+  - { from: implement, to: gate }

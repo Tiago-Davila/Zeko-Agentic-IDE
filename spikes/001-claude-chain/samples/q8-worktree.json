@@ -1,0 +1,52 @@
+{
+  "worktree": "C:\\Users\\Tiago\\Zeko-Agentic-IDE\\spikes\\001-claude-chain\\runs\\wt",
+  "branch": "spike/wt-1790124908263",
+  "run": {
+    "label": "worktree-1",
+    "exit": 0,
+    "signal": null,
+    "gotResult": true,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 3,
+    "cost_usd": 0.0461564,
+    "duration_ms": 4264,
+    "wall_ms": 6342,
+    "input_tokens": 6,
+    "cache_creation": 6736,
+    "cache_read": 82252,
+    "total_input": 88994,
+    "output_tokens": 275,
+    "permission_denials": [],
+    "session_id": "79ba1f14-9803-42de-a651-121551dad92f",
+    "result": "ok",
+    "event_types": [
+      "system/init",
+      "assistant",
+      "assistant",
+      "rate_limit_event",
+      "user",
+      "assistant",
+      "rate_limit_event",
+      "user",
+      "assistant",
+      "result/success"
+    ]
+  },
+  "toolUses": [
+    {
+      "name": "Read",
+      "file_path": "C:\\Users\\Tiago\\Zeko-Agentic-IDE\\spikes\\001-claude-chain\\runs\\wt\\README.md"
+    },
+    {
+      "name": "Edit",
+      "file_path": "C:\\Users\\Tiago\\Zeko-Agentic-IDE\\spikes\\001-claude-chain\\runs\\wt\\README.md"
+    }
+  ],
+  "worktreeStatus": "M README.md",
+  "worktreeDiff": "diff --git a/README.md b/README.md\nindex 9823e78..3640b82 100644\n--- a/README.md\n+++ b/README.md\n@@ -1 +1,2 @@\n Initial Commit\n+editado por zeko spike",
+  "mainStatusBefore": "?? .claude/\n?? .specify/\n?? spikes/",
+  "mainStatusAfter": "?? .claude/\n?? .specify/\n?? spikes/",
+  "mainReadme": "Initial Commit\r\n"
+}

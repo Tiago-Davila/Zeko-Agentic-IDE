@@ -1,0 +1,239 @@
+{
+  "versionCheck": {
+    "args": "--version",
+    "exit": 0,
+    "stdout": "codex-cli 0.155.1",
+    "stderr": ""
+  },
+  "chatgpt": {
+    "loginStatus": {
+      "args": "login status",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "Logged in using ChatGPT"
+    },
+    "authJsonShape": {
+      "auth_mode": "chatgpt",
+      "OPENAI_API_KEY": null,
+      "tokens": [
+        "id_token",
+        "access_token",
+        "refresh_token",
+        "account_id"
+      ],
+      "last_refresh": "string"
+    },
+    "doctorAuth": {
+      "id": "auth.credentials",
+      "category": "auth",
+      "status": "ok",
+      "summary": "auth is configured",
+      "details": {
+        "auth file": "C:\\Users\\Tiago\\AppData\\Roaming\\orca\\codex-runtime-home\\home\\auth.json",
+        "auth storage mode": "File",
+        "stored API key": "false",
+        "stored ChatGPT tokens": "true",
+        "stored agent identity": "false",
+        "stored auth mode": "chatgpt"
+      },
+      "remediation": null,
+      "durationMs": 0
+    }
+  },
+  "notLoggedIn": {
+    "loginStatus": {
+      "args": "login status",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir \"C:\\\\Users\\\\Tiago\\\\AppData\\\\Local\\\\Temp\\\\\" (codex_home: AbsolutePathBuf(\"C:\\\\Users\\\\Tiago\\\\AppData\\\\Local\\\\Temp\\\\zeko-001c-home-6Mic1c\"))\nNot logged in"
+    },
+    "exec": {
+      "label": "q2-exec-no-auth",
+      "args": "exec --json --ignore-user-config --ignore-rules -m gpt-6-luna -c model_reasoning_effort=\"low\" -c windows.sandbox=\"unelevated\" -",
+      "exit": 1,
+      "signal": null,
+      "threadId": "01a0d5cb-6bc8-7f33-998b-6e69375bb62b",
+      "gotTurnCompleted": false,
+      "gotTurnFailed": true,
+      "turnFailed": {
+        "message": "unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: https://api.openai.com/v1/responses, cf-ray: a405a3e2ac0b939d-EZE, request id: req_e92b7eebf25746598d3d365353c6ebab"
+      },
+      "errors": [
+        "Reconnecting... 2/5 (unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: wss://api.openai.com/v1/responses, cf-ray: a405a3828fc21120-EZE)",
+        "Reconnecting... 3/5 (unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: wss://api.openai.com/v1/responses, cf-ray: a405a3852fde9c09-EZE)",
+        "Reconnecting... 4/5 (unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: wss://api.openai.com/v1/responses, cf-ray: a405a38a4cb5939d-EZE)",
+        "Reconnecting... 5/5 (unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: wss://api.openai.com/v1/responses, cf-ray: a405a3962cc207e6-EZE)",
+        "Reconnecting... 1/5 (unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: https://api.openai.com/v1/responses, cf-ray: a405a3a9cac02ee2-EZE, request id: req_8dd92080112e4a2ca8523352ec5fb5a0)",
+        "Reconnecting... 2/5 (unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: https://api.openai.com/v1/responses, cf-ray: a405a3acfaf5fafe-EZE, request id: req_adfeeaa90ef2442ea7d3227392ed9611)",
+        "Reconnecting... 3/5 (unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: https://api.openai.com/v1/responses, cf-ray: a405a3b17a24bc63-EZE, request id: req_42eb82abe54d44989b2dad3c83d03c18)",
+        "Reconnecting... 4/5 (unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: https://api.openai.com/v1/responses, cf-ray: a405a3b8ed8194f8-EZE, request id: req_226f4ac5f6464c599b1b387330588716)",
+        "Reconnecting... 5/5 (unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: https://api.openai.com/v1/responses, cf-ray: a405a3c989a1ebcc-EZE, request id: req_cbada4f6f18b4e8884de20b72576e3fb)",
+        "unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: https://api.openai.com/v1/responses, cf-ray: a405a3e2ac0b939d-EZE, request id: req_e92b7eebf25746598d3d365353c6ebab"
+      ],
+      "commands": [],
+      "fileChanges": [],
+      "itemTypes": [
+        "thread.started",
+        "item.completed:error",
+        "turn.started",
+        "error",
+        "error",
+        "error",
+        "error",
+        "item.completed:error",
+        "error",
+        "error",
+        "error",
+        "error",
+        "error",
+        "error",
+        "turn.failed"
+      ],
+      "wall_ms": 16705,
+      "hookFires": 0,
+      "stderr": "WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir \"C:\\\\Users\\\\Tiago\\\\AppData\\\\Local\\\\Temp\\\\\" (codex_home: AbsolutePathBuf(\"C:\\\\Users\\\\Tiago\\\\AppData\\\\Local\\\\Temp\\\\zeko-001c-home-6Mic1c\"))\n2026-09-24T23:41:13.859788Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-24T23:41:13.984330Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-24T23:41:14.245711Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-24T23:41:14.676414Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-24T23:41:15.485864Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-24T23:41:17.386789Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-24T23:41:20.432356Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses"
+    }
+  },
+  "apiKeyEnvInvalid": {
+    "loginStatus_CODEX_API_KEY": {
+      "args": "login status",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir \"C:\\\\Users\\\\Tiago\\\\AppData\\\\Local\\\\Temp\\\\\" (codex_home: AbsolutePathBuf(\"C:\\\\Users\\\\Tiago\\\\AppData\\\\Local\\\\Temp\\\\zeko-001c-home-6Mic1c\"))\nNot logged in"
+    },
+    "loginStatus_OPENAI_API_KEY": {
+      "args": "login status",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir \"C:\\\\Users\\\\Tiago\\\\AppData\\\\Local\\\\Temp\\\\\" (codex_home: AbsolutePathBuf(\"C:\\\\Users\\\\Tiago\\\\AppData\\\\Local\\\\Temp\\\\zeko-001c-home-6Mic1c\"))\nNot logged in"
+    },
+    "exec_CODEX_API_KEY": {
+      "label": "q2-exec-bad-apikey",
+      "args": "exec --json --ignore-user-config --ignore-rules -m gpt-6-luna -c model_reasoning_effort=\"low\" -c windows.sandbox=\"unelevated\" -",
+      "exit": 1,
+      "signal": null,
+      "threadId": "01a0d5cb-acbd-7270-895f-d49583e5ed1a",
+      "gotTurnCompleted": false,
+      "gotTurnFailed": true,
+      "turnFailed": {
+        "message": "unexpected status 401 Unauthorized: Incorrect API key provided: sk-<redactado>. You can find your API key at https://platform.openai.com/account/api-keys., url: https://api.openai.com/v1/responses, cf-ray: a405a460188e2ee2-EZE, request id: req_81e23c750f524cfaa4554e0592046765, auth error: 401, auth error code: invalid_api_key"
+      },
+      "errors": [
+        "Reconnecting... 2/5 (unexpected status 401 Unauthorized: {\n  \"error\": {\n    \"messa, url: wss://api.openai.com/v1/responses, cf-ray: a405a3f3c878968c-EZE, request id: req_012e78125efd42178d1d3a9654d2caf1, auth error: 401, auth error code: invalid_api_key)",
+        "Reconnecting... 3/5 (unexpected status 401 Unauthorized: {\n  \"error\": {\n    \"messag, url: wss://api.openai.com/v1/responses, cf-ray: a405a3fc1b2e684e-EZE, request id: req_b74611abaa584211b4bd59fe44d0a699, auth error: 401, auth error code: invalid_api_key)",
+        "Reconnecting... 4/5 (unexpected status 401 Unauthorized: {\n  \"error\": {\n    \"messag, url: wss://api.openai.com/v1/responses, cf-ray: a405a4059cd7bc63-EZE, request id: req_c6f56cb2ae084eff97bf1c86b763b943, auth error: 401, auth error code: invalid_api_key)",
+        "Reconnecting... 5/5 (unexpected status 401 Unauthorized: {\n  \"error\": {\n    \"messag, url: wss://api.openai.com/v1/responses, cf-ray: a405a4133f607a5c-EZE, request id: req_e04fa26adb824e2ca4097c02a06b33c4, auth error: 401, auth error code: invalid_api_key)",
+        "Reconnecting... 1/5 (unexpected status 401 Unauthorized: Incorrect API key provided: sk-<redactado>. You can find your API key at https://platform.openai.com/account/api-keys., url: https://api.openai.com/v1/responses, cf-ray: a405a4308b80487e-EZE, request id: req_4dd6b69da19544e68da4392fecaae2dd, auth error: 401, auth error code: invalid_api_key)",
+        "Reconnecting... 2/5 (unexpected status 401 Unauthorized: Incorrect API key provided: sk-<redactado>. You can find your API key at https://platform.openai.com/account/api-keys., url: https://api.openai.com/v1/responses, cf-ray: a405a433df0f12ec-EZE, request id: req_40ed2b28b3744167a30b6ca26d7185ca, auth error: 401, auth error code: invalid_api_key)",
+        "Reconnecting... 3/5 (unexpected status 401 Unauthorized: Incorrect API key provided: sk-<redactado>. You can find your API key at https://platform.openai.com/account/api-keys., url: https://api.openai.com/v1/responses, cf-ray: a405a43818ffb007-EZE, request id: req_b22586b80d0c4dde9cae92db4a690453, auth error: 401, auth error code: invalid_api_key)",
+        "Reconnecting... 4/5 (unexpected status 401 Unauthorized: Incorrect API key provided: sk-<redactado>. You can find your API key at https://platform.openai.com/account/api-keys., url: https://api.openai.com/v1/responses, cf-ray: a405a43efb65efb1-EZE, request id: req_7953e078ddc14fd59a6891e9406894ed, auth error: 401, auth error code: invalid_api_key)",
+        "Reconnecting... 5/5 (unexpected status 401 Unauthorized: Incorrect API key provided: sk-<redactado>. You can find your API key at https://platform.openai.com/account/api-keys., url: https://api.openai.com/v1/responses, cf-ray: a405a44a9fb99269-EZE, request id: req_fd895213b35449fab7790267a2d6d059, auth error: 401, auth error code: invalid_api_key)",
+        "unexpected status 401 Unauthorized: Incorrect API key provided: sk-<redactado>. You can find your API key at https://platform.openai.com/account/api-keys., url: https://api.openai.com/v1/responses, cf-ray: a405a460188e2ee2-EZE, request id: req_81e23c750f524cfaa4554e0592046765, auth error: 401, auth error code: invalid_api_key"
+      ],
+      "commands": [],
+      "fileChanges": [],
+      "itemTypes": [
+        "thread.started",
+        "item.completed:error",
+        "turn.started",
+        "error",
+        "error",
+        "error",
+        "error",
+        "item.completed:error",
+        "error",
+        "error",
+        "error",
+        "error",
+        "error",
+        "error",
+        "turn.failed"
+      ],
+      "wall_ms": 22801,
+      "hookFires": 0,
+      "stderr": "WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir \"C:\\\\Users\\\\Tiago\\\\AppData\\\\Local\\\\Temp\\\\\" (codex_home: AbsolutePathBuf(\"C:\\\\Users\\\\Tiago\\\\AppData\\\\Local\\\\Temp\\\\zeko-001c-home-6Mic1c\"))\n2026-09-24T23:41:31.391005Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-24T23:41:32.107407Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-24T23:41:33.004918Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-24T23:41:34.334819Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-24T23:41:35.744936Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-24T23:41:37.954182Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-24T23:41:42.003218Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses"
+    }
+  },
+  "chatgptPlusEnvKey": {
+    "loginStatus": {
+      "args": "login status",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "Logged in using ChatGPT"
+    },
+    "exec": {
+      "label": "q2-exec-chatgpt-plus-bad-key",
+      "args": "exec --json --ignore-user-config --ignore-rules -m gpt-6-luna -c model_reasoning_effort=\"low\" -c windows.sandbox=\"unelevated\" -",
+      "exit": 1,
+      "signal": null,
+      "threadId": "01a0d5cc-0ed8-7d81-b6f0-b63af5bd8b33",
+      "gotTurnCompleted": false,
+      "gotTurnFailed": true,
+      "turnFailed": {
+        "message": "unexpected status 401 Unauthorized: Incorrect API key provided: sk-<redactado>. You can find your API key at https://platform.openai.com/account/api-keys., url: https://api.openai.com/v1/responses, cf-ray: a405a4fb3b9159a3-EZE, request id: req_675d1ff0a4bf400a8e06a95dc68aed2f, auth error: 401, auth error code: invalid_api_key"
+      },
+      "errors": [
+        "Reconnecting... 2/5 (unexpected status 401 Unauthorized: {\n  \"error\": {\n    \"messa, url: wss://api.openai.com/v1/responses, cf-ray: a405a48eaf613be2-EZE, request id: req_8f462c3161394a66824895813ee36d31, auth error: 401, auth error code: invalid_api_key)",
+        "Reconnecting... 3/5 (unexpected status 401 Unauthorized: {\n  \"error\": {\n    \"messag, url: wss://api.openai.com/v1/responses, cf-ray: a405a4958fae1873-EZE, request id: req_a85a80869f1348549ecdd151f066a099, auth error: 401, auth error code: invalid_api_key)",
+        "Reconnecting... 4/5 (unexpected status 401 Unauthorized: {\n  \"error\": {\n    \"messag, url: wss://api.openai.com/v1/responses, cf-ray: a405a49f7e9e9b0c-EZE, request id: req_95f6deccca0b4335acfb76176a2813b2, auth error: 401, auth error code: invalid_api_key)",
+        "Reconnecting... 5/5 (unexpected status 401 Unauthorized: {\n  \"error\": {\n    \"messag, url: wss://api.openai.com/v1/responses, cf-ray: a405a4ae8ba8f458-EZE, request id: req_0f519aa61d6544af8ad50f12479267af, auth error: 401, auth error code: invalid_api_key)",
+        "Reconnecting... 1/5 (unexpected status 401 Unauthorized: Incorrect API key provided: sk-<redactado>. You can find your API key at https://platform.openai.com/account/api-keys., url: https://api.openai.com/v1/responses, cf-ray: a405a4cb7fc8684e-EZE, request id: req_a93a56403907441e8be138ccea479817, auth error: 401, auth error code: invalid_api_key)",
+        "Reconnecting... 2/5 (unexpected status 401 Unauthorized: Incorrect API key provided: sk-<redactado>. You can find your API key at https://platform.openai.com/account/api-keys., url: https://api.openai.com/v1/responses, cf-ray: a405a4ce6fa49434-EZE, request id: req_69a1832f4a644bda8de0a63fc29f290e, auth error: 401, auth error code: invalid_api_key)",
+        "Reconnecting... 3/5 (unexpected status 401 Unauthorized: Incorrect API key provided: sk-<redactado>. You can find your API key at https://platform.openai.com/account/api-keys., url: https://api.openai.com/v1/responses, cf-ray: a405a4d2aa9cc816-EZE, request id: req_698ea86fefdd4c94a17a763768793711, auth error: 401, auth error code: invalid_api_key)",
+        "Reconnecting... 4/5 (unexpected status 401 Unauthorized: Incorrect API key provided: sk-<redactado>. You can find your API key at https://platform.openai.com/account/api-keys., url: https://api.openai.com/v1/responses, cf-ray: a405a4d8df2b1120-EZE, request id: req_d7458a660f2f4c6caeb15b2429b7c95a, auth error: 401, auth error code: invalid_api_key)",
+        "Reconnecting... 5/5 (unexpected status 401 Unauthorized: Incorrect API key provided: sk-<redactado>. You can find your API key at https://platform.openai.com/account/api-keys., url: https://api.openai.com/v1/responses, cf-ray: a405a4e3b826487e-EZE, request id: req_039e5bb4db3f4ebb9117216a1daa406f, auth error: 401, auth error code: invalid_api_key)",
+        "unexpected status 401 Unauthorized: Incorrect API key provided: sk-<redactado>. You can find your API key at https://platform.openai.com/account/api-keys., url: https://api.openai.com/v1/responses, cf-ray: a405a4fb3b9159a3-EZE, request id: req_675d1ff0a4bf400a8e06a95dc68aed2f, auth error: 401, auth error code: invalid_api_key"
+      ],
+      "commands": [],
+      "fileChanges": [],
+      "itemTypes": [
+        "thread.started",
+        "item.completed:error",
+        "turn.started",
+        "error",
+        "error",
+        "error",
+        "error",
+        "item.completed:error",
+        "error",
+        "error",
+        "error",
+        "error",
+        "error",
+        "error",
+        "turn.failed"
+      ],
+      "wall_ms": 66049,
+      "hookFires": 0,
+      "stderr": "2026-09-24T23:41:56.241722Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-24T23:41:56.880785Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-24T23:41:57.763485Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-24T23:41:58.770376Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-24T23:42:00.577667Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-24T23:42:02.814781Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-24T23:42:06.768194Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses"
+    },
+    "execWithOPENAI_API_KEY": {
+      "label": "q2-exec-chatgpt-plus-bad-openai-key",
+      "args": "exec --json --ignore-user-config --ignore-rules -m gpt-6-luna -c model_reasoning_effort=\"low\" -c windows.sandbox=\"unelevated\" -",
+      "exit": 0,
+      "signal": null,
+      "threadId": "01a0d5cd-0aca-75f0-8226-9c5fefe747e5",
+      "gotTurnCompleted": true,
+      "gotTurnFailed": false,
+      "errors": [],
+      "usage": {
+        "input_tokens": 13961,
+        "cached_input_tokens": 11008,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 5,
+        "reasoning_output_tokens": 0
+      },
+      "finalMessage": "ok",
+      "commands": [],
+      "fileChanges": [],
+      "itemTypes": [
+        "thread.started",
+        "turn.started",
+        "item.completed:agent_message",
+        "turn.completed"
+      ],
+      "wall_ms": 5859,
+      "hookFires": 0
+    }
+  }
+}
