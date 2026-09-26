@@ -1133,7 +1133,7 @@ MessagePort, con validación zod en los dos extremos.
 - [X] T136 [P] [US1] Watcher de `.zeko/flows`, que emite `flow.fileChanged`. Con tests. **Archivos**:
   `apps/desktop/src/engine-host/flow-watcher.ts`, `apps/desktop/test/engine-host/flow-watcher.test.ts`.
   **Cubre**: FR-056, casos límite. **Base**: contracts/ipc.md. **Depende de**: T133
-- [ ] T137 [US8] Empaquetado y compuerta U-01: configuración de electron-builder para Windows x64 y
+- [X] T137 [US8] Empaquetado y compuerta U-01: configuración de electron-builder para Windows x64 y
   test de humo que abre la base con `node:sqlite` desde el engine host **empaquetado**. Si falla, se
   registra la alternativa `better-sqlite3` en Complexity Tracking. **Archivos**:
   `apps/desktop/electron-builder.yml`, `apps/desktop/test/packaged-sqlite.win.test.ts`. **Cubre**:

@@ -8,7 +8,8 @@ let stopped = false;
 let messagePort: MessagePortMain | undefined;
 let outputBatcher: OutputBatcher | undefined;
 const flowWatchers = new Map<string, FlowWatcher>();
-const runtimePromise = createZekoRuntime();
+const smokeDatabase = process.argv.includes("--zeko-sqlite-smoke") ? process.env["ZEKO_DATABASE_PATH"] : undefined;
+const runtimePromise = createZekoRuntime(smokeDatabase ? { dbPath: smokeDatabase } : {});
 
 process.parentPort.on("message", (event) => {
   const data = event.data as { type?: unknown } | undefined;
@@ -33,6 +34,7 @@ async function attach(port: MessagePortMain): Promise<void> {
       if (parsed.type === "node.output") outputBatcher?.push(parsed);
       else if (!postValidated(port, parsed)) postValidated(port, { kind: "event", type: "engine.error", payload: { code: "INVALID_ENGINE_EVENT" } });
     });
+    process.parentPort.postMessage({ type: "engine-ready" });
     port.on("message", ({ data }) => {
       void dispatchRequest(runtime, port, data, async ({ projectId, root }) => {
         flowWatchers.get(projectId)?.close();
@@ -49,8 +51,10 @@ async function attach(port: MessagePortMain): Promise<void> {
     port.start();
   } catch (error) {
     const portMessage = error instanceof Error ? error.message : "Runtime initialization failed";
+    process.parentPort.postMessage({ type: "engine-error", message: portMessage });
     postValidated(port, { kind: "event", type: "engine.error", payload: { code: "ENGINE_START_FAILED", params: { message: portMessage } } });
     port.close();
+    process.exit(1);
   }
 }
 

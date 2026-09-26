@@ -46,7 +46,7 @@ export default tseslint.config(
   },
   {
     files: ["packages/**/*.{ts,tsx}", "apps/**/*.{ts,tsx}"],
-    languageOptions: { parserOptions: { projectService: { allowDefaultProject: ["apps/cli/test/*.ts", "apps/desktop/test/*.test.ts", "apps/desktop/test/engine-host/*.test.ts"] } } },
+    languageOptions: { parserOptions: { projectService: { allowDefaultProject: ["apps/cli/test/claude-dialect.e2e.test.ts", "apps/cli/test/mixed-flow.e2e.test.ts", "apps/cli/test/t131-real-smoke.manual.test.ts"] } } },
     rules: { "@typescript-eslint/no-floating-promises": "error" },
   },
   {

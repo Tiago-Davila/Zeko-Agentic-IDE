@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "scripts": { "build": "electron-vite build" },
+  "main": "./out/main/index.js",
+  "scripts": { "build": "electron-vite build", "package:win": "electron-builder --dir --win --x64" },
   "dependencies": {
     "@zeko/contracts": "workspace:*",
     "@zeko/runtime": "workspace:*",
@@ -16,6 +17,7 @@
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "electron": "^38.2.0",
+    "electron-builder": "^26.16.1",
     "electron-vite": "^5.0.0",
     "vite": "^7.1.7"
   }

@@ -2,5 +2,6 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": { "rootDir": ".", "outDir": "./dist", "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo" },
   "references": [{ "path": "../../packages/runtime" }],
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "test/**/*.ts"],
+  "exclude": ["test/claude-dialect.e2e.test.ts", "test/mixed-flow.e2e.test.ts", "test/t131-real-smoke.manual.test.ts"]
 }
