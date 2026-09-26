@@ -24,11 +24,14 @@ interface FlowCanvasProps {
   flow: FlowFile;
   onChange: (flow: FlowFile) => void;
   onBack: () => void;
+  onSave: () => void;
+  dirty: boolean;
+  saving: boolean;
 }
 
 const nodeTypes = { input: InputCanvasNode, agent: AgentCanvasNode, approval: ApprovalCanvasNode };
 
-export function FlowCanvas({ projectId, flow, onChange, onBack }: FlowCanvasProps) {
+export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, dirty, saving }: FlowCanvasProps) {
   const t = useT();
   const [message, setMessage] = useState<string>();
   const [selectedNodeId, setSelectedNodeId] = useState<string>();
@@ -135,6 +138,7 @@ export function FlowCanvas({ projectId, flow, onChange, onBack }: FlowCanvasProp
         <div><p className="eyebrow">{t("canvas.flowLabel")}</p><h1>{flow.name}</h1></div>
       </div>
       <div className="canvas-toolbar__actions">
+        <button className="button button--quiet" type="button" disabled={!dirty || saving} onClick={onSave}>{saving ? t("flow.saving") : dirty ? t("flow.save") : t("flow.saved")}</button>
         <button className="button button--primary" type="button" disabled={!validationReady || hasErrors} title={!validationReady ? t("validation.pending") : hasErrors ? t("run.blockedByErrors") : undefined}>{t("run.start")}</button>
         <button className="button button--node" type="button" onClick={() => addNode("input")}>{t("canvas.addInput")}</button>
         <button className="button button--node" type="button" onClick={() => addNode("agent")}>{t("canvas.addAgent")}</button>

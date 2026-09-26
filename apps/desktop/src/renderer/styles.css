@@ -143,6 +143,22 @@ h1, h2, h3, p { margin-top: 0; }
 .diagnostics-overlay li { display: grid; grid-template-columns: auto 1fr auto; align-items: baseline; gap: 8px; font-size: 10px; line-height: 1.4; }
 .diagnostics-overlay li button { max-width: 92px; padding: 0; overflow: hidden; color: #537079; background: none; border: 0; font: inherit; text-align: left; text-decoration: underline; text-overflow: ellipsis; cursor: pointer; }
 .diagnostics-overlay li small { color: #97886f; font-size: 9px; }
+.dialog-backdrop { position: fixed; z-index: 20; inset: 0; display: grid; place-items: center; padding: 20px; background: #122b35a8; backdrop-filter: blur(3px); }
+.confirm-dialog { width: min(470px, 100%); padding: 27px; background: #fbfcfc; border: 1px solid #dce5e7; border-radius: 11px; box-shadow: 0 18px 55px #10232c40; }
+.dialog-symbol { display: grid; width: 38px; height: 38px; margin-bottom: 20px; place-items: center; color: #9a6a27; background: #faf1df; border-radius: 11px; font-size: 20px; }
+.confirm-dialog .eyebrow { margin-bottom: 7px; }
+.confirm-dialog h2 { margin: 0 0 10px; font: 700 20px "Manrope", sans-serif; letter-spacing: -.035em; }
+.confirm-dialog > p:not(.eyebrow) { color: #75868c; font-size: 12px; line-height: 1.7; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; }
+.flow-editor-state { display: flex; min-height: 100vh; flex-direction: column; align-items: flex-start; padding: 24px; background: #f1f5f5; }
+.invalid-flow-panel { width: min(630px, 100%); margin: auto; padding: 35px; background: #fbfcfc; border: 1px solid #dce5e7; border-radius: 10px; box-shadow: 0 9px 35px #1935420c; }
+.invalid-flow-panel h1 { margin: 0 0 10px; font: 700 26px "Manrope", sans-serif; letter-spacing: -.04em; }
+.invalid-flow-panel > p:not(.eyebrow) { color: #7a8a8e; font-size: 12px; line-height: 1.7; }
+.file-diagnostic { display: flex; justify-content: space-between; gap: 14px; padding: 12px 0; border-top: 1px solid #e6eded; color: #88483e; font-size: 11px; }
+.file-diagnostic p { margin: 4px 0 0; color: #78888d; font-size: 10px; line-height: 1.5; }
+.file-diagnostic small { display: block; margin-top: 3px; color: #8d999c; font: 9px "Cascadia Code", Consolas, monospace; }
+.file-diagnostic span { color: #89969a; white-space: nowrap; }
+.editor-error { position: fixed; z-index: 12; top: 86px; left: 50%; padding: 11px 15px; color: #8e4339; background: #fff2ef; border: 1px solid #f0d9d4; border-radius: 6px; font-size: 11px; transform: translateX(-50%); }
 
 @media (max-width: 1080px) {
   .app-shell { grid-template-columns: 190px minmax(0, 1fr); }

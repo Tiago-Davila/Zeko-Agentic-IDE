@@ -1177,7 +1177,7 @@ confinamiento y capacidades, costo y uso, e historial. La UI solo pinta lo que c
   (incluidos `MULTIPLE_CODE_SOURCES` y `MODEL_DEFAULTED`); el botón de ejecutar se deshabilita si
   hay errores. **Archivos**: `apps/desktop/src/renderer/canvas/diagnostics-overlay.tsx`. **Cubre**:
   FR-008, FR-009, US1-4. **Base**: data-model §Reglas. **Depende de**: T140
-- [ ] T143 [US1] Guardar y abrir: flujo inválido con errores y ubicación, sin modificar el archivo;
+- [X] T143 [US1] Guardar y abrir: flujo inválido con errores y ubicación, sin modificar el archivo;
   diálogo de conflicto "Reload" / "Keep my version" ante `FILE_CHANGED_ON_DISK` o
   `flow.fileChanged`. **Archivos**: `apps/desktop/src/renderer/screens/flow-editor.tsx`,
   `apps/desktop/src/renderer/dialogs/file-conflict-dialog.tsx`. **Cubre**: FR-054–057, US1-5–7,
