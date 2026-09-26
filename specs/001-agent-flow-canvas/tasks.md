@@ -948,7 +948,7 @@ aprobaciones por TTY. Nada de UI todavía.
   **Archivos**: `packages/adapters/src/claude-code/outcome.ts`,
   `packages/adapters/test/claude-code/outcome.test.ts`. **Cubre**: FR-033, FR-036, FR-050, FR-051.
   **Base**: R-09, R-17, `[001 §3]`, `[001b §A2]`. **Depende de**: T113
-- [ ] T115 [US2] `launch` y `requestReport` de Claude:
+- [X] T115 [US2] `launch` y `requestReport` de Claude:
   - ruta del binario inyectable por configuración del adaptador; sin inyección se resuelve
     `claude` desde el `PATH`, salvo con `ZEKO_TEST=1`, donde falla con un error tipado (T003). Un
     test verifica ese bloqueo;

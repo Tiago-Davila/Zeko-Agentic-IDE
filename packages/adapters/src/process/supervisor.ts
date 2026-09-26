@@ -20,6 +20,7 @@ export interface SupervisedProcess {
   readonly stderr: AsyncIterable<string>;
   readonly completion: Promise<{ readonly code: number | null; readonly signal: NodeJS.Signals | null }>;
   writeStdin(line: string): Promise<void>;
+  endStdin(): void;
 }
 
 interface ActiveProcess {
@@ -83,6 +84,7 @@ export class ProcessSupervisor {
       stderr: readLines(child.stderr),
       completion,
       writeStdin: (line) => writeToStdin(child, line),
+      endStdin: () => { child.stdin!.end(); },
     };
   }
 
