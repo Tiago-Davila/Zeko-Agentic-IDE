@@ -100,13 +100,20 @@ function waitForInterrupt(mode: "respond" | "ignore"): Promise<boolean> {
     input.on("line", (line) => {
       let message: unknown;
       try { message = JSON.parse(line) as unknown; } catch { return; }
-      if (!isRecord(message) || message["type"] !== "control_request" || message["subtype"] !== "interrupt" || mode === "ignore") return;
-      const response: NormalizedEvent = { type: "raw", ts: new Date().toISOString(), attemptId: ATTEMPT_ID, data: { type: "control_response", requestId: message["requestId"] ?? null, response: "interrupt_acknowledged" } };
+      if (!isRecord(message) || message["type"] !== "control_request" || interruptSubtype(message) !== "interrupt" || mode === "ignore") return;
+      const requestId = message["requestId"] ?? message["request_id"] ?? null;
+      const response: NormalizedEvent = { type: "raw", ts: new Date().toISOString(), attemptId: ATTEMPT_ID, data: { type: "control_response", requestId, response: "interrupt_acknowledged" } };
       void emitValidated(response).then(() => finish(true));
       process.exitCode = 130;
     });
     process.once("SIGTERM", finish);
   });
+}
+
+function interruptSubtype(message: Record<string, unknown>): unknown {
+  if (message["subtype"] === "interrupt") return message["subtype"];
+  const request = message["request"];
+  return isRecord(request) ? request["subtype"] : undefined;
 }
 
 function startWritingGrandchild(seconds: number): void {

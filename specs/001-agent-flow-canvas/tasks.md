@@ -961,7 +961,7 @@ aprobaciones por TTY. Nada de UI todavía.
   `packages/adapters/src/claude-code/adapter.ts`,
   `packages/adapters/test/claude-code/adapter.launch.test.ts`. **Cubre**: FR-029, FR-038.
   **Base**: R-08, R-16, `[001 §4]`. **Depende de**: T114, T081
-- [ ] T116 [US2] Cancelación en dos fases de Claude: `control_request interrupt`, espera de hasta
+- [X] T116 [US2] Cancelación en dos fases de Claude: `control_request interrupt`, espera de hasta
   5 s y después terminación del árbol. Tests con `fake-agent` que responde como en `q7-cancel` y
   con uno que ignora el interrupt. **Archivos**: `packages/adapters/src/claude-code/adapter.ts`,
   `packages/adapters/test/claude-code/cancel.test.ts`. **Cubre**: FR-030, NFR-004. **Base**: R-12,
