@@ -1,5 +1,6 @@
 import { readdir, readFile } from "node:fs/promises";
-import { spawn } from "node:child_process";
+import { spawn, type ChildProcess } from "node:child_process";
+import { createInterface } from "node:readline";
 
 export interface ProcessEntry {
   readonly pid: number;
@@ -13,7 +14,21 @@ export interface ProcessTableDependencies {
   readonly readFile?: (path: string) => Promise<string>;
 }
 
-const WINDOWS_QUERY = "Get-CimInstance -ClassName Win32_Process | Select-Object @{Name='pid';Expression={$_.ProcessId}},@{Name='parentPid';Expression={$_.ParentProcessId}},@{Name='creationTime';Expression={$_.CreationDate.ToUniversalTime().ToString('o')}} | ConvertTo-Json -Compress";
+const WINDOWS_WORKER_SCRIPT = [
+  "$ErrorActionPreference = 'Stop'",
+  "while ($null -ne [Console]::In.ReadLine()) {",
+  "  try {",
+  "    $rows = @(Get-CimInstance -Query 'SELECT ProcessId,ParentProcessId,CreationDate FROM Win32_Process' | Select-Object @{Name='pid';Expression={$_.ProcessId}},@{Name='parentPid';Expression={$_.ParentProcessId}},@{Name='creationTime';Expression={$_.CreationDate.ToUniversalTime().ToString('o')}})",
+  "    [Console]::Out.WriteLine((ConvertTo-Json -InputObject $rows -Compress))",
+  "  } catch {",
+  "    [Console]::Out.WriteLine((ConvertTo-Json -InputObject @{ __zekoError = $_.Exception.Message } -Compress))",
+  "  }",
+  "  [Console]::Out.WriteLine('__ZEKO_PROCESS_SNAPSHOT_END__')",
+  "  [Console]::Out.Flush()",
+  "}",
+].join("\n");
+const WINDOWS_SNAPSHOT_END = "__ZEKO_PROCESS_SNAPSHOT_END__";
+let windowsSnapshotWorker: WindowsSnapshotWorker | undefined;
 
 export async function getProcessSnapshot(
   platform: NodeJS.Platform = process.platform,
@@ -71,21 +86,78 @@ export function parseProcStat(stat: string): ProcessEntry | undefined {
 }
 
 function queryWindowsProcessTable(): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const child = spawn("powershell.exe", ["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", WINDOWS_QUERY], {
+  windowsSnapshotWorker ??= new WindowsSnapshotWorker();
+  return windowsSnapshotWorker.query();
+}
+
+class WindowsSnapshotWorker {
+  readonly #child: ChildProcess;
+  readonly #lines: ReturnType<typeof createInterface>;
+  #current: { readonly lines: string[]; readonly resolve: (value: string) => void; readonly reject: (error: Error) => void } | undefined;
+  #busy = false;
+
+  constructor() {
+    this.#child = spawn("powershell.exe", ["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", WINDOWS_WORKER_SCRIPT], {
       windowsHide: true,
-      stdio: ["ignore", "pipe", "pipe"],
+      stdio: ["pipe", "pipe", "pipe"],
     });
-    let stdout = "";
-    let stderr = "";
-    child.stdout.setEncoding("utf8").on("data", (chunk: string) => { stdout += chunk; });
-    child.stderr.setEncoding("utf8").on("data", (chunk: string) => { stderr += chunk; });
-    child.once("error", reject);
-    child.once("close", (code) => {
-      if (code === 0) resolve(stdout);
-      else reject(new Error(`Win32_Process snapshot failed (${code}): ${stderr.trim()}`));
+    if (!this.#child.stdin || !this.#child.stdout || !this.#child.stderr) throw new Error("PowerShell snapshot worker pipes were not created");
+    this.#child.stderr.resume();
+    this.#lines = createInterface({ input: this.#child.stdout, crlfDelay: Infinity });
+    this.#lines.on("line", (line) => this.#onLine(line));
+    this.#child.once("error", (error) => this.#fail(error));
+    this.#child.once("close", (code) => this.#fail(new Error(`Win32_Process snapshot worker exited (${code ?? "unknown"})`)));
+  }
+
+  query(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (!this.#child.stdin || this.#child.stdin.destroyed || !this.#child.stdin.writable) {
+        reject(new Error("PowerShell snapshot worker stdin is unavailable"));
+        return;
+      }
+      this.#queue.push({ lines: [], resolve, reject });
+      this.#pump();
     });
-  });
+  }
+
+  readonly #queue: Array<{ readonly lines: string[]; readonly resolve: (value: string) => void; readonly reject: (error: Error) => void }> = [];
+
+  #pump(): void {
+    if (this.#busy || this.#queue.length === 0) return;
+    this.#busy = true;
+    this.#current = this.#queue.shift();
+    this.#child.stdin!.write("snapshot\n", "utf8", (error) => {
+      if (error) this.#fail(error);
+    });
+  }
+
+  #onLine(line: string): void {
+    if (line === WINDOWS_SNAPSHOT_END) {
+      const current = this.#current;
+      this.#current = undefined;
+      this.#busy = false;
+      if (current) {
+        const json = current.lines.join("\n");
+        try {
+          const value: unknown = JSON.parse(json);
+          if (isRecord(value) && typeof value["__zekoError"] === "string") throw new Error(value["__zekoError"]);
+          current.resolve(json);
+        } catch (error) {
+          current.reject(error instanceof Error ? error : new Error("Invalid Win32_Process snapshot response"));
+        }
+      }
+      this.#pump();
+      return;
+    }
+    this.#current?.lines.push(line);
+  }
+
+  #fail(error: Error): void {
+    this.#current?.reject(error);
+    this.#current = undefined;
+    this.#busy = false;
+    for (const queued of this.#queue.splice(0)) queued.reject(error);
+  }
 }
 
 function parsePositiveInteger(value: unknown): number | undefined {

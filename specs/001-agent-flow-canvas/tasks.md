@@ -692,7 +692,7 @@ motor en `zeko/<run>/*`, el dependiente parte del predecesor, los archivos obser
 
   **Archivos**: `packages/adapters/test/process/cancel.win.test.ts`. **Cubre**: FR-030, NFR-004,
   SC-003. **Base**: D8, quickstart Escenario 4 (variante crítica). **Depende de**: T083
-- [ ] T085 [P] [US2] Medición del costo de la instantánea con 8 árboles activos (U-05): falla si el
+- [X] T085 [P] [US2] Medición del costo de la instantánea con 8 árboles activos (U-05): falla si el
   tick supera el presupuesto definido para NFR-002. **Archivos**:
   `packages/adapters/test/process/snapshot-cost.win.test.ts`. **Cubre**: NFR-002, NFR-004.
   **Base**: R-14, U-05. **Depende de**: T083

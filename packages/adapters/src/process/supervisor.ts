@@ -53,6 +53,8 @@ export class ProcessSupervisor {
   }
 
   async launch(command: string, args: readonly string[], options: { readonly cwd: string; readonly env?: NodeJS.ProcessEnv }): Promise<SupervisedProcess> {
+    // Start the platform reader before the agent so its first OS query does not race a short-lived root.
+    await this.#snapshot();
     const child = this.#spawn(command, args, {
       cwd: options.cwd,
       ...(options.env ? { env: options.env } : {}),
@@ -146,7 +148,7 @@ export class ProcessSupervisor {
   }
 
   async #waitForRoot(pid: number): Promise<ProcessIdentity> {
-    const deadline = Date.now() + 2_000;
+    const deadline = Date.now() + 5_000;
     do {
       const snapshot = await this.#snapshot();
       const entry = snapshot.find((candidate) => candidate.pid === pid);

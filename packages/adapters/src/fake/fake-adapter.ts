@@ -71,7 +71,7 @@ export class FakeAdapter implements AgentAdapter {
     const startedAt = Date.now();
     const started = this.#supervisor.launch(process.execPath, ["--experimental-strip-types", this.#fakeAgentPath, this.#scenarioPath], {
       cwd: spec.workspacePath,
-      env: { ...process.env, ZEKO_FAKE_AGENT_STARTUP_DELAY_MS: "1200" },
+      env: { ...process.env, ZEKO_FAKE_AGENT_STARTUP_DELAY_MS: "2500" },
     }).then((processHandle) => {
       supervised = processHandle;
       rootPid.pid = processHandle.rootPid.pid;
