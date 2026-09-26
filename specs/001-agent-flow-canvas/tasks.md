@@ -1055,7 +1055,7 @@ en modo `replay` con los fixtures de Codex.
   Tests con `q4-termination` y `q6-structured`. **Archivos**:
   `packages/adapters/src/codex/outcome.ts`, `packages/adapters/test/codex/outcome.test.ts`.
   **Cubre**: FR-033, FR-036. **Base**: R-13, `[001c §4, §6]`. **Depende de**: T125
-- [ ] T127 [US4] Archivo de schema por intento: escribe el JSON Schema de T013 fuera del worktree y
+- [X] T127 [US4] Archivo de schema por intento: escribe el JSON Schema de T013 fuera del worktree y
   verifica la forma strict antes de lanzar. Con tests. **Archivos**:
   `packages/adapters/src/codex/schema-file.ts`, `packages/adapters/test/codex/schema-file.test.ts`.
   **Cubre**: FR-033, FR-034. **Base**: R-06, `[001c §6]` (sin strict → `turn.failed`).
