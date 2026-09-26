@@ -1009,7 +1009,7 @@ en modo `replay` con los fixtures de Codex.
   (T088): el adaptador no importa `storage`. Con tests. **Archivos**: `packages/adapters/src/codex/env.ts`,
   `packages/adapters/test/codex/env.test.ts`. **Cubre**: FR-065, NFR-007. **Base**: R-13, R-19,
   R-28, `[001c §2, §10]`. **Depende de**: T018, T109
-- [ ] T122 [US4] Constructor de argumentos de Codex:
+- [X] T122 [US4] Constructor de argumentos de Codex:
   - `exec --json --ignore-user-config --ignore-rules`;
   - **`-m <modelo resuelto> -c model_reasoning_effort="<esfuerzo>"` siempre**;
   - `-c windows.sandbox="elevated|unelevated"`, `-s workspace-write`, `exclude_tmpdir_env_var` y
