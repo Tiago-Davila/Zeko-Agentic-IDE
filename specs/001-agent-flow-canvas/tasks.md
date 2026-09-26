@@ -730,7 +730,7 @@ redacción antes de toda escritura.
   Con tests. **Archivos**: `packages/storage/src/redactor.ts`,
   `packages/storage/test/redactor.test.ts`. **Cubre**: NFR-007, FR-065. **Base**: R-28, D17,
   clarificación 2026-09-24. **Depende de**: T051
-- [ ] T089 [US8] Repositorios de runs, NodeRuns y attempts (implementan `RunStorePort`), con tests.
+- [X] T089 [US8] Repositorios de runs, NodeRuns y attempts (implementan `RunStorePort`), con tests.
   **Archivos**: `packages/storage/src/repos/runs.ts`, `packages/storage/src/repos/node-runs.ts`,
   `packages/storage/src/repos/attempts.ts`, `packages/storage/test/repos/runs.test.ts`. **Cubre**:
   FR-011a, FR-023, FR-060, FR-063. **Base**: data-model §2 y §4. **Depende de**: T087, T088, T022
