@@ -810,7 +810,7 @@ CLI ejecuta un flujo de dos nodos con el agente simulado, **antes de cualquier t
   conservados. **Archivos**: `packages/runtime/src/flow-files.ts`,
   `packages/runtime/test/flow-files.test.ts`. **Cubre**: FR-003, FR-004, FR-054–058, SC-007.
   **Base**: R-04, contracts/flow-file.md, clarificación 2026-09-24. **Depende de**: T011, T097
-- [ ] T099 [P] [US1] Carga de `.zeko/config.yaml` con defaults (incluido `defaultModels`) y
+- [X] T099 [P] [US1] Carga de `.zeko/config.yaml` con defaults (incluido `defaultModels`) y
   escritura solo cuando el usuario cambia un valor. Con tests. **Archivos**:
   `packages/runtime/src/project-config-file.ts`, `packages/runtime/test/project-config-file.test.ts`.
   **Cubre**: FR-011a, FR-027, FR-053. **Base**: data-model §ProjectConfig. **Depende de**: T012,
