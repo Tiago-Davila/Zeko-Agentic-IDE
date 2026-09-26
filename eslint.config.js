@@ -46,7 +46,7 @@ export default tseslint.config(
   },
   {
     files: ["packages/**/*.{ts,tsx}", "apps/**/*.{ts,tsx}"],
-    languageOptions: { parserOptions: { projectService: { allowDefaultProject: ["apps/cli/test/*.ts"] } } },
+    languageOptions: { parserOptions: { projectService: { allowDefaultProject: ["apps/cli/test/*.ts", "apps/desktop/test/engine-host/*.test.ts"] } } },
     rules: { "@typescript-eslint/no-floating-promises": "error" },
   },
   {

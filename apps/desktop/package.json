@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": { "build": "electron-vite build" },
   "dependencies": {
+    "@zeko/contracts": "workspace:*",
     "@zeko/runtime": "workspace:*",
     "@xyflow/react": "^12.8.4",
     "@xterm/xterm": "^5.5.0",

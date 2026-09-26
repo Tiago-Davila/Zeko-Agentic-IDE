@@ -1117,7 +1117,7 @@ MessagePort, con validación zod en los dos extremos.
   activos → `shutdown` del motor (nodos `interrupted`). **Archivos**:
   `apps/desktop/src/main/index.ts`, `apps/desktop/src/main/engine-host-lifecycle.ts`. **Cubre**:
   FR-001, FR-062. **Base**: R-01, R-20, D1. **Depende de**: T007, T109
-- [ ] T133 [US1] Engine host (`utilityProcess`): crea el runtime, valida cada `IpcRequest` con zod,
+- [X] T133 [US1] Engine host (`utilityProcess`): crea el runtime, valida cada `IpcRequest` con zod,
   despacha y emite eventos. `node.state` sale al instante y `node.output` se agrupa cada 50 ms como
   máximo. **Archivos**: `apps/desktop/src/engine-host/index.ts`,
   `apps/desktop/src/engine-host/dispatch.ts`, `apps/desktop/src/engine-host/output-batcher.ts`,
