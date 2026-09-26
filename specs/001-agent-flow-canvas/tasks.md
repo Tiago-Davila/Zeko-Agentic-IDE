@@ -1082,7 +1082,7 @@ en modo `replay` con los fixtures de Codex.
   Con tests. **Archivos**: `packages/adapters/src/codex/detect.ts`,
   `packages/adapters/test/codex/detect.test.ts`. **Cubre**: FR-025, FR-052, FR-065, NFR-007.
   **Base**: R-13, R-19, `[001c §2, §11]`. **Depende de**: T120, T121, T124
-- [ ] T130 [US4] Registrar el adaptador de Codex en el runtime. Test de extremo a extremo con un
+- [X] T130 [US4] Registrar el adaptador de Codex en el runtime. Test de extremo a extremo con un
   flujo mixto por la CLI: dialecto Claude → aprobación → dialecto Codex. Verifica:
   - el nodo de Codex parte del commit del primero;
   - las denegaciones inferidas se muestran sin cambiar el estado;

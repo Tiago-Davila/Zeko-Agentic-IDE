@@ -41,7 +41,7 @@ export const FIXTURE_INDEX = {
   },
   codex: {
     events: [
-      "codex/events/error.json", "codex/events/item.completed.agent_message.json",
+      "codex/events/e2e-report.jsonl", "codex/events/error.json", "codex/events/item.completed.agent_message.json",
       "codex/events/item.completed.command_execution.completed.json",
       "codex/events/item.completed.command_execution.failed.json", "codex/events/item.completed.error.json",
       "codex/events/item.completed.file_change.completed.json",

@@ -12,6 +12,7 @@ under `claude/` and `codex/`; `index.ts` is the typed list used by tests and the
 | `claude/q6-perms.json` | `spikes/001-claude-chain/samples/q6-perms.json` |
 | `claude/001b/a-schema.json` | `spikes/001b-claude-edges/samples/a-schema.json` |
 | `codex/events/*` | `spikes/001c-codex/samples/events/*` |
+| `codex/events/e2e-report.jsonl` | Synthetic valid structured-report replay for mixed-runtime CLI integration tests. |
 | `codex/q4-termination.json` | `spikes/001c-codex/samples/q4-termination.json` |
 | `codex/q6-structured.json` | `spikes/001c-codex/samples/q6-structured.json` |
 | `codex/q8-sandbox.json` | `spikes/001c-codex/samples/q8-sandbox.json` |

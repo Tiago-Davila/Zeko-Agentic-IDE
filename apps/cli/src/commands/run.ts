@@ -77,6 +77,10 @@ export async function runCommand(options: RunCommandOptions): Promise<number> {
         }, 0);
       }
       else if (event.type === "node.result") emit(options.json, stdout, stderr, { type: "node.result", runId: event.runId ?? runId, nodeId: payload["nodeId"], result: payload["result"] });
+      else if (event.type === "node.output") {
+        const details = Array.isArray(payload["events"]) ? payload["events"].filter((item) => item && typeof item === "object" && (item as Record<string, unknown>)["type"] === "agent.inferred_denial") : [];
+        if (details.length) emit(options.json, stdout, stderr, { type: "node.output", runId: event.runId ?? runId, nodeId: payload["nodeId"], events: details });
+      }
       else if (event.type === "run.finished") finished = true;
     });
     const started = await runtime.startRun(project.projectId, flowId, loaded.fileHash, "cli");

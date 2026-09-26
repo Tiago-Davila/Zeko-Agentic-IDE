@@ -2,7 +2,7 @@ import { mkdir } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { randomUUID } from "node:crypto";
 import type { AgentAdapter, AgentId, FlowFile, ProjectConfig, PersistedEvent } from "@zeko/contracts";
-import { ClaudeCodeAdapter, disposeProcessSnapshotWorker } from "@zeko/adapters";
+import { ClaudeCodeAdapter, CodexAdapter, disposeProcessSnapshotWorker } from "@zeko/adapters";
 import { validateEdge, validateFlow as validateGraphFlow, RunEngine } from "@zeko/core";
 import { cleanupRunWorktrees, getFileDiff, getObservedFiles, getRepositoryInfo, GitWorkspacePort } from "@zeko/git";
 import { createRedactor, migrate, NodeSqliteDriver, RunsRepository, SqliteSlotLeases, type SqlDriver } from "@zeko/storage";
@@ -61,12 +61,13 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
       }
       else if (event.type === "agent.subscription_usage") emit("agent.usage", payload, event.runId);
       else if (event.type === "error") emit("engine.error", payload, event.runId);
-      else if (event.type === "agent.text" || event.type === "agent.tool_call" || event.type === "agent.tool_result" || event.type === "agent.permission_denied" || event.type === "agent.stderr") emit("node.output", { nodeId: event.nodeRunId, events: [{ type: event.type, ...payload }] }, event.runId);
+      else if (event.type === "agent.text" || event.type === "agent.tool_call" || event.type === "agent.tool_result" || event.type === "agent.permission_denied" || event.type === "agent.inferred_denial" || event.type === "agent.stderr") emit("node.output", { nodeId: event.nodeRunId, events: [{ type: event.type, ...payload }] }, event.runId);
     },
   };
   const slots = new SqliteSlotLeases(db);
   const configuredAdapters = { ...options.adapters };
   if (!configuredAdapters["claude-code"]) configuredAdapters["claude-code"] = new ClaudeCodeAdapter();
+  if (!configuredAdapters["codex"]) configuredAdapters["codex"] = new CodexAdapter({ ...(options.platform ? { platform: options.platform } : {}) });
   const adapters = createAdapterRegistry(configuredAdapters);
   const listeners = new Set<RuntimeListener>();
   const projects = new Map<string, string>();
@@ -177,9 +178,12 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
     },
     async getRun(runId: string) {
       const run = await runs.get(runId); if (!run) return undefined;
-      const nodeRuns = db.prepare("SELECT node_id AS nodeId,node_type AS nodeType,agent_id AS agentId,status,reason_code AS reasonCode,reason_params AS reasonParams,base_commit AS baseCommit,result_commit AS resultCommit FROM node_runs WHERE run_id=? ORDER BY rowid").all(runId);
+      const nodeRuns = db.prepare("SELECT node_id AS nodeId,node_type AS nodeType,agent_id AS agentId,status,reason_code AS reasonCode,reason_params AS reasonParams,base_commit AS baseCommit,result_commit AS resultCommit,inferred_denials AS inferredDenials,cost_usd AS costUsd,cost_basis AS costBasis FROM node_runs WHERE run_id=? ORDER BY rowid").all(runId);
       const processes = runs.processTree.forRun(runId, false);
-      return { run, nodeRuns: nodeRuns.map((row) => ({ ...row, reasonParams: JSON.parse(String((row as Record<string, unknown>)["reasonParams"] ?? "{}")) })), processes };
+      return { run, nodeRuns: nodeRuns.map((row) => {
+        const value = row as Record<string, unknown>;
+        return { ...row, reasonParams: JSON.parse(String(value["reasonParams"] ?? "{}")), inferredDenials: JSON.parse(String(value["inferredDenials"] ?? "[]")), ...(typeof value["costUsd"] === "number" ? { cost: { amountUsd: value["costUsd"], basis: value["costBasis"] } } : {}) };
+      }), processes };
     },
     async nodeOutputPage(runId: string, nodeId: string, afterSeq = 0, limit = 500) { return runs.events.page(runId, nodeId, afterSeq, limit); },
     async nodeDiff(runId: string, nodeId: string, path?: string) {
