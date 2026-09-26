@@ -602,7 +602,7 @@ sobre repositorios temporales (git no es un proveedor de IA).
   `.gitattributes`. **Archivos**: `packages/git/src/observed-files.ts`,
   `packages/git/test/observed-files.test.ts`. **Cubre**: FR-037, FR-046. **Base**: R-07, D4,
   `[001 §8]` (línea LF en archivo CRLF). **Depende de**: T072
-- [ ] T074 [P] [US2] Diff por archivo para `node.diff`, paginado. Con tests. **Archivos**:
+- [X] T074 [P] [US2] Diff por archivo para `node.diff`, paginado. Con tests. **Archivos**:
   `packages/git/src/diff.ts`, `packages/git/test/diff.test.ts`. **Cubre**: FR-046. **Base**:
   contracts/ipc.md `node.diff`. **Depende de**: T072
 - [ ] T075 [P] [US8] Limpieza: `worktree remove --force` y `branch -D` de las ramas del run, **solo**
