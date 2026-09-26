@@ -94,6 +94,12 @@ function queryWindowsProcessTable(): Promise<string> {
   return windowsSnapshotWorker.query();
 }
 
+/** Stops the idle process-table helper when its owning CLI/runtime is closing. */
+export function disposeProcessSnapshotWorker(): void {
+  windowsSnapshotWorker?.dispose();
+  windowsSnapshotWorker = undefined;
+}
+
 class WindowsSnapshotWorker {
   readonly #child: ChildProcess;
   readonly #lines: ReturnType<typeof createInterface>;
@@ -122,6 +128,11 @@ class WindowsSnapshotWorker {
       this.#queue.push({ lines: [], resolve, reject });
       this.#pump();
     });
+  }
+
+  dispose(): void {
+    this.#lines.close();
+    this.#child.stdin?.end();
   }
 
   readonly #queue: Array<{ readonly lines: string[]; readonly resolve: (value: string) => void; readonly reject: (error: Error) => void }> = [];

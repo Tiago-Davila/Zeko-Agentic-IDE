@@ -2,7 +2,7 @@ import { mkdir } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { randomUUID } from "node:crypto";
 import type { AgentAdapter, AgentId, FlowFile, ProjectConfig, PersistedEvent } from "@zeko/contracts";
-import { ClaudeCodeAdapter } from "@zeko/adapters";
+import { ClaudeCodeAdapter, disposeProcessSnapshotWorker } from "@zeko/adapters";
 import { validateEdge, validateFlow as validateGraphFlow, RunEngine } from "@zeko/core";
 import { cleanupRunWorktrees, getFileDiff, getObservedFiles, getRepositoryInfo, GitWorkspacePort } from "@zeko/git";
 import { createRedactor, migrate, NodeSqliteDriver, RunsRepository, SqliteSlotLeases, type SqlDriver } from "@zeko/storage";
@@ -207,7 +207,7 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
     },
     recoveredRunIds: recovered.runIds,
     ipcHandlers: {} as Record<(typeof IPC_METHODS)[number], (...args: never[]) => unknown>,
-    close() { slots.close(); if (!options.driver) db.close(); listeners.clear(); },
+    close() { slots.close(); if (!options.driver) db.close(); listeners.clear(); disposeProcessSnapshotWorker(); },
     database: db,
   };
   const ipcHandlers = {

@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { ProcessSupervisor } from "../../src/process/supervisor.ts";
-import { getProcessSnapshot } from "../../src/process/process-table.ts";
+import { disposeProcessSnapshotWorker, getProcessSnapshot } from "../../src/process/process-table.ts";
 import type { ProcessIdentity } from "../../src/process/tree-tracker.ts";
 
 const temporaryDirectories: string[] = [];
@@ -13,6 +13,16 @@ afterEach(async () => {
 });
 
 describe.runIf(process.platform === "win32")("Windows process snapshot budget", () => {
+  it("closes and can recreate the persistent query worker", async () => {
+    try {
+      await expect(getProcessSnapshot("win32")).resolves.toContainEqual(expect.objectContaining({ pid: process.pid }));
+      disposeProcessSnapshotWorker();
+      await expect(getProcessSnapshot("win32")).resolves.toContainEqual(expect.objectContaining({ pid: process.pid }));
+    } finally {
+      disposeProcessSnapshotWorker();
+    }
+  }, 20_000);
+
   it("tracks eight active roots with one Win32_Process query under the 200ms NFR-002 budget", async () => {
     const directory = await mkdtemp(join(tmpdir(), "zeko-snapshot-cost-"));
     temporaryDirectories.push(directory);
