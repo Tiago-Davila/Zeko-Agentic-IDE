@@ -754,7 +754,7 @@ redacción antes de toda escritura.
   **Archivos**: `packages/storage/src/repos/agent-usage.ts`,
   `packages/storage/test/repos/agent-usage.test.ts`. **Cubre**: FR-052. **Base**: R-17.
   **Depende de**: T089
-- [ ] T093 [US2] Leases de slots entre procesos (implementa `SlotLeasePort`): `BEGIN IMMEDIATE`,
+- [X] T093 [US2] Leases de slots entre procesos (implementa `SlotLeasePort`): `BEGIN IMMEDIATE`,
   heartbeat cada 5 s y vencimiento si el host no está vivo. Test con dos conexiones a la misma base
   que respetan el límite (dos runs a la vez, caso límite). **Archivos**:
   `packages/storage/src/leases.ts`, `packages/storage/test/leases.test.ts`. **Cubre**: FR-027.
