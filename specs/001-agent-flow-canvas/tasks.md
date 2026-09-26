@@ -819,7 +819,7 @@ CLI ejecuta un flujo de dos nodos con el agente simulado, **antes de cualquier t
   nodo (sin email). Si falta algo, no se crea el run. Tests con disponibilidades simuladas.
   **Archivos**: `packages/runtime/src/preflight.ts`, `packages/runtime/test/preflight.test.ts`.
   **Cubre**: FR-025, FR-065, NFR-007. **Base**: R-19. **Depende de**: T018, T083
-- [ ] T101 [US7] `createZekoRuntime()`: compone `core`, el registro de adaptadores (inicialmente
+- [X] T101 [US7] `createZekoRuntime()`: compone `core`, el registro de adaptadores (inicialmente
   `fake`), `git` y `storage`, y corre la recuperación al arrancar. Expone **una función por cada
   método IPC** de contracts/ipc.md, que la CLI y el engine host usan tal cual:
   - `project.open` → `openProject`;
