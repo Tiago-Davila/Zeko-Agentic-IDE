@@ -708,7 +708,7 @@ por nombre ni patrón.
 **Propósito**: runs, eventos, historial, leases entre procesos, recuperación como `interrupted` y
 redacción antes de toda escritura.
 
-- [ ] T086 [US8] `SqlDriver` (`exec`, `prepare`, `transaction`) con `node:sqlite`: WAL,
+- [X] T086 [US8] `SqlDriver` (`exec`, `prepare`, `transaction`) con `node:sqlite`: WAL,
   `synchronous=FULL`, `busy_timeout` y `foreign_keys=ON`. Con tests. **Archivos**:
   `packages/storage/src/sql-driver.ts`, `packages/storage/src/node-sqlite-driver.ts`,
   `packages/storage/test/sql-driver.test.ts`. **Cubre**: FR-061, NFR-005. **Base**: R-03, D13.
