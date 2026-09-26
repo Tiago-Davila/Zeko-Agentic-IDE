@@ -4,6 +4,7 @@ import type { SqlDriver } from "../sql-driver.js";
 import { NodeRunsRepository } from "./node-runs.js";
 import { EventsRepository } from "./events.js";
 import { RawLogWriter } from "../raw-log.js";
+import { ProcessTreeRepository } from "./process-tree.js";
 
 const epoch = (value?: string) => value ? Date.parse(value) : null;
 const iso = (value: number | null) => value === null ? undefined : new Date(value).toISOString();
@@ -12,10 +13,15 @@ const parse = <T>(value: string): T => JSON.parse(value) as T;
 export class RunsRepository implements RunStorePort {
   readonly nodeRuns: NodeRunsRepository;
   readonly events: EventsRepository;
+  readonly processTree: ProcessTreeRepository;
   constructor(private readonly db: SqlDriver, private readonly redactor: Redactor, private readonly now = Date.now, rawLogs = new RawLogWriter()) {
     this.nodeRuns = new NodeRunsRepository(db, redactor);
     this.events = new EventsRepository(db, redactor, rawLogs);
+    this.processTree = new ProcessTreeRepository(db);
   }
+
+  recordProcessIdentity(identity: Parameters<ProcessTreeRepository["record"]>[0]): void { this.processTree.record(identity); }
+  markProcessEnded(identity: { attemptId: string; pid: number; creationTime: number; endedAt: number }): void { this.processTree.markEnded(identity.attemptId, identity.pid, identity.creationTime, identity.endedAt); }
 
   async create(run: Run, nodeRuns?: readonly NodeRun[]): Promise<void> {
     const safe = this.redactor.redact(run);

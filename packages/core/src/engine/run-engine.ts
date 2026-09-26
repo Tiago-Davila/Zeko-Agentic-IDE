@@ -480,6 +480,7 @@ export class RunEngine {
         );
         const execution = adapter.launch(launch);
         this.#activeExecutions.set(node.id, execution);
+        const processStartedAt = Date.now();
         const collected =
           this.options.enforceTimeouts === false
             ? await this.#collect(execution, runId, nodeRun.id, attemptId)
@@ -491,6 +492,10 @@ export class RunEngine {
                 node.limits.timeoutMinutes * 60_000,
               );
         this.#activeExecutions.delete(node.id);
+        if (execution.rootPid.pid > 0 && execution.rootPid.creationTime > 0) {
+          this.options.store.recordProcessIdentity?.({ attemptId, pid: execution.rootPid.pid, creationTime: execution.rootPid.creationTime, isRoot: true, firstSeen: processStartedAt, lastSeen: Date.now() });
+          this.options.store.markProcessEnded?.({ attemptId, pid: execution.rootPid.pid, creationTime: execution.rootPid.creationTime, endedAt: Date.now() });
+        }
         outcome = collected.outcome;
         candidate = collected.report;
         denials = collected.denials;

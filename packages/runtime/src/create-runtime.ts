@@ -37,6 +37,7 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
   const store = {
     create: runs.create.bind(runs), get: runs.get.bind(runs), saveFlowSnapshot: runs.saveFlowSnapshot.bind(runs),
     saveNodeRun: runs.saveNodeRun.bind(runs), updateRun: runs.updateRun.bind(runs),
+    recordProcessIdentity: runs.recordProcessIdentity.bind(runs), markProcessEnded: runs.markProcessEnded.bind(runs),
     async append(event: PersistedEvent) {
       await runs.append(event);
       const payload = event.payload as Record<string, unknown>;
@@ -154,8 +155,16 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
       if (!pending) throw new RuntimeError("NOT_WAITING_APPROVAL", "Node is not waiting for approval");
       approvals.delete(`${runId}:${nodeId}`); pending.resolve(decision === "approved");
     },
-    async listRuns(projectId: string, _flowId?: string, limit = 50) { return db.prepare("SELECT id,flow_id AS flowId,status,started_at AS startedAt,ended_at AS endedAt FROM runs WHERE project_id=(SELECT id FROM projects WHERE root_path=?) ORDER BY started_at DESC LIMIT ?").all(rootFor(projectId), limit); },
-    async getRun(runId: string) { return runs.get(runId); },
+    async listRuns(projectId: string, flowId?: string, limit = 50) {
+      return db.prepare(`SELECT id,flow_id AS flowId,status,started_at AS startedAt,ended_at AS endedAt,cost_usd AS costUsd,cost_partial AS partial,cost_estimated AS estimated
+        FROM runs WHERE project_id=(SELECT id FROM projects WHERE root_path=?) AND (? IS NULL OR flow_id=?) ORDER BY started_at DESC LIMIT ?`).all(rootFor(projectId), flowId ?? null, flowId ?? null, Math.min(Math.max(limit, 1), 500));
+    },
+    async getRun(runId: string) {
+      const run = await runs.get(runId); if (!run) return undefined;
+      const nodeRuns = db.prepare("SELECT node_id AS nodeId,node_type AS nodeType,agent_id AS agentId,status,reason_code AS reasonCode,reason_params AS reasonParams,base_commit AS baseCommit,result_commit AS resultCommit FROM node_runs WHERE run_id=? ORDER BY rowid").all(runId);
+      const processes = runs.processTree.forRun(runId, false);
+      return { run, nodeRuns: nodeRuns.map((row) => ({ ...row, reasonParams: JSON.parse(String((row as Record<string, unknown>)["reasonParams"] ?? "{}")) })), processes };
+    },
     async nodeOutputPage(runId: string, nodeId: string, afterSeq = 0, limit = 500) { return runs.events.page(runId, nodeId, afterSeq, limit); },
     async nodeDiff(runId: string, nodeId: string, path?: string) {
       const run = await runs.get(runId); if (!run) throw new RuntimeError("RUN_NOT_FOUND", "Run was not found");

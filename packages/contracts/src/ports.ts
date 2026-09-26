@@ -25,6 +25,8 @@ export interface RunStorePort {
   saveFlowSnapshot(runId: string, flow: FlowFile): Promise<void>;
   saveNodeRun?(nodeRun: NodeRun): Promise<void>;
   updateRun?(run: Run): Promise<void>;
+  recordProcessIdentity?(identity: { attemptId: string; pid: number; creationTime: number; parentPid?: number; isRoot: boolean; firstSeen: number; lastSeen: number; endedAt?: number }): void;
+  markProcessEnded?(identity: { attemptId: string; pid: number; creationTime: number; endedAt: number }): void;
 }
 
 export interface ClockPort {

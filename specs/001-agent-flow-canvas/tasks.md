@@ -867,7 +867,7 @@ CLI ejecuta un flujo de dos nodos con el agente simulado, **antes de cualquier t
   terminación de los árboles. En los dos casos espera la confirmación del supervisor y sale con 4.
   Con tests. **Archivos**: `apps/cli/src/signals.ts`, `apps/cli/test/signals.test.ts`. **Cubre**:
   FR-030, NFR-004. **Base**: contracts/cli.md punto 7. **Depende de**: T103
-- [ ] T106 [P] [US8] `zeko runs list` y `zeko runs show` (con los `(pid, creationTime)` registrados),
+- [X] T106 [P] [US8] `zeko runs list` y `zeko runs show` (con los `(pid, creationTime)` registrados),
   con tests. **Archivos**: `apps/cli/src/commands/runs.ts`, `apps/cli/test/runs.test.ts`.
   **Cubre**: FR-060, FR-061. **Base**: contracts/cli.md, quickstart §Verificación de procesos.
   **Depende de**: T103
