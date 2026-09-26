@@ -745,7 +745,7 @@ redacción antes de toda escritura.
   Con tests. **Archivos**: `packages/storage/src/repos/events.ts`,
   `packages/storage/src/raw-log.ts`, `packages/storage/test/repos/events.test.ts`. **Cubre**:
   FR-029, FR-063, NFR-005, NFR-007. **Base**: R-20, R-25, R-28. **Depende de**: T089
-- [ ] T091 [P] [US8] Repositorios de workspaces, aprobaciones y `process_tree`, con tests.
+- [X] T091 [P] [US8] Repositorios de workspaces, aprobaciones y `process_tree`, con tests.
   **Archivos**: `packages/storage/src/repos/workspaces.ts`,
   `packages/storage/src/repos/approvals.ts`, `packages/storage/src/repos/process-tree.ts`,
   `packages/storage/test/repos/workspaces.test.ts`. **Cubre**: FR-012, FR-048, FR-049, FR-062.
