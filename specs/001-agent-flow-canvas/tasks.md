@@ -815,7 +815,7 @@ CLI ejecuta un flujo de dos nodos con el agente simulado, **antes de cualquier t
   `packages/runtime/src/project-config-file.ts`, `packages/runtime/test/project-config-file.test.ts`.
   **Cubre**: FR-011a, FR-027, FR-053. **Base**: data-model §ProjectConfig. **Depende de**: T012,
   T097
-- [ ] T100 [US7] Verificación previa: `detect()` de cada agente usado y forma de autenticación por
+- [X] T100 [US7] Verificación previa: `detect()` de cada agente usado y forma de autenticación por
   nodo (sin email). Si falta algo, no se crea el run. Tests con disponibilidades simuladas.
   **Archivos**: `packages/runtime/src/preflight.ts`, `packages/runtime/test/preflight.test.ts`.
   **Cubre**: FR-025, FR-065, NFR-007. **Base**: R-19. **Depende de**: T018, T083
