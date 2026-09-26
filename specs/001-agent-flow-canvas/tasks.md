@@ -1112,7 +1112,7 @@ esfuerzo van siempre explícitos.
 **Propósito**: alojar el mismo runtime en un `utilityProcess` y comunicarlo con la UI por
 MessagePort, con validación zod en los dos extremos.
 
-- [ ] T132 [US1] Proceso principal: ventanas, `dialog.openFolder`, `app.quit`, `engine.restart`,
+- [X] T132 [US1] Proceso principal: ventanas, `dialog.openFolder`, `app.quit`, `engine.restart`,
   `MessageChannelMain` (un puerto al engine host y otro al renderer), y `before-quit` con runs
   activos → `shutdown` del motor (nodos `interrupted`). **Archivos**:
   `apps/desktop/src/main/index.ts`, `apps/desktop/src/main/engine-host-lifecycle.ts`. **Cubre**:
