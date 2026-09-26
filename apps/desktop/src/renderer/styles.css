@@ -79,6 +79,37 @@ h1, h2, h3, p { margin-top: 0; }
 .empty-state p { max-width: 330px; margin: 0; color: #829196; font-size: 12px; line-height: 1.7; }
 .inline-error { margin: 15px 0 0; padding: 10px 12px; color: #8e4339; background: #fff2ef; border-left: 3px solid #c06e60; border-radius: 3px; font-size: 12px; line-height: 1.5; }
 .selection-toast { position: fixed; right: 25px; bottom: 22px; padding: 12px 16px; color: #f4fbf8; background: #193542; border: 1px solid #38515b; border-radius: 7px; box-shadow: 0 7px 24px #19354224; font-size: 12px; }
+.canvas-shell { display: flex; flex-direction: column; width: 100%; height: 100vh; min-height: 600px; overflow: hidden; background: #eef3f3; }
+.canvas-toolbar { z-index: 2; display: flex; align-items: center; justify-content: space-between; min-height: 78px; padding: 0 25px; background: #fbfcfc; border-bottom: 1px solid #dce5e7; }
+.canvas-toolbar__left, .canvas-toolbar__actions { display: flex; align-items: center; gap: 11px; }
+.canvas-toolbar__divider { width: 1px; height: 35px; margin: 0 8px; background: #dce5e7; }
+.canvas-toolbar .eyebrow { margin: 0 0 3px; font-size: 9px; }
+.canvas-toolbar h1 { margin: 0; font: 700 16px "Manrope", sans-serif; letter-spacing: -.02em; }
+.button--node { color: #36525d; background: white; border-color: #d8e2e3; }
+.button--node::before { content: "+"; color: var(--teal); font-size: 16px; }
+.button--node:hover { border-color: #9bbfba; background: #f3faf8; }
+.canvas-body { position: relative; flex: 1; min-height: 0; }
+.canvas-body .react-flow { background: #eef3f3; }
+.canvas-body .react-flow__controls { overflow: hidden; border: 1px solid #dce5e7; border-radius: 7px; box-shadow: 0 3px 12px #1935420c; }
+.canvas-body .react-flow__controls-button { width: 29px; height: 29px; background: #fbfcfc; border-color: #e4ebeb; }
+.canvas-body .react-flow__edge-path { stroke: #7a989b; stroke-width: 2; }
+.canvas-body .react-flow__connection-path { stroke: var(--teal); stroke-width: 2; }
+.flow-node { position: relative; width: 224px; min-height: 113px; padding: 13px 15px; background: #fff; border: 1px solid #d7e2e3; border-radius: 9px; box-shadow: 0 5px 18px #19354210; }
+.flow-node--input { border-top: 3px solid #68aa9d; }
+.flow-node--agent { border-top: 3px solid #809cb0; }
+.flow-node--approval { border-top: 3px solid #d2a75f; }
+.flow-node--selected { border-color: #5eaaa0; box-shadow: 0 0 0 3px #70b4a51c, 0 7px 20px #19354213; }
+.flow-node__top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; }
+.flow-node__type { color: #809196; font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.flow-node__glyph { display: grid; width: 22px; height: 22px; place-items: center; color: #28685f; background: #e9f4f1; border-radius: 6px; font-size: 14px; }
+.flow-node__glyph--agent { color: #536d86; background: #edf2f6; }
+.flow-node__glyph--approval { color: #9c6a25; background: #faf2e3; }
+.flow-node__name { display: block; margin-bottom: 5px; color: #263f49; font-size: 12px; font-weight: 700; }
+.flow-node__detail { display: block; max-width: 190px; overflow: hidden; color: #8a989c; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.flow-handle { width: 9px; height: 9px; background: #fbffff; border: 2px solid #6b9b98; }
+.canvas-hint { position: absolute; bottom: 24px; left: 50%; padding: 9px 13px; color: #819196; background: #f9fbfbdd; border: 1px solid #dce5e7; border-radius: 20px; font-size: 11px; pointer-events: none; transform: translateX(-50%); }
+.canvas-message { position: absolute; z-index: 5; top: 94px; left: 50%; display: flex; align-items: center; gap: 15px; max-width: min(540px, calc(100vw - 40px)); padding: 11px 13px; color: #8e4837; background: #fff8ee; border: 1px solid #efd5a8; border-radius: 7px; box-shadow: 0 6px 22px #19354213; font-size: 12px; transform: translateX(-50%); }
+.canvas-message button { padding: 0 3px; color: #90644a; background: transparent; border: 0; cursor: pointer; font-size: 18px; }
 
 @media (max-width: 1080px) {
   .app-shell { grid-template-columns: 190px minmax(0, 1fr); }

@@ -1159,7 +1159,7 @@ confinamiento y capacidades, costo y uso, e historial. La UI solo pinta lo que c
   `apps/desktop/src/renderer/screens/project-screen.tsx`,
   `apps/desktop/src/renderer/components/flow-list.tsx`. **Cubre**: FR-001–004, US1-1, US1-2.
   **Base**: contracts/ipc.md `project.open`, `flow.*`. **Depende de**: T138
-- [ ] T140 [US1] Canvas con `@xyflow/react`: tres tipos de nodo; agregar, mover, conectar y
+- [X] T140 [US1] Canvas con `@xyflow/react`: tres tipos de nodo; agregar, mover, conectar y
   eliminar. `validateEdge` se consulta al motor **antes** de crear una arista y el ciclo se explica
   (US1-3). **Archivos**: `apps/desktop/src/renderer/canvas/flow-canvas.tsx`,
   `apps/desktop/src/renderer/canvas/node-types.tsx`. **Cubre**: FR-005–007. **Base**: R-25.
