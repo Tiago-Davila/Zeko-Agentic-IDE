@@ -8,6 +8,6 @@
     "jsx": "react-jsx",
     "types": ["node", "vite/client"]
   },
-  "references": [{ "path": "../../packages/contracts" }, { "path": "../../packages/runtime" }],
+  "references": [{ "path": "../../packages/contracts" }, { "path": "../../packages/i18n" }, { "path": "../../packages/runtime" }],
   "include": ["electron.vite.config.ts", "src/**/*.ts", "src/**/*.tsx", "test/**/*.ts"]
 }

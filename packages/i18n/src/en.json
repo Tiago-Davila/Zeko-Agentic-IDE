@@ -1,4 +1,5 @@
 {
+  "brand.name": "Zeko",
   "CANCELLED_BY_USER": "Cancelled by the user.",
   "TIME_LIMIT_EXCEEDED": "The node exceeded its time limit of {minutes} minutes.",
   "TURN_LIMIT_EXCEEDED": "The agent reached its turn limit of {limit}.",

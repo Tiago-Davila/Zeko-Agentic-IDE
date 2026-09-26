@@ -1150,7 +1150,7 @@ mismo runtime que la CLI. Un mensaje inválido no rompe nada. `node:sqlite` func
 confinamiento y capacidades, costo y uso, e historial. La UI solo pinta lo que calcula el motor
 (Principio IV). Todos los textos vienen de `packages/i18n` (NFR-013).
 
-- [ ] T138 [P] [US1] Infraestructura del renderer: cliente IPC tipado y hook `useT()`. Regla de lint
+- [X] T138 [P] [US1] Infraestructura del renderer: cliente IPC tipado y hook `useT()`. Regla de lint
   que prohíbe strings literales en JSX. **Archivos**: `apps/desktop/src/renderer/ipc/client.ts`,
   `apps/desktop/src/renderer/i18n/use-t.ts`, `eslint.config.js`. **Cubre**: NFR-013. **Base**:
   R-24. **Depende de**: T134, T025

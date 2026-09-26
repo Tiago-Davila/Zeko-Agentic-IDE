@@ -53,6 +53,9 @@ importers:
       '@zeko/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@zeko/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
       '@zeko/runtime':
         specifier: workspace:*
         version: link:../../packages/runtime

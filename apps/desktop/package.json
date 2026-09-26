@@ -7,6 +7,7 @@
   "scripts": { "build": "electron-vite build", "package:win": "electron-builder --dir --win --x64" },
   "dependencies": {
     "@zeko/contracts": "workspace:*",
+    "@zeko/i18n": "workspace:*",
     "@zeko/runtime": "workspace:*",
     "@xyflow/react": "^12.8.4",
     "@xterm/xterm": "^5.5.0",

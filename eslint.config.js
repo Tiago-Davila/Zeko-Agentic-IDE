@@ -50,6 +50,10 @@ export default tseslint.config(
     rules: { "@typescript-eslint/no-floating-promises": "error" },
   },
   {
+    files: ["apps/desktop/src/renderer/**/*.{tsx,ts}"],
+    rules: { "no-restricted-syntax": ["error", { selector: "JSXText[value=/\\S/]", message: "Use the shared i18n catalog for visible text." }] },
+  },
+  {
     files: ["packages/core/src/**/*"],
     rules: {
       "no-restricted-imports": ["error", { paths: [...infrastructure, ...packageInfrastructure].map((name) => ({ name, message: "core must remain infrastructure-free." })) }],
