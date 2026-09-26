@@ -20,10 +20,10 @@ export function getRuntimePaths(options: RuntimePathOptions = {}): RuntimePaths 
   const env = options.env ?? process.env;
   const home = options.home ?? homedir();
   if (platform === "win32") {
-    const base = env.LOCALAPPDATA || win32.join(home, "AppData", "Local");
+    const base = env["LOCALAPPDATA"] || win32.join(home, "AppData", "Local");
     const root = win32.join(base, "Zeko");
     return { root, database: win32.join(root, "zeko.db"), worktrees: win32.join(root, "wt"), logs: win32.join(root, "logs") };
   }
-  const root = posix.join(env.XDG_DATA_HOME || posix.join(home, ".local", "share"), "zeko");
+  const root = posix.join(env["XDG_DATA_HOME"] || posix.join(home, ".local", "share"), "zeko");
   return { root, database: posix.join(root, "zeko.db"), worktrees: posix.join(root, "wt"), logs: posix.join(root, "logs") };
 }

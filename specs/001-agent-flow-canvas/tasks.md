@@ -799,7 +799,7 @@ CLI ejecuta un flujo de dos nodos con el agente simulado, **antes de cualquier t
   en Linux, con tests. **Archivos**: `packages/runtime/src/paths.ts`,
   `packages/runtime/test/paths.test.ts`. **Cubre**: FR-064. **Base**: R-03, R-15. **Depende de**:
   T005
-- [ ] T098 [US1] Archivos de flujo:
+- [X] T098 [US1] Archivos de flujo:
   - cargar YAML y mapear errores de zod a línea y columna;
   - guardar en forma canónica, conservando comentarios (U-09);
   - listar, crear y borrar con confirmación;
