@@ -1,5 +1,6 @@
 import { AgentCapabilitiesSchema, ProcessOutcomeSchema, type AgentAdapter, type AgentAvailability, type AgentExecution, type AgentUsageReading, type LaunchSpec, type NormalizedEvent, type Platform, type ProcessOutcome, type ReportCandidate } from "@zeko/contracts";
-import { spawn } from "node:child_process";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { ProcessSupervisor, type SupervisedProcess } from "../process/supervisor.ts";
 import { buildClaudeArgs } from "./args.ts";
 import { claudeCodeCapabilities } from "../capabilities/claude-code.ts";
@@ -16,6 +17,8 @@ export interface ClaudeCodeAdapterOptions {
   readonly interruptGraceMs?: number;
   readonly platform?: NodeJS.Platform;
 }
+
+const execFileAsync = promisify(execFile);
 
 export class ClaudeCodeAdapter implements AgentAdapter {
   readonly id = "claude-code" as const;
@@ -46,7 +49,12 @@ export class ClaudeCodeAdapter implements AgentAdapter {
       throw new Error("CLAUDE_BINARY_NOT_INJECTED: set binaryPath when ZEKO_TEST=1");
     }
     const command = this.#binaryPath ?? (this.#platform === "win32" ? "claude.exe" : "claude");
-    const result = await runVersion(command, this.#versionArgs.length > 0 ? this.#versionArgs : ["--version"]);
+    let result: { code: number | null; stdout: string };
+    try {
+      result = await runVersion(command, this.#versionArgs.length > 0 ? this.#versionArgs : ["--version"]);
+    } catch {
+      result = { code: null, stdout: "" };
+    }
     const version = result.code === 0 ? parseClaudeVersion(result.stdout) : undefined;
     const installed = result.code === 0 && version !== undefined;
     return {
@@ -223,18 +231,19 @@ function errorMessage(error: unknown): string {
 }
 
 async function runVersion(command: string, args: readonly string[]): Promise<{ code: number | null; stdout: string }> {
-  return new Promise((resolve) => {
-    const child = spawn(command, [...args], { shell: false, windowsHide: true, stdio: ["ignore", "pipe", "ignore"] });
-    let stdout = "";
-    const timeout = setTimeout(() => {
-      child.kill();
-      resolve({ code: null, stdout: "" });
-    }, 10_000);
-    child.stdout?.setEncoding("utf8");
-    child.stdout?.on("data", (chunk: string) => { stdout += chunk.slice(0, Math.max(0, 2048 - stdout.length)); });
-    child.once("error", () => { clearTimeout(timeout); resolve({ code: null, stdout: "" }); });
-    child.once("close", (code) => { clearTimeout(timeout); resolve({ code, stdout }); });
-  });
+  try {
+    const result = await execFileAsync(command, [...args], {
+      cwd: process.cwd(),
+      shell: false,
+      windowsHide: true,
+      timeout: 5_000,
+      maxBuffer: 2_048,
+      encoding: "utf8",
+    });
+    return { code: 0, stdout: result.stdout.slice(0, 2_048) };
+  } catch {
+    return { code: null, stdout: "" };
+  }
 }
 
 function parseClaudeVersion(output: string): string | undefined {

@@ -9,7 +9,6 @@ import { ClaudeCodeAdapter } from "../../../packages/adapters/src/claude-code/ad
 import { runCommand } from "../src/commands/run.js";
 
 const execFile = promisify(execFileCallback);
-const fixtureRoot = fileURLToPath(new URL("../../../packages/adapters/test/fixtures/", import.meta.url));
 const fakeAgentPath = fileURLToPath(new URL("../../../packages/adapters/test/fake-agent/main.ts", import.meta.url));
 
 describe("CLI Claude dialect end-to-end", () => {
