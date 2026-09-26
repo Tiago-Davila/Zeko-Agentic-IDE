@@ -925,7 +925,7 @@ aprobaciones por TTY. Nada de UI todavía.
   `packages/adapters/src/claude-code/args.ts`, `packages/adapters/test/claude-code/args.test.ts`.
   **Cubre**: FR-011a, FR-017–019, FR-032. **Base**: R-08, R-10, R-11, D5, `[001 §1, §6]`,
   `[001b §A2, §B1]`. **Depende de**: T018, T019, T109
-- [ ] T113 [US2] Parser de stream-json a `NormalizedEvent` contra los fixtures de 001:
+- [X] T113 [US2] Parser de stream-json a `NormalizedEvent` contra los fixtures de 001:
   - los `assistant` que comparten `message.id` se tratan como bloques sueltos; el thinking se
     descarta; `parent_tool_use_id` se marca como subagente;
   - `permission_denied` se deduplica por `tool_use_id`;
