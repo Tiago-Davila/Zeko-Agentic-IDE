@@ -95,6 +95,16 @@ export class RunEngine {
     );
   }
 
+  /** Escalate an existing cancellation by terminating every registered process tree immediately. */
+  async forceCancelRun(): Promise<void> {
+    this.#runCancelled = true;
+    for (const cancel of this.#approvalCancels.values()) cancel();
+    await Promise.all([...this.#activeExecutions.values()].map(async (execution) => {
+      if (execution.forceTerminate) await execution.forceTerminate();
+      else await execution.cancel("user");
+    }));
+  }
+
   async cancelNode(nodeId: string): Promise<void> {
     this.#cancelledNodes.add(nodeId);
     this.#approvalCancels.get(nodeId)?.();

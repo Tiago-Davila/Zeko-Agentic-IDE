@@ -863,7 +863,7 @@ CLI ejecuta un flujo de dos nodos con el agente simulado, **antes de cualquier t
   **Archivos**: `apps/cli/src/tty/approval-prompt.ts`, `apps/cli/test/approvals.test.ts`.
   **Cubre**: FR-012, FR-059, NFR-006, US7-3. **Base**: contracts/cli.md punto 4. **Depende de**:
   T103
-- [ ] T105 [US7] Ctrl+C: el primero cancela el run; el segundo, dentro de 3 s, fuerza la
+- [X] T105 [US7] Ctrl+C: el primero cancela el run; el segundo, dentro de 3 s, fuerza la
   terminación de los árboles. En los dos casos espera la confirmación del supervisor y sale con 4.
   Con tests. **Archivos**: `apps/cli/src/signals.ts`, `apps/cli/test/signals.test.ts`. **Cubre**:
   FR-030, NFR-004. **Base**: contracts/cli.md punto 7. **Depende de**: T103

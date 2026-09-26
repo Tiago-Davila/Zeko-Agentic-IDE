@@ -126,6 +126,12 @@ export class FakeAdapter implements AgentAdapter {
       completion,
       rootPid,
       sensitiveValues: [],
+      forceTerminate: async () => {
+        const processHandle = supervised ?? await started.catch(() => undefined);
+        if (!processHandle) return;
+        cancelled = { reason: "user", phase: "tree_kill" };
+        await this.#supervisor.terminate(processHandle.rootPid);
+      },
       cancel: async (reason) => {
         const processHandle = supervised ?? await started.catch(() => undefined);
         if (!processHandle) return;

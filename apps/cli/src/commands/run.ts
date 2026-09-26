@@ -16,6 +16,20 @@ export interface RunCommandOptions {
   readonly approvalPrompt?: (nodeId: string, summary: unknown) => Promise<"approved" | "rejected">;
 }
 
+export function createCtrlCHandler(cancel: () => void, force: () => void, now: () => number = Date.now): () => void {
+  let firstSignalAt: number | undefined;
+  return () => {
+    const timestamp = now();
+    if (firstSignalAt !== undefined && timestamp - firstSignalAt <= 3_000) {
+      firstSignalAt = undefined;
+      force();
+    } else {
+      firstSignalAt = timestamp;
+      cancel();
+    }
+  };
+}
+
 export async function runCommand(options: RunCommandOptions): Promise<number> {
   const stdout = options.stdout ?? ((line) => process.stdout.write(`${line}\n`));
   const stderr = options.stderr ?? ((line) => process.stderr.write(`${line}\n`));
@@ -23,6 +37,7 @@ export async function runCommand(options: RunCommandOptions): Promise<number> {
   const factory = options.createRuntime ?? createZekoRuntime;
   const runtime = await factory(options.runtimeOptions);
   let exitCode = 5;
+  let sigintHandler: (() => void) | undefined;
   try {
     const project = await runtime.openProject(projectRoot);
     const flowId = options.flow.replaceAll("\\", "/").split("/").at(-1)?.replace(/\.flow\.yaml$/, "") ?? options.flow;
@@ -66,6 +81,8 @@ export async function runCommand(options: RunCommandOptions): Promise<number> {
     });
     const started = await runtime.startRun(project.projectId, flowId, loaded.fileHash, "cli");
     runId = started.runId;
+    sigintHandler = createCtrlCHandler(() => { void runtime.cancelRun(runId); }, () => { void runtime.forceCancelRun(runId); });
+    process.on("SIGINT", sigintHandler);
     const result = await started.wait;
     unsubscribe();
     const nodes = [...result.nodeRuns.values()].map((node) => ({ nodeId: node.nodeId, status: node.status, ...(node.agentId ? { agentId: node.agentId } : {}), ...(node.reason ? { reason: node.reason } : {}), ...(node.cost ? { cost: node.cost } : {}), ...(node.consumption ? { consumption: node.consumption } : {}) }));
@@ -77,7 +94,7 @@ export async function runCommand(options: RunCommandOptions): Promise<number> {
   } catch (error) {
     stderr(error instanceof Error ? error.message : String(error));
     return exitCode;
-  } finally { runtime.close(); }
+  } finally { if (sigintHandler) process.off("SIGINT", sigintHandler); runtime.close(); }
 }
 
 async function promptApproval(nodeId: string, summary: unknown): Promise<"approved" | "rejected"> {

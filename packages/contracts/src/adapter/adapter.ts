@@ -10,6 +10,7 @@ export interface AgentExecution {
   readonly events: AsyncIterable<NormalizedEvent>;
   readonly completion: Promise<{ outcome: ProcessOutcome; report: ReportCandidate }>;
   cancel(reason: "user" | "timeout" | "shutdown"): Promise<void>;
+  forceTerminate?(): Promise<void>;
   readonly rootPid: { pid: number; creationTime: number };
   readonly sensitiveValues: readonly string[];
 }

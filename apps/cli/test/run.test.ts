@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { promisify } from "node:util";
 import { execFile as execFileCallback } from "node:child_process";
 import { describe, expect, it } from "vitest";
-import { runCommand } from "../src/commands/run.js";
+import { createCtrlCHandler, runCommand } from "../src/commands/run.js";
 
 const execFile = promisify(execFileCallback);
 async function initRepo(root: string) {
@@ -17,6 +17,12 @@ async function initRepo(root: string) {
 }
 
 describe("zeko run", () => {
+  it("escalates the second Ctrl+C within three seconds to forced tree termination", () => {
+    let time = 100; let cancels = 0; let forces = 0;
+    const handler = createCtrlCHandler(() => { cancels++; }, () => { forces++; }, () => time);
+    handler(); expect(cancels).toBe(1); expect(forces).toBe(0);
+    time += 2_999; handler(); expect(cancels).toBe(1); expect(forces).toBe(1);
+  });
   it("runs a validated input-only flow through shared runtime and emits NDJSON", async () => {
     const root = await mkdtemp(join(tmpdir(), "zeko-cli-run-"));
     try {
