@@ -578,7 +578,7 @@ con cancelación, con retención por uso y mixtos. Los reintentos de infraestruc
 fuente de `filesChanged`, finales de línea y limpieza con confirmación. Los tests usan git real
 sobre repositorios temporales (git no es un proveedor de IA).
 
-- [ ] T069 [US2] Envoltorio de la CLI de git: `spawn` sin shell, `-c core.longpaths=true` y errores
+- [X] T069 [US2] Envoltorio de la CLI de git: `spawn` sin shell, `-c core.longpaths=true` y errores
   tipados con contexto. Con tests. **Archivos**: `packages/git/src/git-cli.ts`,
   `packages/git/test/git-cli.test.ts`. **Cubre**: FR-043. **Base**: R-15, Principio XV.
   **Depende de**: T005
