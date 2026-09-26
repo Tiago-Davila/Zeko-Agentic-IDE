@@ -1,7 +1,7 @@
 import { mkdir } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { randomUUID } from "node:crypto";
-import { AgentIdSchema, type AgentAdapter, type AgentId, type FlowFile, type ProjectConfig, type PersistedEvent } from "@zeko/contracts";
+import type { AgentAdapter, AgentId, FlowFile, ProjectConfig, PersistedEvent } from "@zeko/contracts";
 import { validateEdge, validateFlow as validateGraphFlow, RunEngine } from "@zeko/core";
 import { cleanupRunWorktrees, getFileDiff, getObservedFiles, getRepositoryInfo, GitWorkspacePort } from "@zeko/git";
 import { createRedactor, migrate, NodeSqliteDriver, RunsRepository, SqliteSlotLeases, type SqlDriver } from "@zeko/storage";
@@ -141,9 +141,18 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
     async validateFlow(projectId: string, flow: FlowFile) { return validate(flow, rootFor(projectId)); },
     validateEdge(_projectId: string, flow: FlowFile, edge: FlowFile["edges"][number]) { return validateEdge(flow, edge); },
     async agentsStatus(_projectId: string, agentIds?: AgentId[]) {
-      const requested = agentIds ?? Object.keys(adapters).filter((id) => AgentIdSchema.safeParse(id).success) as AgentId[];
-      const results = await Promise.all(requested.map(async (id) => adapters[id]?.detect()));
-      return results.filter((item) => item !== undefined).map((item) => ({ availability: item, usage: undefined }));
+      const requested = agentIds ?? ["claude-code", "codex"];
+      const results = await Promise.all(requested.map(async (id) => {
+        const adapter = adapters[id];
+        if (!adapter) return { availability: { agentId: id, installed: false, auth: { state: "unknown" as const, verified: false }, problems: [] }, usage: undefined };
+        try {
+          const [availability, usage] = await Promise.all([adapter.detect(), adapter.readUsage()]);
+          return { availability: { agentId: availability.agentId, installed: availability.installed, ...(availability.version ? { version: availability.version } : {}), auth: availability.auth, problems: [] }, usage };
+        } catch {
+          return { availability: { agentId: id, installed: false, auth: { state: "unknown" as const, verified: false }, problems: [] }, usage: undefined };
+        }
+      }));
+      return { agents: results.map((result) => result.availability), usage: results.flatMap((result) => result.usage ? [result.usage] : []) };
     },
     async preflight(projectId: string, flowId: string) { const loaded = await filesFor(projectId).loadFlow(flowId); if (!loaded.flow) return { ok: false, diagnostics: loaded.diagnostics, agents: [], perNodeAuth: [], warnings: [] }; return { ...await checkPreflight(loaded.flow, adapters), diagnostics: loaded.diagnostics }; },
     async startRun(projectId: string, flowId: string, fileHash: string, origin?: "cli" | "desktop") { return startRun(projectId, flowId, fileHash, origin); },

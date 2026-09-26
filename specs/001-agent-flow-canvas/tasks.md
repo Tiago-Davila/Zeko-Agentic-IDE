@@ -875,7 +875,7 @@ CLI ejecuta un flujo de dos nodos con el agente simulado, **antes de cualquier t
   `--yes`, no borra nada y sale con 64. Con tests. **Archivos**:
   `apps/cli/src/commands/workspaces.ts`, `apps/cli/test/workspaces.test.ts`. **Cubre**: FR-048.
   **Base**: contracts/cli.md. **Depende de**: T103
-- [ ] T108 [P] [US7] `zeko agents check`, con tests. **Archivos**: `apps/cli/src/commands/agents.ts`,
+- [X] T108 [P] [US7] `zeko agents check`, con tests. **Archivos**: `apps/cli/src/commands/agents.ts`,
   `apps/cli/test/agents.test.ts`. **Cubre**: FR-025, FR-065. **Base**: contracts/cli.md.
   **Depende de**: T103
 - [ ] T109 [US7] **Corte vertical E2E**: repositorio git temporal, flujo `goal → a → b` con el

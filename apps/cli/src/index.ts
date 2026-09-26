@@ -6,6 +6,7 @@ import { runCommand } from "./commands/run.js";
 import { validateCommand } from "./commands/validate.js";
 import { runsListCommand, runsShowCommand } from "./commands/runs.js";
 import { workspacesDeleteCommand } from "./commands/workspaces.js";
+import { agentsCheckCommand } from "./commands/agents.js";
 
 export async function main(args: string[]): Promise<number> {
   const [command, ...rest] = args;
@@ -22,6 +23,12 @@ export async function main(args: string[]): Promise<number> {
     const [subcommand, runId, ...tail] = rest;
     if (subcommand !== "delete" || !runId || tail.some((arg) => arg !== "--yes")) return usage();
     return workspacesDeleteCommand({ runId, yes: tail.includes("--yes") });
+  }
+  if (command === "agents") {
+    const [subcommand, ...tail] = rest;
+    const flags = parseFlags(tail);
+    if (subcommand !== "check" || !flags) return usage();
+    return agentsCheckCommand({ ...(flags.project ? { project: flags.project } : {}), json: flags.json });
   }
   if (command !== "validate" && command !== "run") return usage();
   const positional: string[] = [];
