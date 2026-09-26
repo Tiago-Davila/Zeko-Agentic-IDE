@@ -597,7 +597,7 @@ sobre repositorios temporales (git no es un proveedor de IA).
   `--no-verify` y `--allow-empty`; detecta `HISTORY_REWRITTEN`. Tests: sin commit si se canceló. **Archivos**:
   `packages/git/src/engine-commit.ts`, `packages/git/test/engine-commit.test.ts`. **Cubre**:
   FR-046, FR-047, FR-049. **Base**: R-15. **Depende de**: T071
-- [ ] T073 [US2] Archivos observados: `diff --name-status -z base..result`, rutas relativas con
+- [X] T073 [US2] Archivos observados: `diff --name-status -z base..result`, rutas relativas con
   `/`, y marca `eolOnly` calculada con `--ignore-cr-at-eol`. Tests con un repo CRLF y
   `.gitattributes`. **Archivos**: `packages/git/src/observed-files.ts`,
   `packages/git/test/observed-files.test.ts`. **Cubre**: FR-037, FR-046. **Base**: R-07, D4,
