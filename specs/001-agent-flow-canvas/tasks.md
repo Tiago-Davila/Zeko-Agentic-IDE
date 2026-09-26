@@ -995,7 +995,7 @@ sin llamar al proveedor; `zeko run` funciona con el dialecto de Claude; la prueb
 **Propósito**: traducir `LaunchSpec` a los flags verificados en 001c. Se prueba contra `fake-agent`
 en modo `replay` con los fixtures de Codex.
 
-- [ ] T120 [US4] Resolver el binario nativo `codex.exe` bajo
+- [X] T120 [US4] Resolver el binario nativo `codex.exe` bajo
   `@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/bin/`, **nunca** el shim `codex.cmd`. Si
   solo se encuentra el shim, falla la verificación previa. La ruta también se puede inyectar por
   configuración; con `ZEKO_TEST=1` solo se acepta la inyectada y la resolución automática falla con
