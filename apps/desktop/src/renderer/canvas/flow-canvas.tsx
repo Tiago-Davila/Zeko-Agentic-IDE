@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   applyNodeChanges,
   Background,
@@ -12,11 +12,12 @@ import {
   type NodeChange,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { DEFAULT_MODELS, type AgentNode, type Edge, type FlowFile, type FlowNode, type ProjectConfig } from "@zeko/contracts";
+import { DEFAULT_MODELS, type AgentNode, type Diagnostic, type Edge, type FlowFile, type FlowNode, type ProjectConfig } from "@zeko/contracts";
 import { ipc } from "../ipc/client.js";
 import { useT } from "../i18n/use-t.js";
 import { AgentCanvasNode, ApprovalCanvasNode, InputCanvasNode, type FlowNodeData } from "./node-types.js";
 import { AgentNodePanel } from "../panels/agent-node-panel.js";
+import { DiagnosticsOverlay } from "./diagnostics-overlay.js";
 
 interface FlowCanvasProps {
   projectId: string;
@@ -33,19 +34,23 @@ export function FlowCanvas({ projectId, flow, onChange, onBack }: FlowCanvasProp
   const [selectedNodeId, setSelectedNodeId] = useState<string>();
   const [defaults, setDefaults] = useState<ProjectConfig["defaultModels"]>(DEFAULT_MODELS);
   const [notApplicable, setNotApplicable] = useState<string[]>([]);
+  const [diagnostics, setDiagnostics] = useState<Diagnostic[]>([]);
+  const [validationReady, setValidationReady] = useState(false);
+  const validationRequestId = useRef(0);
+  const selectedNode = flow.nodes.find((node) => node.id === selectedNodeId);
   const nodes = useMemo<CanvasNode<FlowNodeData>[]>(() => flow.nodes.map((node) => ({
     id: node.id,
     type: node.type,
     position: node.position,
-    data: { flowNode: node },
-  })), [flow.nodes]);
+    data: { flowNode: node, diagnostics: diagnostics.filter((item) => item.nodeId === node.id) },
+  })), [diagnostics, flow.nodes]);
   const edges = useMemo<CanvasEdge[]>(() => flow.edges.map((edge) => ({
     id: `${edge.from}->${edge.to}`,
     source: edge.from,
     target: edge.to,
     type: "smoothstep",
   })), [flow.edges]);
-  const selectedNode = flow.nodes.find((node) => node.id === selectedNodeId);
+  const hasErrors = diagnostics.some((diagnostic) => diagnostic.severity === "error");
 
   useEffect(() => {
     let current = true;
@@ -58,15 +63,22 @@ export function FlowCanvas({ projectId, flow, onChange, onBack }: FlowCanvasProp
   }, [projectId, t]);
 
   useEffect(() => {
-    if (!selectedNode || selectedNode.type !== "agent") { setNotApplicable([]); return; }
+    setValidationReady(false);
+    const requestId = ++validationRequestId.current;
     const timer = window.setTimeout(() => {
-      void ipc.request("flow.validate", { projectId, flow }).then(({ nodeViews }) => {
-        const view = nodeViews.find((item) => item.nodeId === selectedNode.id);
+      void ipc.request("flow.validate", { projectId, flow }).then(({ diagnostics: nextDiagnostics, nodeViews }) => {
+        if (requestId !== validationRequestId.current) return;
+        setDiagnostics(nextDiagnostics);
+        setValidationReady(true);
+        const view = selectedNode?.type === "agent" ? nodeViews.find((item) => item.nodeId === selectedNode.id) : undefined;
         setNotApplicable(view?.notApplicable ?? []);
-      }).catch(() => setNotApplicable([]));
+      }).catch(() => {
+        if (requestId !== validationRequestId.current) return;
+        setNotApplicable([]); setDiagnostics([]); setValidationReady(false);
+      });
     }, 180);
     return () => window.clearTimeout(timer);
-  }, [flow, projectId, selectedNode]);
+  }, [flow, projectId, selectedNodeId, selectedNode]);
 
   const updateNodes = useCallback((changes: NodeChange<CanvasNode<FlowNodeData>>[]) => {
     const nextNodes = applyNodeChanges(changes, nodes);
@@ -123,6 +135,7 @@ export function FlowCanvas({ projectId, flow, onChange, onBack }: FlowCanvasProp
         <div><p className="eyebrow">{t("canvas.flowLabel")}</p><h1>{flow.name}</h1></div>
       </div>
       <div className="canvas-toolbar__actions">
+        <button className="button button--primary" type="button" disabled={!validationReady || hasErrors} title={!validationReady ? t("validation.pending") : hasErrors ? t("run.blockedByErrors") : undefined}>{t("run.start")}</button>
         <button className="button button--node" type="button" onClick={() => addNode("input")}>{t("canvas.addInput")}</button>
         <button className="button button--node" type="button" onClick={() => addNode("agent")}>{t("canvas.addAgent")}</button>
         <button className="button button--node" type="button" onClick={() => addNode("approval")}>{t("canvas.addApproval")}</button>
@@ -137,6 +150,7 @@ export function FlowCanvas({ projectId, flow, onChange, onBack }: FlowCanvasProp
         <Controls showInteractive={false} />
       </ReactFlow>
       {flow.edges.length === 0 && <div className="canvas-hint">{t("canvas.connectHint")}</div>}
+      <DiagnosticsOverlay diagnostics={diagnostics} onFocusNode={setSelectedNodeId} hasInspector={selectedNode?.type === "agent"} />
       {selectedNode?.type === "agent" && <AgentNodePanel node={selectedNode} defaults={defaults} notApplicable={notApplicable}
         onChange={(node: AgentNode) => onChange({ ...flow, nodes: flow.nodes.map((item) => item.id === node.id ? node : item) })}
         onClose={() => setSelectedNodeId(undefined)} />}

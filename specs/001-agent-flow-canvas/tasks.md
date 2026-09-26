@@ -1173,7 +1173,7 @@ confinamiento y capacidades, costo y uso, e historial. La UI solo pinta lo que c
   **Archivos**: `apps/desktop/src/renderer/panels/agent-node-panel.tsx`,
   `apps/desktop/src/renderer/panels/model-field.tsx`. **Cubre**: FR-011, FR-011a, FR-015, US4-3.
   **Base**: R-27, D16. **Depende de**: T140
-- [ ] T142 [US1] Validación visual: diagnósticos de `flow.validate` marcados en cada nodo
+- [X] T142 [US1] Validación visual: diagnósticos de `flow.validate` marcados en cada nodo
   (incluidos `MULTIPLE_CODE_SOURCES` y `MODEL_DEFAULTED`); el botón de ejecutar se deshabilita si
   hay errores. **Archivos**: `apps/desktop/src/renderer/canvas/diagnostics-overlay.tsx`. **Cubre**:
   FR-008, FR-009, US1-4. **Base**: data-model §Reglas. **Depende de**: T140

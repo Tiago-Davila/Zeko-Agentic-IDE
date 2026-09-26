@@ -127,6 +127,22 @@ h1, h2, h3, p { margin-top: 0; }
 .not-applicable { margin-top: 18px; padding: 12px; color: #886d49; background: #faf4e9; border: 1px solid #eee1c8; border-radius: 6px; }
 .not-applicable h3 { margin: 0 0 7px; font-size: 10px; }
 .not-applicable ul { margin: 0; padding-left: 16px; font-size: 10px; line-height: 1.65; }
+.flow-node--invalid { border-color: #c46c5d; }
+.flow-node--warning { border-color: #d4a452; }
+.flow-node__diagnostics { display: flex; align-items: center; gap: 5px; margin-top: 9px; color: #a44f43; font-size: 9px; font-weight: 700; }
+.flow-node--warning .flow-node__diagnostics { color: #9a6a27; }
+.flow-node__diagnostics > span { display: grid; width: 14px; height: 14px; place-items: center; background: #fff0ed; border-radius: 50%; }
+.flow-node--warning .flow-node__diagnostics > span { background: #fbf2e1; }
+.diagnostics-overlay { position: absolute; z-index: 3; right: 14px; bottom: 14px; width: min(360px, calc(100% - 28px)); max-height: 240px; padding: 12px 14px; overflow: auto; color: #79572a; background: #fffaf1; border: 1px solid #ecdfc6; border-radius: 8px; box-shadow: 0 5px 19px #19354212; }
+.diagnostics-overlay--error { color: #8a453b; background: #fff8f6; border-color: #efd4ce; }
+.diagnostics-overlay--shifted { right: 350px; }
+.diagnostics-overlay__heading { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 11px; }
+.diagnostics-overlay__mark { display: grid; width: 18px; height: 18px; place-items: center; color: inherit; background: #f4e8d1; border-radius: 50%; font-size: 11px; font-weight: 800; }
+.diagnostics-overlay--error .diagnostics-overlay__mark { background: #f6e1dc; }
+.diagnostics-overlay ul { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.diagnostics-overlay li { display: grid; grid-template-columns: auto 1fr auto; align-items: baseline; gap: 8px; font-size: 10px; line-height: 1.4; }
+.diagnostics-overlay li button { max-width: 92px; padding: 0; overflow: hidden; color: #537079; background: none; border: 0; font: inherit; text-align: left; text-decoration: underline; text-overflow: ellipsis; cursor: pointer; }
+.diagnostics-overlay li small { color: #97886f; font-size: 9px; }
 
 @media (max-width: 1080px) {
   .app-shell { grid-template-columns: 190px minmax(0, 1fr); }

@@ -1,29 +1,32 @@
 import { Handle, Position, type NodeProps } from "@xyflow/react";
-import type { FlowNode } from "@zeko/contracts";
+import type { Diagnostic, FlowNode } from "@zeko/contracts";
 import { useT } from "../i18n/use-t.js";
 
-export interface FlowNodeData extends Record<string, unknown> { flowNode: FlowNode }
+export interface FlowNodeData extends Record<string, unknown> { flowNode: FlowNode; diagnostics?: Diagnostic[] }
 
 export function InputCanvasNode({ data, selected }: NodeProps<import("@xyflow/react").Node<FlowNodeData>>) {
-  return <NodeFrame kind="input" titleKey="canvas.inputNode" node={data.flowNode} selected={selected} />;
+  return <NodeFrame kind="input" titleKey="canvas.inputNode" node={data.flowNode} selected={selected} diagnostics={data.diagnostics ?? []} />;
 }
 
 export function AgentCanvasNode({ data, selected }: NodeProps<import("@xyflow/react").Node<FlowNodeData>>) {
-  return <NodeFrame kind="agent" titleKey="canvas.agentNode" node={data.flowNode} selected={selected} />;
+  return <NodeFrame kind="agent" titleKey="canvas.agentNode" node={data.flowNode} selected={selected} diagnostics={data.diagnostics ?? []} />;
 }
 
 export function ApprovalCanvasNode({ data, selected }: NodeProps<import("@xyflow/react").Node<FlowNodeData>>) {
-  return <NodeFrame kind="approval" titleKey="canvas.approvalNode" node={data.flowNode} selected={selected} />;
+  return <NodeFrame kind="approval" titleKey="canvas.approvalNode" node={data.flowNode} selected={selected} diagnostics={data.diagnostics ?? []} />;
 }
 
-function NodeFrame({ kind, titleKey, node, selected }: { kind: FlowNode["type"]; titleKey: "canvas.inputNode" | "canvas.agentNode" | "canvas.approvalNode"; node: FlowNode; selected: boolean }) {
+function NodeFrame({ kind, titleKey, node, selected, diagnostics = [] }: { kind: FlowNode["type"]; titleKey: "canvas.inputNode" | "canvas.agentNode" | "canvas.approvalNode"; node: FlowNode; selected: boolean; diagnostics?: Diagnostic[] }) {
   const t = useT();
   const detail = node.type === "agent" ? node.agent : node.type === "input" ? node.objective : t("canvas.approvalDetail");
-  return <div className={`flow-node flow-node--${kind}${selected ? " flow-node--selected" : ""}`}>
+  return <div className={`flow-node flow-node--${kind}${selected ? " flow-node--selected" : ""}${diagnostics.some((item) => item.severity === "error") ? " flow-node--invalid" : diagnostics.length ? " flow-node--warning" : ""}`}>
     <Handle className="flow-handle" type="target" position={Position.Left} />
     <div className="flow-node__top"><span className="flow-node__type">{t(titleKey)}</span><span className={`flow-node__glyph flow-node__glyph--${kind}`} aria-hidden="true">{kind === "input" ? "↳" : kind === "agent" ? "◇" : "✓"}</span></div>
     <strong className="flow-node__name">{node.label || t(titleKey)}</strong>
     <span className="flow-node__detail">{detail}</span>
+    {diagnostics.length > 0 && <span className="flow-node__diagnostics" title={diagnostics.map((item) => t(item.code)).join(" · ")}>
+      <span aria-hidden="true">{diagnostics.some((item) => item.severity === "error") ? "!" : "i"}</span>{t("validation.nodeCount", { count: diagnostics.length })}
+    </span>}
     <Handle className="flow-handle" type="source" position={Position.Right} />
   </div>;
 }
