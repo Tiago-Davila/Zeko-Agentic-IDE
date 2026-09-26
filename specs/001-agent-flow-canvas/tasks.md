@@ -684,7 +684,7 @@ motor en `zeko/<run>/*`, el dependiente parte del predecesor, los archivos obser
   mata el árbol. Con tests. **Archivos**: `packages/adapters/src/fake/fake-adapter.ts`,
   `packages/adapters/test/fake/fake-adapter.test.ts`. **Cubre**: FR-016, FR-030. **Base**: R-26.
   **Depende de**: T081, T054
-- [ ] T084 [US2] Integración Windows de cancelación:
+- [X] T084 [US2] Integración Windows de cancelación:
   - `fake-agent` lanza un nieto que escribe una línea por segundo;
   - después de cancelar, el archivo deja de crecer (dos mediciones con 5 s de diferencia) y ningún
     `(pid, creationTime)` registrado sigue vivo, todo en menos de 10 s;

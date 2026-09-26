@@ -136,7 +136,13 @@ export class FakeAdapter implements AgentAdapter {
           try {
             await processHandle.writeStdin(`${JSON.stringify({ type: "control_request", subtype: "interrupt", requestId: spec.attemptId })}\n`);
             const closed = await raceTimeout(processHandle.completion, this.#interruptGraceMs);
-            if (closed) return;
+            if (closed) {
+              const registered = this.#supervisor.registeredProcesses(processHandle.rootPid);
+              if (registered.length <= 1) return;
+              cancelled.phase = "tree_kill";
+              await this.#supervisor.terminate(processHandle.rootPid);
+              return;
+            }
           } catch {
             // A closed stdin or unresponsive agent proceeds to tree termination.
           }

@@ -99,6 +99,14 @@ export class ProcessSupervisor {
     return [...this.#active].find((tracked) => sameIdentity(tracked.tracker.registered[0]!, root))?.tracker.registered ?? [];
   }
 
+  async hasLiveDescendants(root: ProcessIdentity): Promise<boolean> {
+    const tracked = [...this.#active].find((candidate) => sameIdentity(candidate.tracker.registered[0]!, root));
+    if (!tracked) return false;
+    const snapshot = await this.#snapshot();
+    tracked.tracker.update(snapshot);
+    return tracked.tracker.live(snapshot).some((identity) => !sameIdentity(identity, root));
+  }
+
   async terminate(root: ProcessIdentity): Promise<void> {
     const tracked = [...this.#active].find((candidate) => sameIdentity(candidate.tracker.registered[0]!, root));
     if (!tracked) throw new Error("Only a registered process root can be terminated");
@@ -107,9 +115,11 @@ export class ProcessSupervisor {
     tracked.tracker.update(snapshot);
     const rootIsSameProcess = hasIdentity(snapshot, root);
     if (this.#platform === "win32") {
-      if (rootIsSameProcess) await this.#killByPid(root.pid, true);
-      for (const descendant of tracked.tracker.registered.filter((identity) => !sameIdentity(identity, root))) {
+      if (rootIsSameProcess) {
+        await this.#killByPid(root.pid, true);
         snapshot = await this.#snapshot();
+      }
+      for (const descendant of tracked.tracker.registered.filter((identity) => !sameIdentity(identity, root))) {
         if (hasIdentity(snapshot, descendant)) await this.#killByPid(descendant.pid, false);
       }
     } else if (this.#platform === "linux" && rootIsSameProcess) {
