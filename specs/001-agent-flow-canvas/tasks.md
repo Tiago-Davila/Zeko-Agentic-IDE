@@ -845,7 +845,7 @@ CLI ejecuta un flujo de dos nodos con el agente simulado, **antes de cualquier t
   `packages/runtime/test/ipc-exhaustiveness.test.ts`. **Cubre**: FR-001–004, FR-007, FR-009,
   FR-024, FR-025, FR-029, FR-052, FR-059, FR-062, SC-008. **Base**: R-01, D1, contracts/ipc.md.
   **Depende de**: T023, T076, T089, T090, T093, T094, T098, T099, T100
-- [ ] T102 [US7] `zeko validate`: errores con archivo, línea, columna y nodo; código 2 si hay
+- [X] T102 [US7] `zeko validate`: errores con archivo, línea, columna y nodo; código 2 si hay
   errores. Con tests. **Archivos**: `apps/cli/src/commands/validate.ts`,
   `apps/cli/test/validate.test.ts`. **Cubre**: FR-009, FR-057, FR-059. **Base**: contracts/cli.md.
   **Depende de**: T101, T025
