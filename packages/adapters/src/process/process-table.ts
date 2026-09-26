@@ -18,10 +18,9 @@ const WINDOWS_WORKER_SCRIPT = [
   "$ErrorActionPreference = 'Stop'",
   "while ($null -ne [Console]::In.ReadLine()) {",
   "  try {",
-  "    $rows = @(Get-CimInstance -Query 'SELECT ProcessId,ParentProcessId,CreationDate FROM Win32_Process' | Select-Object @{Name='pid';Expression={$_.ProcessId}},@{Name='parentPid';Expression={$_.ParentProcessId}},@{Name='creationTime';Expression={$_.CreationDate.ToUniversalTime().ToString('o')}})",
-  "    [Console]::Out.WriteLine((ConvertTo-Json -InputObject $rows -Compress))",
+  "    foreach ($entry in Get-CimInstance -Query 'SELECT ProcessId,ParentProcessId,CreationDate FROM Win32_Process') { $creation = [long]($entry.CreationDate.ToFileTimeUtc() / 10000 - 11644473600000); [Console]::Out.WriteLine((\"{0}`t{1}`t{2}\" -f $entry.ProcessId, $entry.ParentProcessId, $creation)) }",
   "  } catch {",
-  "    [Console]::Out.WriteLine((ConvertTo-Json -InputObject @{ __zekoError = $_.Exception.Message } -Compress))",
+  "    [Console]::Out.WriteLine('__ZEKO_PROCESS_SNAPSHOT_ERROR__' + $_.Exception.Message)",
   "  }",
   "  [Console]::Out.WriteLine('__ZEKO_PROCESS_SNAPSHOT_END__')",
   "  [Console]::Out.Flush()",
@@ -64,7 +63,12 @@ export function parseWindowsProcessSnapshot(json: string): ProcessEntry[] {
     if (!isRecord(row)) continue;
     const pid = parsePositiveInteger(row["pid"]);
     const parentPid = parseNonNegativeInteger(row["parentPid"]);
-    const creationTime = typeof row["creationTime"] === "string" ? Date.parse(row["creationTime"]) : Number.NaN;
+    const creationValue = row["creationTime"];
+    const creationTime = typeof creationValue === "number"
+      ? creationValue
+      : typeof creationValue === "string" && Number.isFinite(Number(creationValue))
+        ? Number(creationValue)
+        : typeof creationValue === "string" ? Date.parse(creationValue) : Number.NaN;
     if (pid !== undefined && parentPid !== undefined && Number.isFinite(creationTime)) {
       processes.push({ pid, parentPid, creationTime });
     }
@@ -137,11 +141,14 @@ class WindowsSnapshotWorker {
       this.#current = undefined;
       this.#busy = false;
       if (current) {
-        const json = current.lines.join("\n");
         try {
-          const value: unknown = JSON.parse(json);
-          if (isRecord(value) && typeof value["__zekoError"] === "string") throw new Error(value["__zekoError"]);
-          current.resolve(json);
+          const error = current.lines.find((line) => line.startsWith("__ZEKO_PROCESS_SNAPSHOT_ERROR__"));
+          if (error) throw new Error(error.slice("__ZEKO_PROCESS_SNAPSHOT_ERROR__".length));
+          const rows = current.lines.filter((line) => line.length > 0).map((line) => {
+            const [pid, parentPid, creationTime] = line.split("\t");
+            return { pid: Number(pid), parentPid: Number(parentPid), creationTime: Number(creationTime) };
+          });
+          current.resolve(JSON.stringify(rows));
         } catch (error) {
           current.reject(error instanceof Error ? error : new Error("Invalid Win32_Process snapshot response"));
         }
