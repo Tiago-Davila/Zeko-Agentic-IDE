@@ -878,7 +878,7 @@ CLI ejecuta un flujo de dos nodos con el agente simulado, **antes de cualquier t
 - [X] T108 [P] [US7] `zeko agents check`, con tests. **Archivos**: `apps/cli/src/commands/agents.ts`,
   `apps/cli/test/agents.test.ts`. **Cubre**: FR-025, FR-065. **Base**: contracts/cli.md.
   **Depende de**: T103
-- [ ] T109 [US7] **Corte vertical E2E**: repositorio git temporal, flujo `goal → a → b` con el
+- [X] T109 [US7] **Corte vertical E2E**: repositorio git temporal, flujo `goal → a → b` con el
   agente `fake` (procesos reales de `fake-agent`) y `zeko run` desde la CLI. Verifica:
   - `b` parte del commit de `a`;
   - estados y motivos por nodo;
