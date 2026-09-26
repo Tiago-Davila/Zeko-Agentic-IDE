@@ -888,7 +888,7 @@ CLI ejecuta un flujo de dos nodos con el agente simulado, **antes de cualquier t
 
   **Archivos**: `apps/cli/test/two-node-flow.e2e.test.ts`. **Cubre**: FR-026, FR-041, FR-045,
   FR-059, FR-060, SC-004. **Base**: plan.md §Orden sugerido paso 4. **Depende de**: T103
-- [ ] T110 [US7] Equivalencia CLI/escritorio: el mismo flujo contra el agente `fake` con `origin`
+- [X] T110 [US7] Equivalencia CLI/escritorio: el mismo flujo contra el agente `fake` con `origin`
   `cli` y `desktop` produce los mismos `NodeResult` finales. **Archivos**:
   `packages/runtime/test/sc-008-equivalence.test.ts`. **Cubre**: SC-008. **Base**:
   contracts/cli.md §Equivalencia. **Depende de**: T109

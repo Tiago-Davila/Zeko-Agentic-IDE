@@ -7,7 +7,7 @@ const infrastructure = ["node:fs", "node:child_process", "node:sqlite"];
 const packageInfrastructure = ["@zeko/adapters", "@zeko/git", "@zeko/storage", "@zeko/runtime"];
 
 export default tseslint.config(
-  { ignores: ["**/dist/**", "**/node_modules/**", "**/coverage/**", "spikes/**", "specs/**"] },
+  { ignores: ["**/dist/**", "**/out/**", "**/node_modules/**", "**/coverage/**", "spikes/**", "specs/**"] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -46,7 +46,7 @@ export default tseslint.config(
   },
   {
     files: ["packages/**/*.{ts,tsx}", "apps/**/*.{ts,tsx}"],
-    languageOptions: { parserOptions: { projectService: true } },
+    languageOptions: { parserOptions: { projectService: { allowDefaultProject: ["apps/cli/test/*.ts"] } } },
     rules: { "@typescript-eslint/no-floating-promises": "error" },
   },
   {

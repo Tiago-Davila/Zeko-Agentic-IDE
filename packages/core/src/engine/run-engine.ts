@@ -636,6 +636,7 @@ export class RunEngine {
     else delete nodeRun.reason;
     if (result.inconsistency) nodeRun.inconsistency = result.inconsistency;
     else delete nodeRun.inconsistency;
+    await this.#emit(runId, "node.result", result, nodeRun.id);
     await this.#state(runId, nodeRun, nodeRun.status, nodeRun.reason, "running");
   }
 

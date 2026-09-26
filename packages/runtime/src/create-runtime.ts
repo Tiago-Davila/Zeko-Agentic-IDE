@@ -49,7 +49,10 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
         const node = event.nodeRunId ? db.prepare("SELECT node_id AS nodeId FROM node_runs WHERE id=?").get(event.nodeRunId) as { nodeId: string } | undefined : undefined;
         emit("node.state", { nodeId: node?.nodeId, status: payload["to"], reason: payload["reason"], hold: payload["hold"] }, event.runId);
       }
-      else if (event.type === "node.result") emit("node.result", { nodeId: event.nodeRunId, result: payload }, event.runId);
+      else if (event.type === "node.result") {
+        const node = event.nodeRunId ? db.prepare("SELECT node_id AS nodeId FROM node_runs WHERE id=?").get(event.nodeRunId) as { nodeId: string } | undefined : undefined;
+        emit("node.result", { nodeId: node?.nodeId, result: payload }, event.runId);
+      }
       else if (event.type === "approval.requested") {
         const node = event.nodeRunId ? db.prepare("SELECT node_id AS nodeId FROM node_runs WHERE id=?").get(event.nodeRunId) as { nodeId: string } | undefined : undefined;
         emit("approval.requested", { nodeId: node?.nodeId, summary: payload["summary"] }, event.runId);
