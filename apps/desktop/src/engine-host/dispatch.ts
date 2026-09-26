@@ -16,7 +16,12 @@ const ARGUMENTS: Record<string, readonly string[]> = {
 };
 
 /** Validate both directions of the renderer/engine boundary and dispatch to the shared runtime. */
-export async function dispatchRequest(runtime: IpcRuntime, port: Pick<MessagePortMain, "postMessage">, message: unknown): Promise<void> {
+export async function dispatchRequest(
+  runtime: IpcRuntime,
+  port: Pick<MessagePortMain, "postMessage">,
+  message: unknown,
+  onProjectOpened?: (project: { projectId: string; root: string }) => void | Promise<void>,
+): Promise<void> {
   const request = IpcRequestSchema.safeParse(message);
   if (!request.success) {
     postValidated(port, { kind: "event", type: "engine.error", payload: { code: "INVALID_IPC_REQUEST" } });
@@ -29,6 +34,10 @@ export async function dispatchRequest(runtime: IpcRuntime, port: Pick<MessagePor
     const handler = runtime.ipcHandlers[request.data.method];
     if (!handler) throw new Error(`No handler registered for ${request.data.method}`);
     const result = await handler(...args as never[]);
+    if (request.data.method === "project.open" && typeof result === "object" && result !== null) {
+      const project = result as { projectId?: unknown; root?: unknown };
+      if (typeof project.projectId === "string" && typeof project.root === "string") await onProjectOpened?.({ projectId: project.projectId, root: project.root });
+    }
     postValidated(port, { kind: "response", id: request.data.id, ok: true, result });
   } catch (error) {
     const value = error as { code?: unknown; params?: unknown; currentHash?: unknown; message?: unknown };

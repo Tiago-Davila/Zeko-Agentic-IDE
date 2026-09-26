@@ -1130,7 +1130,7 @@ MessagePort, con validación zod en los dos extremos.
   produce `engine.error`; cada método de contracts/ipc.md responde con su forma. **Archivos**:
   `apps/desktop/test/ipc-contract.test.ts`. **Cubre**: FR-063. **Base**: contracts/ipc.md.
   **Depende de**: T133, T134
-- [ ] T136 [P] [US1] Watcher de `.zeko/flows`, que emite `flow.fileChanged`. Con tests. **Archivos**:
+- [X] T136 [P] [US1] Watcher de `.zeko/flows`, que emite `flow.fileChanged`. Con tests. **Archivos**:
   `apps/desktop/src/engine-host/flow-watcher.ts`, `apps/desktop/test/engine-host/flow-watcher.test.ts`.
   **Cubre**: FR-056, casos límite. **Base**: contracts/ipc.md. **Depende de**: T133
 - [ ] T137 [US8] Empaquetado y compuerta U-01: configuración de electron-builder para Windows x64 y
