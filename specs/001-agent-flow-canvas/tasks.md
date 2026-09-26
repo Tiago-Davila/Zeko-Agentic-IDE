@@ -638,7 +638,7 @@ motor en `zeko/<run>/*`, el dependiente parte del predecesor, los archivos obser
 **Propósito**: lanzar procesos, seguir su árbol y terminar **solo** ese árbol, identificado por
 `(pid, creationTime)`.
 
-- [ ] T078 [US2] Instantánea de la tabla de procesos: en Windows, `Win32_Process` (PID, PPID,
+- [X] T078 [US2] Instantánea de la tabla de procesos: en Windows, `Win32_Process` (PID, PPID,
   `CreationDate`) con **una sola consulta por tick** para todos los árboles activos; en Linux,
   `/proc/<pid>/stat`. Tests con datos inyectados. **Archivos**:
   `packages/adapters/src/process/process-table.ts`,
