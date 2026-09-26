@@ -2,6 +2,7 @@ import type { FlowFile, PersistedEvent, Run, RunStorePort } from "@zeko/contract
 import type { Redactor } from "../redactor.js";
 import type { SqlDriver } from "../sql-driver.js";
 import { NodeRunsRepository } from "./node-runs.js";
+import { EventsRepository } from "./events.js";
 
 const epoch = (value?: string) => value ? Date.parse(value) : null;
 const iso = (value: number | null) => value === null ? undefined : new Date(value).toISOString();
@@ -9,8 +10,10 @@ const parse = <T>(value: string): T => JSON.parse(value) as T;
 
 export class RunsRepository implements RunStorePort {
   readonly nodeRuns: NodeRunsRepository;
+  readonly events: EventsRepository;
   constructor(private readonly db: SqlDriver, private readonly redactor: Redactor, private readonly now = Date.now) {
     this.nodeRuns = new NodeRunsRepository(db, redactor);
+    this.events = new EventsRepository(db, redactor);
   }
 
   async create(run: Run): Promise<void> {
@@ -58,8 +61,7 @@ export class RunsRepository implements RunStorePort {
 
   async append(event: PersistedEvent): Promise<void> {
     const safe = this.redactor.redact(event);
-    this.db.prepare("INSERT INTO events(run_id,node_run_id,attempt_id,ts,type,payload) VALUES (?,?,?,?,?,?)")
-      .run(safe.runId, safe.nodeRunId ?? null, safe.attemptId ?? null, Date.parse(safe.ts), safe.type, JSON.stringify(safe.payload));
+    await this.events.append(safe);
   }
 
   async saveFlowSnapshot(runId: string, flow: FlowFile): Promise<void> {

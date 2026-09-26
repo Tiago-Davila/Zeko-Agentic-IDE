@@ -734,7 +734,7 @@ redacción antes de toda escritura.
   **Archivos**: `packages/storage/src/repos/runs.ts`, `packages/storage/src/repos/node-runs.ts`,
   `packages/storage/src/repos/attempts.ts`, `packages/storage/test/repos/runs.test.ts`. **Cubre**:
   FR-011a, FR-023, FR-060, FR-063. **Base**: data-model §2 y §4. **Depende de**: T087, T088, T022
-- [ ] T090 [US8] Repositorio de eventos:
+- [X] T090 [US8] Repositorio de eventos:
   - escritura por lotes en transacciones de 50 ms como máximo (NFR-005);
   - solo acepta payloads `Redacted`;
   - escribe también el log crudo en `%LOCALAPPDATA%\Zeko\logs\<run>\<node>-<attempt>.jsonl`,
