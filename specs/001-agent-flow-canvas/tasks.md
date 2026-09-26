@@ -587,7 +587,7 @@ sobre repositorios temporales (git no es un proveedor de IA).
   `HEAD` (para `SCOPE_PATH_NOT_FOUND`). Con tests. **Archivos**: `packages/git/src/repo-info.ts`,
   `packages/git/test/repo-info.test.ts`. **Cubre**: FR-002, casos límite. **Base**: plan.md §Flujo
   paso 3. **Depende de**: T069
-- [ ] T071 [US2] Crear el worktree de un intento en `%LOCALAPPDATA%\Zeko\wt\<run8>\<nodeKey>`
+- [X] T071 [US2] Crear el worktree de un intento en `%LOCALAPPDATA%\Zeko\wt\<run8>\<nodeKey>`
   (`$XDG_DATA_HOME` en Linux), **nunca** dentro del repo ni bajo `%TEMP%`, con rama
   `zeko/<run8>/<nodeId>` desde un sha dado. Si falla, `WORKSPACE_CREATE_FAILED`. Tests: el repo
   original no cambia y se rechaza una ruta bajo `%TEMP%`. **Archivos**:
