@@ -1,6 +1,8 @@
 import { AgentCapabilitiesSchema, ProcessOutcomeSchema, type AgentAdapter, type AgentAvailability, type AgentExecution, type AgentUsageReading, type LaunchSpec, type NormalizedEvent, type Platform, type ProcessOutcome, type ReportCandidate } from "@zeko/contracts";
 import { homedir } from "node:os";
 import { join } from "node:path";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { ProcessSupervisor, type SupervisedProcess } from "../process/supervisor.ts";
 import { codexCapabilities } from "../capabilities/codex.ts";
 import { buildCodexEnvironment, codexSensitiveValues } from "./env.ts";
@@ -21,6 +23,9 @@ export interface CodexAdapterOptions {
   readonly apiKey?: string;
   readonly windowsSandbox?: "elevated" | "unelevated";
   readonly forkReport?: boolean;
+  readonly versionArgs?: readonly string[];
+  readonly authArgs?: readonly string[];
+  readonly sandboxSetup?: () => Promise<boolean>;
 }
 
 export class CodexAdapter implements AgentAdapter {
@@ -29,11 +34,14 @@ export class CodexAdapter implements AgentAdapter {
   readonly #prefixArgs: readonly string[];
   readonly #supervisor: ProcessSupervisor;
   readonly #platform: NodeJS.Platform;
-  readonly #windowsSandbox: "elevated" | "unelevated";
+  #windowsSandbox: "elevated" | "unelevated";
   readonly #forkReport: boolean;
   readonly #apiKey: string | undefined;
   readonly #rollouts: CodexRolloutReader;
   readonly #ownsSupervisor: boolean;
+  readonly #versionArgs: readonly string[];
+  readonly #authArgs: readonly string[];
+  readonly #sandboxSetup: () => Promise<boolean>;
 
   constructor(options: CodexAdapterOptions = {}) {
     this.#binaryPath = options.binaryPath;
@@ -42,13 +50,33 @@ export class CodexAdapter implements AgentAdapter {
     this.#platform = options.platform ?? process.platform;
     this.#windowsSandbox = options.windowsSandbox ?? "unelevated";
     this.#forkReport = options.forkReport ?? false;
+    this.#versionArgs = options.versionArgs ?? ["--version"];
+    this.#authArgs = options.authArgs ?? ["login", "status"];
+    this.#sandboxSetup = options.sandboxSetup ?? hasWindowsSandboxSetup;
     this.#apiKey = options.apiKey;
     this.#rollouts = new CodexRolloutReader({ codexHome: options.codexHome ?? process.env["CODEX_HOME"] ?? join(homedir(), ".codex") });
     this.#ownsSupervisor = options.supervisor === undefined;
   }
 
   capabilities(platform: Platform) { return AgentCapabilitiesSchema.parse(codexCapabilities[platform]); }
-  async detect(): Promise<AgentAvailability> { return { agentId: this.id, installed: false, auth: { state: "unknown", mode: "detect", verified: false }, problems: [] }; }
+  async detect(): Promise<AgentAvailability> {
+    let binary: string;
+    try { binary = resolveCodexBinary({ ...(this.#binaryPath ? { binaryPath: this.#binaryPath } : {}), platform: this.#platform, env: process.env }); }
+    catch { return { agentId: this.id, installed: false, auth: { state: "unknown", mode: this.#apiKey ? "api_key" : "detect", verified: false }, problems: ["Codex installation could not be verified"] }; }
+    const env = buildCodexEnvironment(this.#apiKey);
+    const versionResult = await runExit(binary, this.#versionArgs, env);
+    const version = versionResult.code === 0 ? parseVersion(versionResult.stdout) : undefined;
+    const installed = version !== undefined;
+    let auth: AgentAvailability["auth"] = { state: "unknown", mode: this.#apiKey ? "api_key" : "detect", verified: false };
+    if (installed && this.#apiKey) auth = { state: "authenticated", mode: "api_key", verified: false };
+    else if (installed) {
+      const status = await runExit(binary, this.#authArgs, env);
+      auth = status.code === 0 ? { state: "authenticated", mode: "subscription", verified: true } : status.code === 1 ? { state: "not_authenticated", mode: "subscription", verified: true } : { state: "unknown", mode: "detect", verified: false };
+    }
+    if (installed && this.#platform === "win32" && await this.#sandboxSetup()) this.#windowsSandbox = "elevated";
+    const problems = installed ? (this.#platform === "win32" ? [`Windows sandbox mode: ${this.#windowsSandbox}`] : []) : ["Codex installation could not be verified"];
+    return { agentId: this.id, installed, ...(version ? { version } : {}), auth, problems };
+  }
   async readUsage(): Promise<AgentUsageReading | undefined> { return (await this.#rollouts.read())?.usage; }
   launch(spec: LaunchSpec): AgentExecution { return this.#createExecution(spec); }
   requestReport(previous: AgentExecution, spec: LaunchSpec): AgentExecution {
@@ -148,3 +176,24 @@ class EventQueue<T> implements AsyncIterable<T> {
 
 function asRecord(value: unknown): Record<string, unknown> | undefined { return typeof value === "object" && value !== null && !Array.isArray(value) ? value as Record<string, unknown> : undefined; }
 function safeError(error: unknown): string { return error instanceof Error ? error.message : "Codex launch failed"; }
+
+const execFileAsync = promisify(execFile);
+async function runExit(command: string, args: readonly string[], env: NodeJS.ProcessEnv): Promise<{ code: number | null; stdout: string }> {
+  try {
+    const result = await execFileAsync(command, [...args], { cwd: process.cwd(), env, shell: false, windowsHide: true, timeout: 5_000, maxBuffer: 4_096, encoding: "utf8" });
+    return { code: 0, stdout: result.stdout.slice(0, 4_096) };
+  } catch (error) {
+    const result = asRecord(error);
+    const code = typeof result?.["code"] === "number" ? result["code"] : null;
+    const stdout = typeof result?.["stdout"] === "string" ? result["stdout"].slice(0, 4_096) : "";
+    return { code, stdout };
+  }
+}
+function parseVersion(output: string): string | undefined { return /(?:Codex CLI\s+)?(\d+\.\d+(?:\.\d+)?(?:[-+][\w.-]+)?)/iu.exec(output)?.[1]; }
+async function hasWindowsSandboxSetup(): Promise<boolean> {
+  if (process.platform !== "win32") return false;
+  const service = await runExit("sc.exe", ["query", "codex-windows-sandbox-service"], process.env);
+  if (service.code !== 0) return false;
+  const account = await runExit("net.exe", ["user", "CodexSandboxOffline"], process.env);
+  return account.code === 0;
+}

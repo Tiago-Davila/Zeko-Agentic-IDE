@@ -1072,7 +1072,7 @@ en modo `replay` con los fixtures de Codex.
   **Archivos**: `packages/adapters/src/codex/adapter.ts`,
   `packages/adapters/test/codex/adapter.test.ts`. **Cubre**: FR-030, FR-038, NFR-004. **Base**:
   R-13, R-16, `[001c §5, §9]`. **Depende de**: T120, T121, T124, T126, T127, T081
-- [ ] T129 [US4] `detect()` y `readUsage()` de Codex:
+- [X] T129 [US4] `detect()` y `readUsage()` de Codex:
   - `codex --version` y `codex login status` por código de salida, con el entorno limpio, sobre el
     binario resuelto por T120 (inyectado en los tests);
   - detecta el setup del sandbox `elevated`;
