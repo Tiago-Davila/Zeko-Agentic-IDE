@@ -47,6 +47,15 @@ describe("Claude stream-json parser", () => {
     expect(duplicateDenial).toEqual([]);
   });
 
+  it("does not merge distinct denied tool calls that have the same tool and input", () => {
+    const instance = parser();
+    const common = { type: "system", subtype: "permission_denied", tool_name: "Write", message: "outside scope", input: { file_path: "outside.txt" } };
+    expect(instance.parse(JSON.stringify({ ...common, tool_use_id: "denied-1" }))).toHaveLength(1);
+    expect(instance.parse(JSON.stringify({ ...common, tool_use_id: "denied-2" }))).toHaveLength(1);
+    expect(instance.parse(JSON.stringify(common))).toHaveLength(1);
+    expect(instance.parse(JSON.stringify(common))).toEqual([]);
+  });
+
   it("maps live rate-limit windows, keeps the maximum windows, and drops expired readings", () => {
     const instance = parser();
     const usage = instance.parse(fixture("events/rate_limit_event.json"));

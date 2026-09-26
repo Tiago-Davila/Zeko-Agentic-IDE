@@ -137,10 +137,11 @@ export class ClaudeStreamParser {
     if (input.id) {
       if (this.#denialIds.has(input.id)) return [];
       this.#denialIds.add(input.id);
+    } else {
+      const key = `${input.tool}\0${input.reason}\0${stableJson(input.input)}`;
+      if (this.#denialKeys.has(key)) return [];
+      this.#denialKeys.add(key);
     }
-    const key = `${input.tool}\0${input.reason}\0${stableJson(input.input)}`;
-    if (this.#denialKeys.has(key)) return [];
-    this.#denialKeys.add(key);
     return [this.#event({ type: "permission_denied", tool: input.tool, reason: input.reason, ...(input.input === undefined ? {} : { input: input.input }) })];
   }
 
