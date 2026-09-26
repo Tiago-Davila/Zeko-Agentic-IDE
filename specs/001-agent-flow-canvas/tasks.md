@@ -871,7 +871,7 @@ CLI ejecuta un flujo de dos nodos con el agente simulado, **antes de cualquier t
   con tests. **Archivos**: `apps/cli/src/commands/runs.ts`, `apps/cli/test/runs.test.ts`.
   **Cubre**: FR-060, FR-061. **Base**: contracts/cli.md, quickstart §Verificación de procesos.
   **Depende de**: T103
-- [ ] T107 [P] [US8] `zeko workspaces delete`: con `--yes` o confirmación por TTY; sin TTY ni
+- [X] T107 [P] [US8] `zeko workspaces delete`: con `--yes` o confirmación por TTY; sin TTY ni
   `--yes`, no borra nada y sale con 64. Con tests. **Archivos**:
   `apps/cli/src/commands/workspaces.ts`, `apps/cli/test/workspaces.test.ts`. **Cubre**: FR-048.
   **Base**: contracts/cli.md. **Depende de**: T103

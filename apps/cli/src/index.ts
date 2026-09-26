@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 import { runCommand } from "./commands/run.js";
 import { validateCommand } from "./commands/validate.js";
 import { runsListCommand, runsShowCommand } from "./commands/runs.js";
+import { workspacesDeleteCommand } from "./commands/workspaces.js";
 
 export async function main(args: string[]): Promise<number> {
   const [command, ...rest] = args;
@@ -16,6 +17,11 @@ export async function main(args: string[]): Promise<number> {
     const limit = flags.limit === undefined ? 50 : Number(flags.limit);
     if (!Number.isInteger(limit) || limit < 1 || limit > 500) return usage();
     return runsListCommand({ ...(flags.project ? { project: flags.project } : {}), ...(flags.flow ? { flow: flags.flow } : {}), limit, json: flags.json });
+  }
+  if (command === "workspaces") {
+    const [subcommand, runId, ...tail] = rest;
+    if (subcommand !== "delete" || !runId || tail.some((arg) => arg !== "--yes")) return usage();
+    return workspacesDeleteCommand({ runId, yes: tail.includes("--yes") });
   }
   if (command !== "validate" && command !== "run") return usage();
   const positional: string[] = [];
