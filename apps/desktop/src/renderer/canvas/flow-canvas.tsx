@@ -18,6 +18,7 @@ import { useT } from "../i18n/use-t.js";
 import { AgentCanvasNode, ApprovalCanvasNode, InputCanvasNode, type FlowNodeData } from "./node-types.js";
 import { AgentNodePanel } from "../panels/agent-node-panel.js";
 import { DiagnosticsOverlay } from "./diagnostics-overlay.js";
+import { useRunState } from "../run/run-state-store.js";
 
 interface FlowCanvasProps {
   projectId: string;
@@ -28,16 +29,18 @@ interface FlowCanvasProps {
   onStartRun: () => void;
   dirty: boolean;
   saving: boolean;
+  runId?: string | undefined;
 }
 
 const nodeTypes = { input: InputCanvasNode, agent: AgentCanvasNode, approval: ApprovalCanvasNode };
 
-export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, onStartRun, dirty, saving }: FlowCanvasProps) {
+export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, onStartRun, dirty, saving, runId }: FlowCanvasProps) {
   const t = useT();
   const [message, setMessage] = useState<string>();
   const [selectedNodeId, setSelectedNodeId] = useState<string>();
   const [defaults, setDefaults] = useState<ProjectConfig["defaultModels"]>(DEFAULT_MODELS);
   const [notApplicable, setNotApplicable] = useState<string[]>([]);
+  const liveStates = useRunState(runId);
   const [diagnostics, setDiagnostics] = useState<Diagnostic[]>([]);
   const [validationReady, setValidationReady] = useState(false);
   const [nodeViews, setNodeViews] = useState<NodeView[]>([]);
@@ -47,8 +50,8 @@ export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, onStartR
     id: node.id,
     type: node.type,
     position: node.position,
-    data: { flowNode: node, diagnostics: diagnostics.filter((item) => item.nodeId === node.id), nodeView: nodeViews.find((view) => view.nodeId === node.id) ?? null },
-  })), [diagnostics, flow.nodes, nodeViews]);
+    data: { flowNode: node, diagnostics: diagnostics.filter((item) => item.nodeId === node.id), nodeView: nodeViews.find((view) => view.nodeId === node.id) ?? null, liveState: liveStates[node.id] ?? null },
+  })), [diagnostics, flow.nodes, liveStates, nodeViews]);
   const edges = useMemo<CanvasEdge[]>(() => flow.edges.map((edge) => ({
     id: `${edge.from}->${edge.to}`,
     source: edge.from,

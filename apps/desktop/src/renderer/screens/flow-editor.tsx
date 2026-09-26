@@ -118,7 +118,7 @@ export function FlowEditor({ projectId, flowId, onBack }: FlowEditorProps) {
   return <>
     {error && <div className="editor-error" role="alert">{error}</div>}
     <FlowCanvas projectId={projectId} flow={flow} onChange={(next) => { setFlow(next); setDirty(true); }} onBack={onBack}
-      onSave={() => void save()} onStartRun={() => void checkBeforeRun()} dirty={dirty} saving={saving} />
+      onSave={() => void save()} onStartRun={() => void checkBeforeRun()} dirty={dirty} saving={saving} runId={runId} />
     {runId && <div className="run-start-toast" role="status">{t("run.started")}</div>}
     {conflict && <FileConflictDialog onCancel={() => setConflict(undefined)} onKeep={keepMyVersion} onReload={() => void reload()} />}
     {preflight && <PreflightDialog result={preflight} running={starting} error={preflightError} onCancel={() => setPreflight(undefined)} onStart={() => void startRun()} />}

@@ -1195,7 +1195,7 @@ confinamiento y capacidades, costo y uso, e historial. La UI solo pinta lo que c
   (sin email), "API key (unverified)" y aviso de cambios sin confirmar. **Archivos**:
   `apps/desktop/src/renderer/dialogs/preflight-dialog.tsx`. **Cubre**: FR-025, FR-065, NFR-007,
   US2-2. **Base**: R-19. **Depende de**: T143
-- [ ] T146 [US2] Estados en vivo en el canvas a partir de `node.state` (sin esperar la salida) y
+- [X] T146 [US2] Estados en vivo en el canvas a partir de `node.state` (sin esperar la salida) y
   motivo visible con una interacción como máximo. **Archivos**:
   `apps/desktop/src/renderer/run/run-state-store.ts`,
   `apps/desktop/src/renderer/canvas/node-status.tsx`. **Cubre**: FR-028, FR-039, NFR-003, NFR-011.
