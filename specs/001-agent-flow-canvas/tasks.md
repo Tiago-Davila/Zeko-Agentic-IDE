@@ -656,7 +656,7 @@ motor en `zeko/<run>/*`, el dependiente parte del predecesor, los archivos obser
   `packages/adapters/src/process/supervisor.ts`,
   `packages/adapters/test/process/supervisor.launch.test.ts`. **Cubre**: FR-029, FR-030. **Base**:
   R-14, `[001 §3]`. **Depende de**: T079, T053
-- [ ] T081 [US2] Terminación del supervisor:
+- [X] T081 [US2] Terminación del supervisor:
   - Windows: `taskkill /PID <raíz> /T /F` **solo si** una instantánea confirma que la raíz sigue
     viva con el mismo `creationTime` registrado; si no, se omite (su PID pudo reutilizarse);
     después, cada PID registrado que siga vivo **y** tenga el mismo `creationTime`, de a uno; al

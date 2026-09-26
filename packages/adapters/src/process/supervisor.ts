@@ -8,6 +8,10 @@ export interface ProcessSupervisorOptions {
   readonly pollIntervalMs?: number;
   readonly snapshot?: () => Promise<ProcessEntry[]>;
   readonly spawn?: (command: string, args: readonly string[], options: SpawnOptions) => ChildProcess;
+  readonly killByPid?: (pid: number, tree: boolean) => Promise<void>;
+  readonly signalProcessGroup?: (pgid: number, signal: NodeJS.Signals) => Promise<void>;
+  readonly sleep?: (milliseconds: number) => Promise<void>;
+  readonly terminationTimeoutMs?: number;
 }
 
 export interface SupervisedProcess {
@@ -29,6 +33,10 @@ export class ProcessSupervisor {
   readonly #pollIntervalMs: number;
   readonly #snapshot: () => Promise<ProcessEntry[]>;
   readonly #spawn: (command: string, args: readonly string[], options: SpawnOptions) => ChildProcess;
+  readonly #killByPid: (pid: number, tree: boolean) => Promise<void>;
+  readonly #signalProcessGroup: (pgid: number, signal: NodeJS.Signals) => Promise<void>;
+  readonly #sleep: (milliseconds: number) => Promise<void>;
+  readonly #terminationTimeoutMs: number;
   readonly #active = new Set<ActiveProcess>();
   #timer: NodeJS.Timeout | undefined;
   #polling: Promise<void> | undefined;
@@ -38,6 +46,10 @@ export class ProcessSupervisor {
     this.#pollIntervalMs = options.pollIntervalMs ?? 2_000;
     this.#snapshot = options.snapshot ?? (() => getProcessSnapshot(this.#platform));
     this.#spawn = options.spawn ?? ((command, args, spawnOptions) => spawn(command, [...args], spawnOptions));
+    this.#killByPid = options.killByPid ?? killWindowsProcessByPid;
+    this.#signalProcessGroup = options.signalProcessGroup ?? (async (pgid, signal) => { process.kill(-pgid, signal); });
+    this.#sleep = options.sleep ?? ((milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds)));
+    this.#terminationTimeoutMs = options.terminationTimeoutMs ?? 9_000;
   }
 
   async launch(command: string, args: readonly string[], options: { readonly cwd: string; readonly env?: NodeJS.ProcessEnv }): Promise<SupervisedProcess> {
@@ -79,6 +91,50 @@ export class ProcessSupervisor {
     await this.#polling?.catch(() => undefined);
   }
 
+  async refresh(): Promise<void> {
+    await this.#poll();
+  }
+
+  registeredProcesses(root: ProcessIdentity): ProcessIdentity[] {
+    return [...this.#active].find((tracked) => sameIdentity(tracked.tracker.registered[0]!, root))?.tracker.registered ?? [];
+  }
+
+  async terminate(root: ProcessIdentity): Promise<void> {
+    const tracked = [...this.#active].find((candidate) => sameIdentity(candidate.tracker.registered[0]!, root));
+    if (!tracked) throw new Error("Only a registered process root can be terminated");
+
+    let snapshot = await this.#snapshot();
+    tracked.tracker.update(snapshot);
+    const rootIsSameProcess = hasIdentity(snapshot, root);
+    if (this.#platform === "win32") {
+      if (rootIsSameProcess) await this.#killByPid(root.pid, true);
+      for (const descendant of tracked.tracker.registered.filter((identity) => !sameIdentity(identity, root))) {
+        snapshot = await this.#snapshot();
+        if (hasIdentity(snapshot, descendant)) await this.#killByPid(descendant.pid, false);
+      }
+    } else if (this.#platform === "linux" && rootIsSameProcess) {
+      await this.#signalProcessGroup(root.pid, "SIGTERM");
+      await this.#sleep(200);
+      snapshot = await this.#snapshot();
+      tracked.tracker.update(snapshot);
+      if (tracked.tracker.live(snapshot).length > 0) await this.#signalProcessGroup(root.pid, "SIGKILL");
+    } else if (this.#platform !== "linux") {
+      throw new Error(`Process termination is not implemented for ${this.#platform}`);
+    }
+
+    const deadline = Date.now() + this.#terminationTimeoutMs;
+    do {
+      snapshot = await this.#snapshot();
+      if (tracked.tracker.live(snapshot).length === 0) {
+        this.#active.delete(tracked);
+        this.#stopPollingWhenIdle();
+        return;
+      }
+      await this.#sleep(50);
+    } while (Date.now() < deadline);
+    throw new Error(`Timed out waiting for registered process tree rooted at PID ${root.pid}`);
+  }
+
   async #waitForRoot(pid: number): Promise<ProcessIdentity> {
     const deadline = Date.now() + 2_000;
     do {
@@ -118,6 +174,29 @@ async function* readLines(stream: NodeJS.ReadableStream): AsyncIterable<string> 
   } finally {
     lines.close();
   }
+}
+
+async function killWindowsProcessByPid(pid: number, tree: boolean): Promise<void> {
+  if (process.platform !== "win32") throw new Error("Windows PID termination was requested on another platform");
+  const args = ["/PID", String(pid), ...(tree ? ["/T"] : []), "/F"];
+  await new Promise<void>((resolve, reject) => {
+    const child = spawn("taskkill.exe", args, { shell: false, windowsHide: true, stdio: "ignore" });
+    child.once("error", reject);
+    child.once("close", (code) => {
+      // A process can exit after its identity check and before taskkill opens it.
+      // The final table verification below remains authoritative.
+      if (code === 0 || code === 128 || code === 1) resolve();
+      else reject(new Error(`taskkill failed for PID ${pid} (${code ?? "unknown exit"})`));
+    });
+  });
+}
+
+function sameIdentity(left: ProcessIdentity, right: ProcessIdentity): boolean {
+  return left.pid === right.pid && left.creationTime === right.creationTime;
+}
+
+function hasIdentity(snapshot: readonly ProcessEntry[], identity: ProcessIdentity): boolean {
+  return snapshot.some((entry) => entry.pid === identity.pid && entry.creationTime === identity.creationTime);
 }
 
 function writeToStdin(child: ChildProcess, line: string): Promise<void> {
