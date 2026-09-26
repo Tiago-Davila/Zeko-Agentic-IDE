@@ -22,6 +22,7 @@ export class RunsRepository implements RunStorePort {
 
   recordProcessIdentity(identity: Parameters<ProcessTreeRepository["record"]>[0]): void { this.processTree.record(identity); }
   markProcessEnded(identity: { attemptId: string; pid: number; creationTime: number; endedAt: number }): void { this.processTree.markEnded(identity.attemptId, identity.pid, identity.creationTime, identity.endedAt); }
+  registerSensitiveValues(values: Iterable<string>): () => void { return this.redactor.registerSensitiveValues(values); }
 
   async create(run: Run, nodeRuns?: readonly NodeRun[]): Promise<void> {
     const safe = this.redactor.redact(run);

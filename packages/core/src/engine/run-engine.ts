@@ -72,6 +72,13 @@ export interface RunEngineResult {
   nodeRuns: ReadonlyMap<string, NodeRun>;
 }
 
+interface CollectedExecution {
+  outcome: ProcessOutcome;
+  report: ReportCandidate;
+  denials?: NonNullable<NodeRun["denials"]>;
+  inferredDenials: NonNullable<NodeRun["inferredDenials"]>;
+}
+
 /** Runs a validated flow using only contracts ports and registered adapters. */
 export class RunEngine {
   #activeExecutions = new Map<string, AgentExecution>();
@@ -80,6 +87,7 @@ export class RunEngine {
   #runId: string | undefined;
   #nodeRuns: Map<string, NodeRun> | undefined;
   #approvalCancels = new Map<string, () => void>();
+  #sensitiveRegistrations: Array<() => void> = [];
   constructor(readonly options: RunEngineOptions) {}
 
   async cancelRun(): Promise<void> {
@@ -367,6 +375,7 @@ export class RunEngine {
         totals: run.totals,
       });
     await options.store.updateRun?.(run);
+    this.#clearSensitiveRegistrations();
     return { run, nodeRuns };
   }
 
@@ -479,18 +488,12 @@ export class RunEngine {
           attemptId,
         );
         const execution = adapter.launch(launch);
+        this.#registerSensitiveValues(execution.sensitiveValues);
         this.#activeExecutions.set(node.id, execution);
         const processStartedAt = Date.now();
-        const collected =
-          this.options.enforceTimeouts === false
-            ? await this.#collect(execution, runId, nodeRun.id, attemptId)
-            : await this.#collectWithTimeout(
-                execution,
-                runId,
-                nodeRun.id,
-                attemptId,
-                node.limits.timeoutMinutes * 60_000,
-              );
+        const collected: CollectedExecution = this.options.enforceTimeouts === false
+          ? await this.#collect(execution, runId, nodeRun.id, attemptId)
+          : await this.#collectWithTimeout(execution, runId, nodeRun.id, attemptId, node.limits.timeoutMinutes * 60_000);
         this.#activeExecutions.delete(node.id);
         if (execution.rootPid.pid > 0 && execution.rootPid.creationTime > 0) {
           this.options.store.recordProcessIdentity?.({ attemptId, pid: execution.rootPid.pid, creationTime: execution.rootPid.creationTime, isRoot: true, firstSeen: processStartedAt, lastSeen: Date.now() });
@@ -541,12 +544,8 @@ export class RunEngine {
             attemptId,
           );
           const reportExecution = adapter.requestReport(execution, launch);
-          const reportCollection = await this.#collect(
-            reportExecution,
-            runId,
-            nodeRun.id,
-            attemptId,
-          );
+          this.#registerSensitiveValues(reportExecution.sensitiveValues);
+          const reportCollection: CollectedExecution = await this.#collect(reportExecution, runId, nodeRun.id, attemptId);
           candidate = reportCollection.report;
           denials = reportCollection.denials ?? denials;
           inferred.push(...reportCollection.inferredDenials);
@@ -885,6 +884,15 @@ export class RunEngine {
       type,
       payload,
     } as unknown as PersistedEvent);
+  }
+
+  #registerSensitiveValues(values: Iterable<string>): void {
+    const unregister = this.options.store.registerSensitiveValues?.(values);
+    if (unregister) this.#sensitiveRegistrations.push(unregister);
+  }
+
+  #clearSensitiveRegistrations(): void {
+    for (const unregister of this.#sensitiveRegistrations.splice(0)) unregister();
   }
 
   #id(): string {

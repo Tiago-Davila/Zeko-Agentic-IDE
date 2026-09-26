@@ -37,8 +37,8 @@ describe("persisted secret redaction", () => {
       capabilities: (platform) => scripted.capabilities(platform),
       detect: () => scripted.detect(),
       readUsage: () => scripted.readUsage(),
-      launch: (spec) => { const execution = scripted.launch(spec); redactor.registerSensitiveValues(execution.sensitiveValues); return execution; },
-      requestReport: (previous, spec) => { const execution = scripted.requestReport(previous, spec); redactor.registerSensitiveValues(execution.sensitiveValues); return execution; },
+      launch: (spec) => scripted.launch(spec),
+      requestReport: (previous, spec) => scripted.requestReport(previous, spec),
     };
     const flow = {
       schemaVersion: 1 as const, id: "leaks-secret", name: "Leak test",
@@ -60,7 +60,6 @@ describe("persisted secret redaction", () => {
     const result = await engine.execute();
     expect(result.nodeRuns.get("agent")?.attempts).toHaveLength(1);
     expect(db.prepare("SELECT type,attempt_id FROM events").all()).toContainEqual(expect.objectContaining({ type: "agent.text" }));
-    await store.nodeRuns.save(result.nodeRuns.get("agent")!);
     await store.events.flush();
     const persisted = [
       ...db.prepare("SELECT * FROM events").all(),

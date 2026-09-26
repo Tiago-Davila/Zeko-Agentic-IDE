@@ -27,6 +27,7 @@ export interface RunStorePort {
   updateRun?(run: Run): Promise<void>;
   recordProcessIdentity?(identity: { attemptId: string; pid: number; creationTime: number; parentPid?: number; isRoot: boolean; firstSeen: number; lastSeen: number; endedAt?: number }): void;
   markProcessEnded?(identity: { attemptId: string; pid: number; creationTime: number; endedAt: number }): void;
+  registerSensitiveValues?(values: Iterable<string>): () => void;
 }
 
 export interface ClockPort {

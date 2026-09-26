@@ -38,6 +38,7 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
     create: runs.create.bind(runs), get: runs.get.bind(runs), saveFlowSnapshot: runs.saveFlowSnapshot.bind(runs),
     saveNodeRun: runs.saveNodeRun.bind(runs), updateRun: runs.updateRun.bind(runs),
     recordProcessIdentity: runs.recordProcessIdentity.bind(runs), markProcessEnded: runs.markProcessEnded.bind(runs),
+    registerSensitiveValues: runs.registerSensitiveValues.bind(runs),
     async append(event: PersistedEvent) {
       await runs.append(event);
       const payload = event.payload as Record<string, unknown>;
