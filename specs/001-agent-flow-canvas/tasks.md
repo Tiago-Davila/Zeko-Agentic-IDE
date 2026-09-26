@@ -1033,7 +1033,7 @@ en modo `replay` con los fixtures de Codex.
   secundaria), `task_complete.duration_ms` y rechazos. Tests con un rollout fixture. **Archivos**:
   `packages/adapters/src/codex/rollout.ts`, `packages/adapters/test/codex/rollout.test.ts`.
   **Cubre**: FR-011a, FR-052. **Base**: R-13, R-17, `[001c §3, §11]`. **Depende de**: T123
-- [ ] T125 [US4] **Firmas de fallo de Codex** (política de infraestructura). Se revisan stderr y el
+- [X] T125 [US4] **Firmas de fallo de Codex** (política de infraestructura). Se revisan stderr y el
   rollout **antes** del código de salida:
   - `failed: 267` / `os error 267` en sus tres formas (`CreateProcessWithLogonW`,
     `CreateProcessAsUserW`, `unified exec`) → `infra_failure{process_create}`, **en cualquier modo de
