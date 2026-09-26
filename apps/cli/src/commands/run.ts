@@ -93,6 +93,9 @@ export async function runCommand(options: RunCommandOptions): Promise<number> {
     return exitCode;
   } catch (error) {
     stderr(error instanceof Error ? error.message : String(error));
+    const code = error && typeof error === "object" && "code" in error ? String(error.code) : "";
+    if (["NOT_A_GIT_REPO", "NO_COMMITS", "PREFLIGHT_FAILED", "FILE_CHANGED_ON_DISK"].includes(code)) return 3;
+    if (code === "FLOW_INVALID") return 2;
     return exitCode;
   } finally { if (sigintHandler) process.off("SIGINT", sigintHandler); runtime.close(); }
 }

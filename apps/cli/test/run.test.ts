@@ -17,6 +17,14 @@ async function initRepo(root: string) {
 }
 
 describe("zeko run", () => {
+  it("uses exit code 3 when the selected directory cannot start a run", async () => {
+    const root = await mkdtemp(join(tmpdir(), "zeko-cli-run-"));
+    try {
+      const errors: string[] = [];
+      const code = await runCommand({ flow: "missing", project: root, stderr: (line) => errors.push(line), runtimeOptions: { dbPath: join(root, "state", "zeko.db"), worktreeRoot: join(root, "state", "wt") } });
+      expect(code).toBe(3); expect(errors.join(" ")).toContain("git repository");
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
   it("escalates the second Ctrl+C within three seconds to forced tree termination", () => {
     let time = 100; let cancels = 0; let forces = 0;
     const handler = createCtrlCHandler(() => { cancels++; }, () => { forces++; }, () => time);
