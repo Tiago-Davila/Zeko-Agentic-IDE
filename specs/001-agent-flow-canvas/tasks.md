@@ -795,7 +795,7 @@ concurrencia; ningún dato persistido contiene claves ni emails.
 **Propósito**: componer el motor una sola vez y ejecutarlo desde la CLI. Al cerrar esta fase, la
 CLI ejecuta un flujo de dos nodos con el agente simulado, **antes de cualquier tarea de UI**.
 
-- [ ] T097 [US7] Rutas por plataforma: `%LOCALAPPDATA%\Zeko\{zeko.db, wt, logs}` en Windows y XDG
+- [X] T097 [US7] Rutas por plataforma: `%LOCALAPPDATA%\Zeko\{zeko.db, wt, logs}` en Windows y XDG
   en Linux, con tests. **Archivos**: `packages/runtime/src/paths.ts`,
   `packages/runtime/test/paths.test.ts`. **Cubre**: FR-064. **Base**: R-03, R-15. **Depende de**:
   T005
