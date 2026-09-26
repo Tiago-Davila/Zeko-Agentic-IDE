@@ -719,7 +719,7 @@ redacción antes de toda escritura.
   de un NodeRun con `source: 'project_default'`. **Archivos**: `packages/storage/src/migrations/001_initial.ts`,
   `packages/storage/src/migrate.ts`, `packages/storage/test/migrate.test.ts`. **Cubre**: FR-060,
   FR-061. **Base**: data-model §4. **Depende de**: T086
-- [ ] T088 [US8] **Redactor**:
+- [X] T088 [US8] **Redactor**:
   - aplica los patrones de T051 (importados de `contracts`) más un registro de **valores exactos**
     de credenciales inyectadas, que el `runtime` alimenta con los `sensitiveValues` que declara
     cada ejecución de un adaptador (T018, T121); `storage` nunca importa `adapters`;
