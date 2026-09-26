@@ -72,6 +72,7 @@ export type ZekoEvent = typeof EventSchema._output;
 type IpcResponse = typeof ResponseSchema._output;
 interface ZekoBridge {
   request(message: { kind: "request"; id: string; method: IpcMethod; params: Record<string, unknown> }): Promise<IpcResponse>;
+  request(message: { kind: "host-request"; channel: "dialog.openFolder" }): Promise<string | undefined>;
   onEvent(listener: (event: ZekoEvent) => void): () => void;
 }
 
@@ -85,6 +86,10 @@ export class IpcClientError extends Error {
 }
 
 export class IpcClient {
+  async openProjectFolder(): Promise<string | undefined> {
+    return window.zeko.request({ kind: "host-request", channel: "dialog.openFolder" });
+  }
+
   async request<M extends IpcMethod>(method: M, params: IpcContract[M]["params"]): Promise<IpcContract[M]["result"]> {
     const response = await window.zeko.request({
       kind: "request", id: crypto.randomUUID(), method,

@@ -1154,7 +1154,7 @@ confinamiento y capacidades, costo y uso, e historial. La UI solo pinta lo que c
   que prohíbe strings literales en JSX. **Archivos**: `apps/desktop/src/renderer/ipc/client.ts`,
   `apps/desktop/src/renderer/i18n/use-t.ts`, `eslint.config.js`. **Cubre**: NFR-013. **Base**:
   R-24. **Depende de**: T134, T025
-- [ ] T139 [US1] Pantalla de proyecto: abrir carpeta (mensaje claro si no es repositorio git) y
+- [X] T139 [US1] Pantalla de proyecto: abrir carpeta (mensaje claro si no es repositorio git) y
   lista de flujos con crear, abrir y eliminar (con confirmación). **Archivos**:
   `apps/desktop/src/renderer/screens/project-screen.tsx`,
   `apps/desktop/src/renderer/components/flow-list.tsx`. **Cubre**: FR-001–004, US1-1, US1-2.

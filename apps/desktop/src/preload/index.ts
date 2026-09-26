@@ -4,6 +4,7 @@ import { IpcEventSchema, IpcRequestSchema, IpcResponseSchema } from "@zeko/contr
 type IpcEvent = typeof IpcEventSchema._output;
 type IpcResponse = typeof IpcResponseSchema._output;
 type EventListener = (event: IpcEvent) => void;
+type HostRequest = { kind: "host-request"; channel: "dialog.openFolder" };
 
 const listeners = new Set<EventListener>();
 const pending = new Map<string, (response: IpcResponse) => void>();
@@ -35,8 +36,10 @@ ipcRenderer.on("zeko:connect", (event) => {
   port.start();
 });
 
-const bridge = Object.freeze({
-  request(message: unknown): Promise<IpcResponse> {
+function request(message: { kind: "request" } & Record<string, unknown>): Promise<IpcResponse>;
+function request(message: HostRequest): Promise<string | undefined>;
+function request(message: unknown): Promise<IpcResponse | string | undefined> {
+    if (isHostRequest(message)) return ipcRenderer.invoke(message.channel) as Promise<string | undefined>;
     const parsed = IpcRequestSchema.safeParse(message);
     if (!parsed.success) return Promise.reject(new TypeError("Invalid IPC request"));
     if (!port) return Promise.reject(new Error("Engine host is not connected"));
@@ -44,7 +47,10 @@ const bridge = Object.freeze({
       pending.set(parsed.data.id, resolve);
       port?.postMessage(parsed.data);
     });
-  },
+}
+
+const bridge = Object.freeze({
+  request,
   onEvent(listener: EventListener): () => void {
     if (typeof listener !== "function") throw new TypeError("Event listener must be a function");
     listeners.add(listener);
@@ -53,3 +59,10 @@ const bridge = Object.freeze({
 });
 
 contextBridge.exposeInMainWorld("zeko", bridge);
+
+function isHostRequest(value: unknown): value is HostRequest {
+  if (typeof value !== "object" || value === null) return false;
+  const requestValue = value as Record<string, unknown>;
+  return requestValue["kind"] === "host-request" && requestValue["channel"] === "dialog.openFolder"
+    && Object.keys(requestValue).length === 2;
+}
