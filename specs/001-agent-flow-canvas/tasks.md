@@ -1022,7 +1022,7 @@ en modo `replay` con los fixtures de Codex.
   **Archivos**: `packages/adapters/src/codex/args.ts`, `packages/adapters/test/codex/args.test.ts`.
   **Cubre**: FR-011a, FR-017, FR-019, FR-066. **Base**: R-13, R-27, D7, `[001c §1, §4, §7, §8]`.
   **Depende de**: T018, T019, T109
-- [ ] T123 [US4] Parser de `exec --json` a `NormalizedEvent` según la tabla de R-13, contra
+- [X] T123 [US4] Parser de `exec --json` a `NormalizedEvent` según la tabla de R-13, contra
   `001c/samples/events/*`: `thread.started`, `agent_message`, ítems `command_execution`,
   `file_change`, `mcp_tool_call` y `web_search` correlacionados por `item.id`, `reasoning` y
   `error` como `raw`, y `turn.completed.usage`. Con tests. **Archivos**:
