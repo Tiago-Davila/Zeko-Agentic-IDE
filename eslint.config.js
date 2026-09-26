@@ -18,7 +18,11 @@ export default tseslint.config(
     },
     plugins: { promise },
     rules: {
-      "no-restricted-syntax": ["error", { selector: "TSAnyKeyword", message: "Avoid any." }],
+      "no-restricted-syntax": ["error",
+        { selector: "TSAnyKeyword", message: "Avoid any." },
+        { selector: "Identifier[name=/^(pkill|killall)$/]", message: "Terminate only registered process identities through the supervisor." },
+        { selector: "CallExpression[callee.property.name='kill'][arguments.0.type!='UnaryExpression']", message: "Do not terminate an individual process handle or PID; use the process supervisor." },
+      ],
       "promise/catch-or-return": "error",
       "promise/no-return-wrap": "error",
       "no-empty": ["error", { allowEmptyCatch: false }],

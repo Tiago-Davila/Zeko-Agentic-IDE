@@ -668,7 +668,7 @@ motor en `zeko/<run>/*`, el dependiente parte del predecesor, los archivos obser
   árbol **no** se tocan. **Archivos**: `packages/adapters/src/process/supervisor.ts`,
   `packages/adapters/test/process/supervisor.terminate.test.ts`. **Cubre**: FR-030, NFR-004.
   **Base**: R-14, D8, `[001 §7]`, `[001c §9]`. **Depende de**: T080
-- [ ] T082 [US2] **Garantizar que el motor nunca termina procesos por nombre ni por patrón**:
+- [X] T082 [US2] **Garantizar que el motor nunca termina procesos por nombre ni por patrón**:
   - un test recorre el código de `packages/**` y `apps/**` y falla si encuentra `taskkill /IM`,
     `Stop-Process -Name`, `pkill`, `killall`, `Get-Process <nombre> | Stop-Process` o un filtro por
     nombre o línea de comandos en la terminación;
