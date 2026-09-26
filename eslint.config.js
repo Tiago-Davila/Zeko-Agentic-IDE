@@ -22,10 +22,26 @@ export default tseslint.config(
         { selector: "TSAnyKeyword", message: "Avoid any." },
         { selector: "Identifier[name=/^(pkill|killall)$/]", message: "Terminate only registered process identities through the supervisor." },
         { selector: "CallExpression[callee.property.name='kill'][arguments.0.type!='UnaryExpression']", message: "Do not terminate an individual process handle or PID; use the process supervisor." },
+        { selector: "Literal[value=/^(?:taskkill(?:\\.exe)?|\\/IM)$/i]", message: "Use the process supervisor instead of taskkill by image or raw shell command." },
+        { selector: "Literal[value=/^taskkill(?:\\.exe)?\\s+[^\\n]*\\/IM\\b/i]", message: "Process termination by image name is forbidden." },
+        { selector: "Literal[value=/^Stop-Process\\s+[^\\n]*-Name\\b/i]", message: "Process termination by process name is forbidden." },
+        { selector: "Literal[value=/^Get-Process\\s+[^|]+\\|\\s*Stop-Process/i]", message: "Do not select processes by name for termination." },
+        { selector: "Literal[value=/^(?:pkill|killall)(?:\\s|$)/i]", message: "Process termination by pattern is forbidden." },
       ],
       "promise/catch-or-return": "error",
       "promise/no-return-wrap": "error",
       "no-empty": ["error", { allowEmptyCatch: false }],
+    },
+  },
+  {
+    files: ["packages/adapters/src/process/supervisor.ts"],
+    rules: {
+      // The supervisor is the sole allowlisted module for taskkill and Linux process-group signals.
+      "no-restricted-syntax": ["error",
+        { selector: "TSAnyKeyword", message: "Avoid any." },
+        { selector: "Identifier[name=/^(pkill|killall)$/]", message: "Terminate only registered process identities through the supervisor." },
+        { selector: "CallExpression[callee.property.name='kill'][arguments.0.type!='UnaryExpression']", message: "Do not terminate an individual process handle or PID; use the process supervisor." },
+      ],
     },
   },
   {
