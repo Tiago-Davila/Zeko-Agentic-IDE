@@ -605,7 +605,7 @@ sobre repositorios temporales (git no es un proveedor de IA).
 - [X] T074 [P] [US2] Diff por archivo para `node.diff`, paginado. Con tests. **Archivos**:
   `packages/git/src/diff.ts`, `packages/git/test/diff.test.ts`. **Cubre**: FR-046. **Base**:
   contracts/ipc.md `node.diff`. **Depende de**: T072
-- [ ] T075 [P] [US8] Limpieza: `worktree remove --force` y `branch -D` de las ramas del run, **solo**
+- [X] T075 [P] [US8] Limpieza: `worktree remove --force` y `branch -D` de las ramas del run, **solo**
   con confirmación explícita. Tests: sin confirmación no borra nada. **Archivos**:
   `packages/git/src/cleanup.ts`, `packages/git/test/cleanup.test.ts`. **Cubre**: FR-048, FR-049.
   **Base**: R-15. **Depende de**: T071
