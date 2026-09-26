@@ -966,7 +966,7 @@ aprobaciones por TTY. Nada de UI todavía.
   con uno que ignora el interrupt. **Archivos**: `packages/adapters/src/claude-code/adapter.ts`,
   `packages/adapters/test/claude-code/cancel.test.ts`. **Cubre**: FR-030, NFR-004. **Base**: R-12,
   D6, `[001 §7]`. **Depende de**: T115
-- [ ] T117 [US2] `detect()` de Claude: instalación con `claude --version`. Autenticación "no
+- [X] T117 [US2] `detect()` de Claude: instalación con `claude --version`. Autenticación "no
   verificada" (`auth.verified = false`) mientras U-03 no encuentre un chequeo sin costo; si T111 lo
   encuentra, se usa ese chequeo y un resultado negativo bloquea el run. `AgentAvailability` sin datos
   personales. Tests con un binario simulado inyectado (T115). **Archivos**:

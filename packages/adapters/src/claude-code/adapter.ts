@@ -1,4 +1,5 @@
 import { AgentCapabilitiesSchema, ProcessOutcomeSchema, type AgentAdapter, type AgentAvailability, type AgentExecution, type AgentUsageReading, type LaunchSpec, type NormalizedEvent, type Platform, type ProcessOutcome, type ReportCandidate } from "@zeko/contracts";
+import { spawn } from "node:child_process";
 import { ProcessSupervisor, type SupervisedProcess } from "../process/supervisor.ts";
 import { buildClaudeArgs } from "./args.ts";
 import { claudeCodeCapabilities } from "../capabilities/claude-code.ts";
@@ -10,6 +11,7 @@ export interface ClaudeCodeAdapterOptions {
   readonly binaryPath?: string;
   /** Prefix arguments used by supervised replay executables in tests. */
   readonly prefixArgs?: readonly string[];
+  readonly versionArgs?: readonly string[];
   readonly supervisor?: ProcessSupervisor;
   readonly interruptGraceMs?: number;
   readonly platform?: NodeJS.Platform;
@@ -19,6 +21,7 @@ export class ClaudeCodeAdapter implements AgentAdapter {
   readonly id = "claude-code" as const;
   readonly #binaryPath: string | undefined;
   readonly #prefixArgs: readonly string[];
+  readonly #versionArgs: readonly string[];
   readonly #supervisor: ProcessSupervisor;
   readonly #interruptGraceMs: number;
   readonly #platform: NodeJS.Platform;
@@ -27,6 +30,7 @@ export class ClaudeCodeAdapter implements AgentAdapter {
   constructor(options: ClaudeCodeAdapterOptions = {}) {
     this.#binaryPath = options.binaryPath;
     this.#prefixArgs = options.prefixArgs ?? [];
+    this.#versionArgs = options.versionArgs ?? [];
     this.#supervisor = options.supervisor ?? new ProcessSupervisor();
     this.#interruptGraceMs = options.interruptGraceMs ?? 5_000;
     this.#platform = options.platform ?? process.platform;
@@ -38,7 +42,20 @@ export class ClaudeCodeAdapter implements AgentAdapter {
   }
 
   async detect(): Promise<AgentAvailability> {
-    return { agentId: this.id, installed: false, auth: { state: "unknown", verified: false }, problems: ["Claude Code detection is not initialized"] };
+    if (!this.#binaryPath && process.env["ZEKO_TEST"] === "1") {
+      throw new Error("CLAUDE_BINARY_NOT_INJECTED: set binaryPath when ZEKO_TEST=1");
+    }
+    const command = this.#binaryPath ?? (this.#platform === "win32" ? "claude.exe" : "claude");
+    const result = await runVersion(command, this.#versionArgs.length > 0 ? this.#versionArgs : ["--version"]);
+    const version = result.code === 0 ? parseClaudeVersion(result.stdout) : undefined;
+    const installed = result.code === 0 && version !== undefined;
+    return {
+      agentId: this.id,
+      installed,
+      ...(version ? { version } : {}),
+      auth: { state: "unknown", mode: "detect", verified: false },
+      problems: installed ? [] : ["Claude Code installation could not be verified"],
+    };
   }
 
   async readUsage(): Promise<AgentUsageReading | undefined> {
@@ -203,4 +220,23 @@ async function raceTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "Claude Code launch failed";
+}
+
+async function runVersion(command: string, args: readonly string[]): Promise<{ code: number | null; stdout: string }> {
+  return new Promise((resolve) => {
+    const child = spawn(command, [...args], { shell: false, windowsHide: true, stdio: ["ignore", "pipe", "ignore"] });
+    let stdout = "";
+    const timeout = setTimeout(() => {
+      child.kill();
+      resolve({ code: null, stdout: "" });
+    }, 10_000);
+    child.stdout?.setEncoding("utf8");
+    child.stdout?.on("data", (chunk: string) => { stdout += chunk.slice(0, Math.max(0, 2048 - stdout.length)); });
+    child.once("error", () => { clearTimeout(timeout); resolve({ code: null, stdout: "" }); });
+    child.once("close", (code) => { clearTimeout(timeout); resolve({ code, stdout }); });
+  });
+}
+
+function parseClaudeVersion(output: string): string | undefined {
+  return /(?:Claude Code\s+)?(\d+\.\d+(?:\.\d+)?(?:[-+][\w.-]+)?)/iu.exec(output)?.[1];
 }
