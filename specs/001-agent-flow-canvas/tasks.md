@@ -849,7 +849,7 @@ CLI ejecuta un flujo de dos nodos con el agente simulado, **antes de cualquier t
   errores. Con tests. **Archivos**: `apps/cli/src/commands/validate.ts`,
   `apps/cli/test/validate.test.ts`. **Cubre**: FR-009, FR-057, FR-059. **Base**: contracts/cli.md.
   **Depende de**: T101, T025
-- [ ] T103 [US7] `zeko run`:
+- [X] T103 [US7] `zeko run`:
   - líneas de estado `[hh:mm:ss] <nodeId> <Status> <reason>`;
   - `--json` como NDJSON;
   - resumen por nodo con costo (`n/a`, `~`) y total `(partial)` / `(estimated)`;
