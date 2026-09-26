@@ -1028,7 +1028,7 @@ en modo `replay` con los fixtures de Codex.
   `error` como `raw`, y `turn.completed.usage`. Con tests. **Archivos**:
   `packages/adapters/src/codex/parser.ts`, `packages/adapters/test/codex/parser.test.ts`.
   **Cubre**: FR-029, FR-050, FR-063. **Base**: R-13, `[001c §3]`. **Depende de**: T122, T050
-- [ ] T124 [US4] Lectura del rollout por `thread_id` en `$CODEX_HOME/sessions/…`:
+- [X] T124 [US4] Lectura del rollout por `thread_id` en `$CODEX_HOME/sessions/…`:
   `turn_context.model` (para `model_mismatch`), `token_count.rate_limits` (ventanas primaria y
   secundaria), `task_complete.duration_ms` y rechazos. Tests con un rollout fixture. **Archivos**:
   `packages/adapters/src/codex/rollout.ts`, `packages/adapters/test/codex/rollout.test.ts`.
