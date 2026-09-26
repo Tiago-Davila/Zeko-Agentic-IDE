@@ -593,7 +593,7 @@ sobre repositorios temporales (git no es un proveedor de IA).
   original no cambia y se rechaza una ruta bajo `%TEMP%`. **Archivos**:
   `packages/git/src/worktree.ts`, `packages/git/test/worktree.test.ts`. **Cubre**: FR-043–045,
   SC-004. **Base**: R-15, D9, `[001 §8]`, `[001c §8, §10]`. **Depende de**: T069
-- [ ] T072 [US2] Commit del motor: `add -A` y `commit` con identidad Zeko, `core.hooksPath` vacío,
+- [X] T072 [US2] Commit del motor: `add -A` y `commit` con identidad Zeko, `core.hooksPath` vacío,
   `--no-verify` y `--allow-empty`; detecta `HISTORY_REWRITTEN`. Tests: sin commit si se canceló. **Archivos**:
   `packages/git/src/engine-commit.ts`, `packages/git/test/engine-commit.test.ts`. **Cubre**:
   FR-046, FR-047, FR-049. **Base**: R-15. **Depende de**: T071
