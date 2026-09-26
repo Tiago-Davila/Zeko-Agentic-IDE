@@ -147,6 +147,18 @@ export class ProcessSupervisor {
     throw new Error(`Timed out waiting for registered process tree rooted at PID ${root.pid}`);
   }
 
+  /** Terminates one persisted identity after checking that its PID still has the recorded creation time. */
+  async terminateRecovered(identity: ProcessIdentity): Promise<boolean> {
+    let snapshot = await this.#snapshot();
+    if (!hasIdentity(snapshot, identity)) return false;
+    snapshot = await this.#snapshot();
+    if (!hasIdentity(snapshot, identity)) return false;
+    if (this.#platform === "win32") await this.#killByPid(identity.pid, false);
+    else if (this.#platform === "linux") process.kill(identity.pid, "SIGTERM");
+    else throw new Error(`Process termination is not implemented for ${this.#platform}`);
+    return true;
+  }
+
   async #waitForRoot(pid: number): Promise<ProcessIdentity> {
     const deadline = Date.now() + 5_000;
     do {

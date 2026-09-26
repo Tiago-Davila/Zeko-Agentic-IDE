@@ -23,6 +23,11 @@ export class WorkspacesRepository {
     return Number(this.db.prepare("UPDATE workspaces SET trust='untrusted' WHERE node_run_id=? AND state!='deleted'").run(nodeRunId).changes);
   }
 
+  markUntrustedForRun(runId: string): number {
+    return Number(this.db.prepare(`UPDATE workspaces SET trust='untrusted' WHERE state!='deleted' AND node_run_id IN
+      (SELECT id FROM node_runs WHERE run_id=?)`).run(runId).changes);
+  }
+
   markDeleted(id: string, deletedAt = new Date().toISOString()): void {
     this.db.prepare("UPDATE workspaces SET state='deleted',deleted_at=? WHERE id=?").run(Date.parse(deletedAt), id);
   }

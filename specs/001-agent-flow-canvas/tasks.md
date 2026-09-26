@@ -759,7 +759,7 @@ redacción antes de toda escritura.
   que respetan el límite (dos runs a la vez, caso límite). **Archivos**:
   `packages/storage/src/leases.ts`, `packages/storage/test/leases.test.ts`. **Cubre**: FR-027.
   **Base**: R-21, D13. **Depende de**: T087
-- [ ] T094 [US8] Recuperación al arrancar, orquestada en `runtime` (el único paquete que puede usar
+- [X] T094 [US8] Recuperación al arrancar, orquestada en `runtime` (el único paquete que puede usar
   a la vez `storage` y el supervisor de `adapters`):
   - `storage` aporta las consultas y actualizaciones: runs `running` con host muerto, sus NodeRuns
     no terminales y sus filas de `process_tree`;

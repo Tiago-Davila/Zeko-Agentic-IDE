@@ -33,4 +33,14 @@ export class NodeRunsRepository {
         safe.cost?.amountUsd ?? null, safe.cost?.basis ?? null, json(safe.consumption), epoch(safe.startedAt), epoch(safe.endedAt));
     for (const attempt of safe.attempts) this.attempts.save(safe.id, attempt);
   }
+
+  nonterminal(runId: string): Array<{ id: string; nodeId: string; status: NodeRun["status"] }> {
+    return this.db.prepare(`SELECT id,node_id AS nodeId,status FROM node_runs WHERE run_id=?
+      AND status NOT IN ('completed','blocked','failed','cancelled','skipped','interrupted','rejected','approved')`)
+      .all(runId) as Array<{ id: string; nodeId: string; status: NodeRun["status"] }>;
+  }
+
+  markRecovered(id: string, status: "interrupted" | "skipped"): void {
+    this.db.prepare("UPDATE node_runs SET status=? WHERE id=?").run(status, id);
+  }
 }

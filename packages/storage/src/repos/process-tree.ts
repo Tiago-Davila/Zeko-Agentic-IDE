@@ -28,6 +28,15 @@ export class ProcessTreeRepository {
       isRoot: Boolean(row["is_root"]), firstSeen: row["first_seen"] as number, lastSeen: row["last_seen"] as number,
       ...(row["ended_at"] === null ? {} : { endedAt: row["ended_at"] as number }) }));
   }
+  forRun(runId: string, liveOnly = true): ProcessIdentity[] {
+    const rows = this.db.prepare(`SELECT p.attempt_id,p.pid,p.creation_time,p.parent_pid,p.is_root,p.first_seen,p.last_seen,p.ended_at
+      FROM process_tree p JOIN attempts a ON a.id=p.attempt_id JOIN node_runs n ON n.id=a.node_run_id
+      WHERE n.run_id=? ${liveOnly ? "AND p.ended_at IS NULL" : ""} ORDER BY p.first_seen,p.pid`).all(runId) as Array<Record<string, unknown>>;
+    return rows.map((row) => ({ attemptId: row["attempt_id"] as string, pid: row["pid"] as number,
+      creationTime: row["creation_time"] as number, ...(row["parent_pid"] === null ? {} : { parentPid: row["parent_pid"] as number }),
+      isRoot: Boolean(row["is_root"]), firstSeen: row["first_seen"] as number, lastSeen: row["last_seen"] as number,
+      ...(row["ended_at"] === null ? {} : { endedAt: row["ended_at"] as number }) }));
+  }
   markEnded(attemptId: string, pid: number, creationTime: number, endedAt: number): void {
     this.db.prepare("UPDATE process_tree SET ended_at=?,last_seen=? WHERE attempt_id=? AND pid=? AND creation_time=?")
       .run(endedAt, endedAt, attemptId, pid, creationTime);

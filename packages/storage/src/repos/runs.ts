@@ -76,6 +76,15 @@ export class RunsRepository implements RunStorePort {
       JSON.stringify(safe.totals.consumption), Date.parse(safe.heartbeatAt), safe.id);
   }
 
+  runningHosts(): Array<{ runId: string; hostPid: number; hostStartedAt: number }> {
+    return this.db.prepare("SELECT id AS runId,host_pid AS hostPid,host_started_at AS hostStartedAt FROM runs WHERE status='running'").all() as Array<{ runId: string; hostPid: number; hostStartedAt: number }>;
+  }
+
+  markInterrupted(runId: string, at: string): void {
+    this.db.prepare("UPDATE runs SET status='interrupted',ended_at=?,heartbeat_at=? WHERE id=? AND status='running'")
+      .run(Date.parse(at), Date.parse(at), runId);
+  }
+
   private ensureProject(root: string): string {
     const id = root;
     this.db.prepare("INSERT INTO projects(id,root_path,created_at) VALUES (?,?,?) ON CONFLICT(root_path) DO NOTHING").run(id, root, this.now());
