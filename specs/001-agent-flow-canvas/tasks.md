@@ -1164,7 +1164,7 @@ confinamiento y capacidades, costo y uso, e historial. La UI solo pinta lo que c
   (US1-3). **Archivos**: `apps/desktop/src/renderer/canvas/flow-canvas.tsx`,
   `apps/desktop/src/renderer/canvas/node-types.tsx`. **Cubre**: FR-005–007. **Base**: R-25.
   **Depende de**: T139
-- [ ] T141 [US1] Panel de configuración del nodo de agente:
+- [X] T141 [US1] Panel de configuración del nodo de agente:
   - campos: agente, **modelo por agente** (y esfuerzo si el agente lo admite), instrucciones,
     criterios, alcance, terminal y lista de comandos, límites;
   - al crear el nodo o cambiar de agente se copia el default del proyecto;
