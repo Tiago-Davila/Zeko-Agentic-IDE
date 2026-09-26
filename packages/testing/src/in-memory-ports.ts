@@ -34,6 +34,8 @@ export class InMemoryRunStore implements RunStorePort {
   }
   async append(event: PersistedEvent): Promise<void> { this.events.push(structuredClone(event)); }
   async saveFlowSnapshot(runId: string, flow: FlowFile): Promise<void> { this.flowSnapshots.set(runId, structuredClone(flow)); }
+  async saveNodeRun(): Promise<void> {}
+  async updateRun(run: Run): Promise<void> { this.runs.set(run.id, structuredClone(run)); }
 }
 
 export class InMemorySlotLeasePort implements SlotLeasePort {

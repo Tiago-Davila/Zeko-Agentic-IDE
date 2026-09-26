@@ -1,8 +1,9 @@
-import type { FlowFile, PersistedEvent, Run, RunStorePort } from "@zeko/contracts";
+import type { FlowFile, NodeRun, PersistedEvent, Run, RunStorePort } from "@zeko/contracts";
 import type { Redactor } from "../redactor.js";
 import type { SqlDriver } from "../sql-driver.js";
 import { NodeRunsRepository } from "./node-runs.js";
 import { EventsRepository } from "./events.js";
+import { RawLogWriter } from "../raw-log.js";
 
 const epoch = (value?: string) => value ? Date.parse(value) : null;
 const iso = (value: number | null) => value === null ? undefined : new Date(value).toISOString();
@@ -11,12 +12,12 @@ const parse = <T>(value: string): T => JSON.parse(value) as T;
 export class RunsRepository implements RunStorePort {
   readonly nodeRuns: NodeRunsRepository;
   readonly events: EventsRepository;
-  constructor(private readonly db: SqlDriver, private readonly redactor: Redactor, private readonly now = Date.now) {
+  constructor(private readonly db: SqlDriver, private readonly redactor: Redactor, private readonly now = Date.now, rawLogs = new RawLogWriter()) {
     this.nodeRuns = new NodeRunsRepository(db, redactor);
-    this.events = new EventsRepository(db, redactor);
+    this.events = new EventsRepository(db, redactor, rawLogs);
   }
 
-  async create(run: Run): Promise<void> {
+  async create(run: Run, nodeRuns?: readonly NodeRun[]): Promise<void> {
     const safe = this.redactor.redact(run);
     const projectId = this.ensureProject(safe.projectRoot);
     this.db.transaction(() => {
@@ -29,11 +30,13 @@ export class RunsRepository implements RunStorePort {
         Number(safe.totals.estimated), JSON.stringify(safe.totals.consumption), safe.hostPid, Date.parse(safe.hostStartedAt), Date.parse(safe.heartbeatAt));
       for (const node of safe.flowSnapshot.nodes) {
         const model = node.type === "agent" ? node.models?.[node.agent] : undefined;
+        const initial = nodeRuns?.find((candidate) => candidate.nodeId === node.id);
         this.db.prepare(`INSERT INTO node_runs (id,run_id,node_id,node_type,agent_id,model,status,reason_params,confinement_level,
           warnings,report_state,denial_check,inferred_denials) VALUES (?,?,?,?,?,?,'pending','{}','confined','[]',?,'not_available',NULL)`)
-          .run(`${safe.id}:${node.id}`, safe.id, node.id, node.type, node.type === "agent" ? node.agent : null,
+          .run(initial?.id ?? `${safe.id}:${node.id}`, safe.id, node.id, node.type, node.type === "agent" ? node.agent : null,
             model ? JSON.stringify(this.redactor.redact({ ...model, source: "node" })) : null, node.type === "agent" ? "absent" : "not_applicable");
       }
+      for (const nodeRun of nodeRuns ?? []) this.nodeRuns.save(nodeRun);
     });
   }
 
@@ -68,7 +71,9 @@ export class RunsRepository implements RunStorePort {
     this.db.prepare("UPDATE runs SET flow_snapshot=? WHERE id=?").run(JSON.stringify(this.redactor.redact(flow)), runId);
   }
 
-  update(run: Run): void {
+  async saveNodeRun(nodeRun: NodeRun): Promise<void> { this.nodeRuns.save(nodeRun); }
+
+  async updateRun(run: Run): Promise<void> {
     const safe = this.redactor.redact(run);
     this.db.prepare(`UPDATE runs SET status=?,outcome=?,hold=?,ended_at=?,cost_usd=?,cost_partial=?,cost_estimated=?,
       consumption=?,heartbeat_at=? WHERE id=?`).run(safe.status, safe.outcome ?? null, safe.hold ?? null,

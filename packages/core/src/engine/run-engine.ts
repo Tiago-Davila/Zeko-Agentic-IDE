@@ -171,7 +171,7 @@ export class RunEngine {
       hostStartedAt: options.hostStartedAt,
       heartbeatAt: now,
     };
-    await options.store.create(run);
+    await options.store.create(run, [...nodeRuns.values()]);
     await this.#emit(runId, "run.started", {
       origin: run.origin,
       baseCommit: run.baseCommit,
@@ -356,6 +356,7 @@ export class RunEngine {
         ...(run.outcome ? { outcome: run.outcome } : {}),
         totals: run.totals,
       });
+    await options.store.updateRun?.(run);
     return { run, nodeRuns };
   }
 
@@ -850,6 +851,7 @@ export class RunEngine {
       { from, to, ...(reason ? { reason } : {}) },
       nodeRun.id,
     );
+    await this.options.store.saveNodeRun?.(nodeRun);
   }
 
   async #emit(

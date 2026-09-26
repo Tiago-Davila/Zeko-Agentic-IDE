@@ -1,7 +1,7 @@
 import type { AgentUsageReading } from "./adapter/usage.js";
 import type { FlowFile } from "./flow-file.js";
 import type { PersistedEvent } from "./events.js";
-import type { Run } from "./run.js";
+import type { NodeRun, Run } from "./run.js";
 
 export interface WorkspacePort {
   create(input: {
@@ -19,10 +19,12 @@ export interface WorkspacePort {
 }
 
 export interface RunStorePort {
-  create(run: Run): Promise<void>;
+  create(run: Run, nodeRuns?: readonly NodeRun[]): Promise<void>;
   get(runId: string): Promise<Run | undefined>;
   append(event: PersistedEvent): Promise<void>;
   saveFlowSnapshot(runId: string, flow: FlowFile): Promise<void>;
+  saveNodeRun?(nodeRun: NodeRun): Promise<void>;
+  updateRun?(run: Run): Promise<void>;
 }
 
 export interface ClockPort {

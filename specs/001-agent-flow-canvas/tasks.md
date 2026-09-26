@@ -771,7 +771,7 @@ redacción antes de toda escritura.
   `packages/runtime/test/recovery.test.ts`, `packages/storage/src/repos/runs.ts`,
   `packages/storage/src/repos/process-tree.ts`. **Cubre**: FR-049, FR-061, FR-062. **Base**: R-20,
   D8, T008. **Depende de**: T091, T081
-- [ ] T095 [US8] **Verificar que ningún evento persistido contiene claves de API ni emails**: el
+- [X] T095 [US8] **Verificar que ningún evento persistido contiene claves de API ni emails**: el
   motor corre el escenario `leaks-secret` (clave sintética, bearer, JWT y email en texto, stderr,
   `tool_result` y mensaje de error) con una clave inyectada registrada; después se escanea la tabla
   `events`, `node_runs`, `attempts` y los logs crudos con los patrones de T051 y con el valor
