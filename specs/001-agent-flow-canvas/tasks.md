@@ -713,7 +713,7 @@ redacción antes de toda escritura.
   `packages/storage/src/sql-driver.ts`, `packages/storage/src/node-sqlite-driver.ts`,
   `packages/storage/test/sql-driver.test.ts`. **Cubre**: FR-061, NFR-005. **Base**: R-03, D13.
   **Depende de**: T005
-- [ ] T087 [US8] Migración inicial con el esquema de data-model §4 (incluidas las columnas
+- [X] T087 [US8] Migración inicial con el esquema de data-model §4 (incluidas las columnas
   `node_runs.model`, que registra el modelo usado y su origen, y `node_runs.inferred_denials`) y un
   runner de migraciones solo hacia adelante. Con tests, incluido uno que guarda y relee el modelo
   de un NodeRun con `source: 'project_default'`. **Archivos**: `packages/storage/src/migrations/001_initial.ts`,
