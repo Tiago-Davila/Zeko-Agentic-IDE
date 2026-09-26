@@ -3,16 +3,17 @@ import { GitCommandError, runGit } from "./git-cli.js";
 export type RepositoryDiagnosticCode = "NOT_A_GIT_REPO" | "NO_COMMITS";
 
 export class RepositoryInfoError extends Error {
-  readonly name = "RepositoryInfoError";
+  override readonly name = "RepositoryInfoError";
   readonly code: RepositoryDiagnosticCode;
   readonly path: string;
 
-  constructor(
-    code: RepositoryDiagnosticCode,
-    path: string,
-    options?: ErrorOptions,
-  ) {
-    super(code === "NOT_A_GIT_REPO" ? "Path is not inside a git repository" : "Repository has no commits", options);
+  constructor(code: RepositoryDiagnosticCode, path: string, options?: ErrorOptions) {
+    super(
+      code === "NOT_A_GIT_REPO"
+        ? "Path is not inside a git repository"
+        : "Repository has no commits",
+      options,
+    );
     this.code = code;
     this.path = path;
   }
@@ -55,6 +56,9 @@ export async function getRepositoryInfo(path: string): Promise<RepositoryInfo> {
     root: root.trim(),
     head: head.trim(),
     uncommittedChanges: status.stdout.length > 0,
-    filesAtHead: files.stdout.split("\0").filter(Boolean).map((file) => file.replaceAll("\\", "/")),
+    filesAtHead: files.stdout
+      .split("\0")
+      .filter(Boolean)
+      .map((file) => file.replaceAll("\\", "/")),
   };
 }

@@ -14,7 +14,7 @@ export interface GitCommandOptions {
 }
 
 export class GitCommandError extends Error {
-  readonly name = "GitCommandError";
+  override readonly name = "GitCommandError";
   readonly context: {
     command: string;
     args: string[];
@@ -23,11 +23,7 @@ export class GitCommandError extends Error {
     stderr?: string;
   };
 
-  constructor(
-    message: string,
-    context: GitCommandError["context"],
-    options?: ErrorOptions,
-  ) {
+  constructor(message: string, context: GitCommandError["context"], options?: ErrorOptions) {
     super(message, options);
     this.context = context;
   }
@@ -60,22 +56,30 @@ export function runGit(
     child.stdout.on("data", (chunk: Buffer) => stdout.push(chunk));
     child.stderr.on("data", (chunk: Buffer) => stderr.push(chunk));
     child.once("error", (cause: Error) => {
-      reject(new GitCommandError(`Unable to start git ${command}`, {
-        command,
-        args: [...args],
-        cwd: options.cwd,
-      }, { cause }));
+      reject(
+        new GitCommandError(
+          `Unable to start git ${command}`,
+          {
+            command,
+            args: [...args],
+            cwd: options.cwd,
+          },
+          { cause },
+        ),
+      );
     });
     child.once("close", (exitCode) => {
       const errorText = Buffer.concat(stderr).toString("utf8");
       if (exitCode !== 0) {
-        reject(new GitCommandError(`git ${command} failed with exit code ${String(exitCode)}`, {
-          command,
-          args: [...args],
-          cwd: options.cwd,
-          ...(exitCode === null ? {} : { exitCode }),
-          ...(errorText ? { stderr: errorText } : {}),
-        }));
+        reject(
+          new GitCommandError(`git ${command} failed with exit code ${String(exitCode)}`, {
+            command,
+            args: [...args],
+            cwd: options.cwd,
+            ...(exitCode === null ? {} : { exitCode }),
+            ...(errorText ? { stderr: errorText } : {}),
+          }),
+        );
         return;
       }
       resolve({ stdout: Buffer.concat(stdout).toString("utf8"), stderr: errorText });

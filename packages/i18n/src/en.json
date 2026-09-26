@@ -6,6 +6,7 @@
   "INFRA_FAILURE_EXHAUSTED": "Infrastructure retries were exhausted.",
   "AGENT_UNAVAILABLE": "The required agent is not installed or could not be started.",
   "AGENT_NOT_AUTHENTICATED": "The required agent is not authenticated.",
+  "WORKSPACE_CREATE_FAILED": "The isolated workspace could not be created.",
   "REPORT_MISSING": "The agent did not provide a valid report.",
   "REPORT_INVALID": "The agent report did not match the required schema.",
   "ACTION_DENIED": "The agent was denied an action required by this task.",

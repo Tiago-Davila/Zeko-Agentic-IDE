@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { runGit } from "../src/git-cli.js";
-import { getRepositoryInfo, RepositoryInfoError } from "../src/repo-info.js";
+import { getRepositoryInfo } from "../src/repo-info.js";
 
 const directories: string[] = [];
 
@@ -20,19 +20,21 @@ async function initializeRepository(path: string): Promise<void> {
 }
 
 afterEach(async () => {
-  await Promise.all(directories.splice(0).map((path) => rm(path, { recursive: true, force: true })));
+  await Promise.all(
+    directories.splice(0).map((path) => rm(path, { recursive: true, force: true })),
+  );
 });
 
 describe("getRepositoryInfo", () => {
   it("reports a non-repository with a typed diagnostic", async () => {
     const path = await tempDirectory();
-    await expect(getRepositoryInfo(path)).rejects.toMatchObject<Partial<RepositoryInfoError>>({ code: "NOT_A_GIT_REPO", path });
+    await expect(getRepositoryInfo(path)).rejects.toMatchObject({ code: "NOT_A_GIT_REPO", path });
   });
 
   it("reports an unborn repository with NO_COMMITS", async () => {
     const path = await tempDirectory();
     await initializeRepository(path);
-    await expect(getRepositoryInfo(path)).rejects.toMatchObject<Partial<RepositoryInfoError>>({ code: "NO_COMMITS", path });
+    await expect(getRepositoryInfo(path)).rejects.toMatchObject({ code: "NO_COMMITS" });
   });
 
   it("returns HEAD files and indicates uncommitted changes", async () => {

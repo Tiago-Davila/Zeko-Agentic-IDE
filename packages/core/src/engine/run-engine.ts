@@ -1,8 +1,24 @@
 import { AgentReportSchema } from "@zeko/contracts";
 import type {
-  AgentAdapter, AgentCapabilities, AgentExecution, AgentId, AgentNode, Attempt, ClockPort,
-  FlowFile, LaunchSpec, NodeRun, NormalizedEvent, PersistedEvent, Platform,
-  ProcessOutcome, ProjectConfig, ReportCandidate, Run, RunStorePort, SlotLeasePort,
+  AgentAdapter,
+  AgentCapabilities,
+  AgentExecution,
+  AgentId,
+  AgentNode,
+  Attempt,
+  ClockPort,
+  FlowFile,
+  LaunchSpec,
+  NodeRun,
+  NormalizedEvent,
+  PersistedEvent,
+  Platform,
+  ProcessOutcome,
+  ProjectConfig,
+  ReportCandidate,
+  Run,
+  RunStorePort,
+  SlotLeasePort,
   WorkspacePort,
 } from "@zeko/contracts";
 import { calculateCostTotals } from "../policy/cost-totals.js";
@@ -11,11 +27,12 @@ import { decideRetry } from "../policy/retry.js";
 import { buildPredecessorResults } from "../prompt/predecessor-results.js";
 import { createApprovalRequest } from "./approvals.js";
 import { renderTaskAssignment } from "../prompt/render-task-assignment.js";
-import { resolveNodeResult } from "../result/resolve-node-result.js";
+import { resolveNodeResultWithDiscrepancies } from "../result/resolve-node-result.js";
 import { nextActions } from "../scheduler/next-actions.js";
 import { SlotCoordinator } from "../scheduler/slots.js";
 import { UsageGate } from "../scheduler/usage-gate.js";
 import { resolveNodeModel } from "../validation/model.js";
+import { analyzeCodeLineage } from "../validation/code-lineage.js";
 
 export interface RunEngineOptions {
   flow: FlowFile;
@@ -38,14 +55,22 @@ export interface RunEngineOptions {
   enforceTimeouts?: boolean;
   reportSchema?: Record<string, unknown>;
   createId?: () => string;
-  inspectFiles?: (workspacePath: string) => Promise<Array<{ path: string; change: string; eolOnly: boolean }>>;
+  inspectFiles?: (
+    workspacePath: string,
+  ) => Promise<Array<{ path: string; change: string; eolOnly: boolean }>>;
   markWorkspaceUntrusted?: (workspacePath: string) => Promise<void>;
-  requestApproval?: (request: { nodeId: string; summary: import("@zeko/contracts").PredecessorResult[] }) => Promise<boolean>;
+  requestApproval?: (request: {
+    nodeId: string;
+    summary: import("@zeko/contracts").PredecessorResult[];
+  }) => Promise<boolean>;
   waitForUsageUpdate?: () => Promise<void>;
   usageGate?: UsageGate;
 }
 
-export interface RunEngineResult { run: Run; nodeRuns: ReadonlyMap<string, NodeRun> }
+export interface RunEngineResult {
+  run: Run;
+  nodeRuns: ReadonlyMap<string, NodeRun>;
+}
 
 /** Runs a validated flow using only contracts ports and registered adapters. */
 export class RunEngine {
@@ -60,9 +85,14 @@ export class RunEngine {
   async cancelRun(): Promise<void> {
     if (this.#runCancelled) return;
     this.#runCancelled = true;
-    if (this.#runId) await this.#emit(this.#runId, "run.cancel_requested", { origin: this.options.origin ?? "cli" });
+    if (this.#runId)
+      await this.#emit(this.#runId, "run.cancel_requested", {
+        origin: this.options.origin ?? "cli",
+      });
     for (const cancel of this.#approvalCancels.values()) cancel();
-    await Promise.all([...this.#activeExecutions.values()].map((execution) => execution.cancel("user")));
+    await Promise.all(
+      [...this.#activeExecutions.values()].map((execution) => execution.cancel("user")),
+    );
   }
 
   async cancelNode(nodeId: string): Promise<void> {
@@ -71,7 +101,13 @@ export class RunEngine {
     const execution = this.#activeExecutions.get(nodeId);
     if (execution) {
       const nodeRun = this.#nodeRuns?.get(nodeId);
-      if (this.#runId && nodeRun) await this.#emit(this.#runId, "node.cancel_requested", { origin: this.options.origin ?? "cli", phase: "tree_kill" }, nodeRun.id);
+      if (this.#runId && nodeRun)
+        await this.#emit(
+          this.#runId,
+          "node.cancel_requested",
+          { origin: this.options.origin ?? "cli", phase: "tree_kill" },
+          nodeRun.id,
+        );
       await execution.cancel("user");
     }
   }
@@ -89,29 +125,65 @@ export class RunEngine {
       const adapter = node.type === "agent" ? options.adapters[node.agent] : undefined;
       const capabilities = adapter?.capabilities(options.platform);
       if (capabilities) caps.set(node.id, capabilities);
-      const model = node.type === "agent" ? resolveNodeModel(node, options.projectConfig) : undefined;
-      const policy = capabilities ? deriveCapabilityPolicy(capabilities, node.type === "agent" && node.terminal.enabled) : undefined;
+      const model =
+        node.type === "agent" ? resolveNodeModel(node, options.projectConfig) : undefined;
+      const policy = capabilities
+        ? deriveCapabilityPolicy(capabilities, node.type === "agent" && node.terminal.enabled)
+        : undefined;
       nodeRuns.set(node.id, {
-        id: this.#id(), runId, nodeId: node.id, nodeType: node.type,
+        id: this.#id(),
+        runId,
+        nodeId: node.id,
+        nodeType: node.type,
         ...(node.type === "agent" ? { agentId: node.agent } : {}),
-        ...(model ? { model: { model: model.model, ...(model.reasoningEffort ? { reasoningEffort: model.reasoningEffort } : {}), source: model.source } } : {}),
-        status: "pending", confinement: policy?.confinement ?? { level: "confined" },
+        ...(model
+          ? {
+              model: {
+                model: model.model,
+                ...(model.reasoningEffort ? { reasoningEffort: model.reasoningEffort } : {}),
+                source: model.source,
+              },
+            }
+          : {}),
+        status: "pending",
+        confinement: policy?.confinement ?? { level: "confined" },
         warnings: [...(policy?.warnings ?? []), ...(model?.warning ? [model.warning] : [])],
-        attempts: [], reportState: node.type === "agent" ? "absent" : "not_applicable",
+        attempts: [],
+        reportState: node.type === "agent" ? "absent" : "not_applicable",
         denialCheck: capabilities?.reportsDenials ? "applied" : "not_available",
       });
     }
     const run: Run = {
-      id: runId, projectRoot: options.projectRoot, flowId: options.flow.id, flowName: options.flow.name,
-      flowFile: options.flowFile, flowSnapshot: structuredClone(options.flow), flowHash: options.flowHash,
-      origin: options.origin ?? "cli", baseCommit: options.baseCommit, warnings: [], status: "running",
-      startedAt: now, totals: calculateCostTotals([...nodeRuns.values()]), hostPid: options.hostPid,
-      hostStartedAt: options.hostStartedAt, heartbeatAt: now,
+      id: runId,
+      projectRoot: options.projectRoot,
+      flowId: options.flow.id,
+      flowName: options.flow.name,
+      flowFile: options.flowFile,
+      flowSnapshot: structuredClone(options.flow),
+      flowHash: options.flowHash,
+      origin: options.origin ?? "cli",
+      baseCommit: options.baseCommit,
+      warnings: [],
+      status: "running",
+      startedAt: now,
+      totals: calculateCostTotals([...nodeRuns.values()]),
+      hostPid: options.hostPid,
+      hostStartedAt: options.hostStartedAt,
+      heartbeatAt: now,
     };
     await options.store.create(run);
-    await this.#emit(runId, "run.started", { origin: run.origin, baseCommit: run.baseCommit, warnings: [], preflight: [] });
+    await this.#emit(runId, "run.started", {
+      origin: run.origin,
+      baseCommit: run.baseCommit,
+      warnings: [],
+      preflight: [],
+    });
 
-    const slots = new SlotCoordinator(options.slots, runId, options.concurrencyLimit ?? options.projectConfig.concurrencyLimit);
+    const slots = new SlotCoordinator(
+      options.slots,
+      runId,
+      options.concurrencyLimit ?? options.projectConfig.concurrencyLimit,
+    );
     const usageGate = options.usageGate ?? new UsageGate();
     const running = new Map<string, Promise<void>>();
     const nodeMap = new Map(options.flow.nodes.map((node) => [node.id, node]));
@@ -119,13 +191,19 @@ export class RunEngine {
     while (changed || running.size > 0) {
       changed = false;
       for (const [nodeId, nodeRun] of nodeRuns) {
-        if (nodeRun.status !== "pending" || (!this.#runCancelled && !this.#cancelledNodes.has(nodeId))) continue;
+        if (
+          nodeRun.status !== "pending" ||
+          (!this.#runCancelled && !this.#cancelledNodes.has(nodeId))
+        )
+          continue;
         nodeRun.status = "skipped";
         nodeRun.reason = { code: "RUN_CANCELLED", params: { sourceNodeId: nodeId } };
         changed = true;
         await this.#state(runId, nodeRun, "skipped", nodeRun.reason, "pending");
       }
-      const actions = nextActions(options.flow, { statuses: Object.fromEntries([...nodeRuns].map(([id, n]) => [id, n.status])) });
+      const actions = nextActions(options.flow, {
+        statuses: Object.fromEntries([...nodeRuns].map(([id, n]) => [id, n.status])),
+      });
       let heldForUsage = false;
       for (const action of actions) {
         const nodeRun = nodeRuns.get(action.nodeId);
@@ -146,7 +224,10 @@ export class RunEngine {
           await this.#state(runId, nodeRun, "completed", undefined, "pending");
         } else if (action.type === "skip") {
           nodeRun.status = "skipped";
-          nodeRun.reason = { code: "UPSTREAM_NOT_SUCCEEDED", params: { sourceNodeId: action.sourceNodeId } };
+          nodeRun.reason = {
+            code: "UPSTREAM_NOT_SUCCEEDED",
+            params: { sourceNodeId: action.sourceNodeId },
+          };
           changed = true;
           await this.#state(runId, nodeRun, "skipped", nodeRun.reason, "pending");
         } else if (action.type === "request_approval") {
@@ -158,12 +239,17 @@ export class RunEngine {
             const summary = request.summary;
             await this.#emit(runId, "approval.requested", { summary }, nodeRun.id);
             let cancelApproval!: () => void;
-            const cancelled = new Promise<{ cancelled: true }>((resolve) => { cancelApproval = () => resolve({ cancelled: true }); });
+            const cancelled = new Promise<{ cancelled: true }>((resolve) => {
+              cancelApproval = () => resolve({ cancelled: true });
+            });
             this.#approvalCancels.set(node.id, cancelApproval);
             const approvalKey = `approval:${node.id}`;
             const approval = (async (): Promise<void> => {
               const decision = await Promise.race([
-                options.requestApproval?.(request).then((approved) => ({ cancelled: false as const, approved })) ?? Promise.resolve({ cancelled: false as const, approved: false }),
+                options
+                  .requestApproval?.(request)
+                  .then((approved) => ({ cancelled: false as const, approved })) ??
+                  Promise.resolve({ cancelled: false as const, approved: false }),
                 cancelled,
               ]);
               this.#approvalCancels.delete(node.id);
@@ -173,17 +259,36 @@ export class RunEngine {
               } else {
                 nodeRun.status = decision.approved ? "approved" : "rejected";
                 if (!decision.approved) nodeRun.reason = { code: "REJECTED_BY_USER", params: {} };
-                await this.#emit(runId, "approval.decided", { decision: decision.approved ? "approved" : "rejected", origin: options.origin ?? "cli" }, nodeRun.id);
+                await this.#emit(
+                  runId,
+                  "approval.decided",
+                  {
+                    decision: decision.approved ? "approved" : "rejected",
+                    origin: options.origin ?? "cli",
+                  },
+                  nodeRun.id,
+                );
               }
               await this.#state(runId, nodeRun, nodeRun.status, nodeRun.reason, "waiting_approval");
-            })().finally(() => { running.delete(approvalKey); });
+            })().finally(() => {
+              running.delete(approvalKey);
+            });
             running.set(approvalKey, approval);
           }
         } else if (action.type === "run_agent" && node.type === "agent" && !running.has(node.id)) {
-          if (slots.activeCount >= (options.concurrencyLimit ?? options.projectConfig.concurrencyLimit)) continue;
-          if (!await slots.acquire(nodeRun.id)) continue;
+          if (
+            slots.activeCount >=
+            (options.concurrencyLimit ?? options.projectConfig.concurrencyLimit)
+          )
+            continue;
+          if (!(await slots.acquire(nodeRun.id))) continue;
           const reading = await options.adapters[node.agent]?.readUsage();
-          const gate = usageGate.check(node.agent, reading, options.projectConfig.usageNearLimitThreshold, options.clock.now());
+          const gate = usageGate.check(
+            node.agent,
+            reading,
+            options.projectConfig.usageNearLimitThreshold,
+            options.clock.now(),
+          );
           if (gate.held) {
             nodeRun.hold = "USAGE_NEAR_LIMIT";
             heldForUsage = true;
@@ -194,7 +299,16 @@ export class RunEngine {
           nodeRun.status = "running";
           changed = true;
           await this.#state(runId, nodeRun, "running", undefined, "pending");
-          const promise = this.#runAgent(runId, node, nodeRun, nodeRuns, caps.get(node.id), slots).finally(() => { running.delete(node.id); });
+          const promise = this.#runAgent(
+            runId,
+            node,
+            nodeRun,
+            nodeRuns,
+            caps.get(node.id),
+            slots,
+          ).finally(() => {
+            running.delete(node.id);
+          });
           running.set(node.id, promise);
         }
       }
@@ -210,22 +324,49 @@ export class RunEngine {
       }
     }
 
-    const terminal = [...nodeRuns.values()].every((n) => ["approved", "rejected", "completed", "blocked", "failed", "cancelled", "skipped", "interrupted"].includes(n.status));
+    const terminal = [...nodeRuns.values()].every((n) =>
+      [
+        "approved",
+        "rejected",
+        "completed",
+        "blocked",
+        "failed",
+        "cancelled",
+        "skipped",
+        "interrupted",
+      ].includes(n.status),
+    );
     if (terminal) {
       run.status = this.#runCancelled ? "cancelled" : "finished";
       if (!this.#runCancelled) {
-        run.outcome = [...nodeRuns.values()].every((n) => n.status === "approved" || n.status === "completed") ? "all_succeeded" : "some_not_succeeded";
+        run.outcome = [...nodeRuns.values()].every(
+          (n) => n.status === "approved" || n.status === "completed",
+        )
+          ? "all_succeeded"
+          : "some_not_succeeded";
       }
       run.endedAt = options.clock.now();
       run.durationMs = Date.parse(run.endedAt) - Date.parse(run.startedAt);
     }
     run.heartbeatAt = options.clock.now();
     run.totals = calculateCostTotals([...nodeRuns.values()]);
-    if (terminal) await this.#emit(runId, "run.finished", { status: run.status, ...(run.outcome ? { outcome: run.outcome } : {}), totals: run.totals });
+    if (terminal)
+      await this.#emit(runId, "run.finished", {
+        status: run.status,
+        ...(run.outcome ? { outcome: run.outcome } : {}),
+        totals: run.totals,
+      });
     return { run, nodeRuns };
   }
 
-  async #runAgent(runId: string, node: AgentNode, nodeRun: NodeRun, allNodeRuns: Map<string, NodeRun>, capabilities: AgentCapabilities | undefined, slots: SlotCoordinator): Promise<void> {
+  async #runAgent(
+    runId: string,
+    node: AgentNode,
+    nodeRun: NodeRun,
+    allNodeRuns: Map<string, NodeRun>,
+    capabilities: AgentCapabilities | undefined,
+    slots: SlotCoordinator,
+  ): Promise<void> {
     const adapter = this.options.adapters[node.agent];
     if (!adapter || !capabilities) {
       nodeRun.status = "failed";
@@ -235,19 +376,39 @@ export class RunEngine {
       return;
     }
     const resolved = resolveNodeModel(node, this.options.projectConfig);
+    const sources =
+      analyzeCodeLineage(this.options.flow).inputSources.get(node.id) ?? new Set<string>();
+    const sourceId = sources.size === 1 ? [...sources][0] : undefined;
+    const baseCommit =
+      (sourceId ? allNodeRuns.get(sourceId)?.resultCommit : undefined) ?? this.options.baseCommit;
+    nodeRun.baseCommit = baseCommit;
     const inputNode = this.options.flow.nodes.find((candidate) => candidate.type === "input");
-    const prompt = renderTaskAssignment({ assignment: {
-      objective: inputNode?.type === "input" ? inputNode.objective : this.options.flow.name,
-      instructions: node.instructions, acceptanceCriteria: node.acceptanceCriteria,
-      predecessorResults: buildPredecessorResults(this.options.flow, node.id, allNodeRuns),
-    } });
+    const prompt = renderTaskAssignment({
+      assignment: {
+        objective: inputNode?.type === "input" ? inputNode.objective : this.options.flow.name,
+        instructions: node.instructions,
+        acceptanceCriteria: node.acceptanceCriteria,
+        predecessorResults: buildPredecessorResults(this.options.flow, node.id, allNodeRuns),
+      },
+    });
     const baseSpec: Omit<LaunchSpec, "attemptId" | "workspacePath"> = {
-      agentId: node.agent, runId, nodeRunId: nodeRun.id,
-      model: { model: resolved.model, ...(resolved.reasoningEffort ? { reasoningEffort: resolved.reasoningEffort } : {}) },
-      prompt, reportSchema: this.options.reportSchema ?? AgentReportSchema.toJSONSchema() as Record<string, unknown>,
+      agentId: node.agent,
+      runId,
+      nodeRunId: nodeRun.id,
+      model: {
+        model: resolved.model,
+        ...(resolved.reasoningEffort ? { reasoningEffort: resolved.reasoningEffort } : {}),
+      },
+      prompt,
+      reportSchema:
+        this.options.reportSchema ?? (AgentReportSchema.toJSONSchema() as Record<string, unknown>),
       writeScope: node.writeScope,
-      terminal: { enabled: deriveConfinement(capabilities, node.terminal.enabled).effectiveTerminal, allowedCommands: node.terminal.allowedCommands },
-      ...(capabilities.supportsTurnLimit ? { maxTurns: node.limits.maxTurns } : {}), platform: this.options.platform,
+      terminal: {
+        enabled: deriveConfinement(capabilities, node.terminal.enabled).effectiveTerminal,
+        allowedCommands: node.terminal.allowedCommands,
+      },
+      ...(capabilities.supportsTurnLimit ? { maxTurns: node.limits.maxTurns } : {}),
+      platform: this.options.platform,
     };
     let agentRetries = 0;
     let infraRetries = 0;
@@ -258,6 +419,8 @@ export class RunEngine {
     const inferred: NonNullable<NodeRun["inferredDenials"]> = [];
     let observed: Array<{ path: string; change: string; eolOnly: boolean }> = [];
     let activeWorkspace: string | undefined;
+    let historyRewritten = false;
+    let workspaceCreateFailure: (Error & { code: "WORKSPACE_CREATE_FAILED" }) | undefined;
     try {
       for (;;) {
         if (this.#runCancelled || this.#cancelledNodes.has(node.id)) {
@@ -266,53 +429,167 @@ export class RunEngine {
         }
         attemptNo += 1;
         const attemptId = this.#id();
-        const workspace = await this.options.workspace.create({ runId, nodeId: `${node.id}-attempt-${attemptNo}`, baseCommit: this.options.baseCommit });
+        const workspace = await this.options.workspace.create({
+          runId,
+          nodeId: `${node.id}-attempt-${attemptNo}`,
+          baseCommit,
+        });
         activeWorkspace = workspace.path;
-        const attempt: Attempt = { id: attemptId, n: attemptNo, kind: attemptNo > 1 && nodeRun.attempts.at(-1)?.processOutcome?.kind === "infra_failure" ? "infra_retry" : "agent", workspacePath: workspace.path, startedAt: this.options.clock.now() };
+        nodeRun.workspace = {
+          path: workspace.path,
+          branch: workspace.branch,
+          baseCommit,
+          trust: "trusted",
+          state: "active",
+        };
+        const attempt: Attempt = {
+          id: attemptId,
+          n: attemptNo,
+          kind:
+            attemptNo > 1 && nodeRun.attempts.at(-1)?.processOutcome?.kind === "infra_failure"
+              ? "infra_retry"
+              : "agent",
+          workspacePath: workspace.path,
+          startedAt: this.options.clock.now(),
+        };
         nodeRun.attempts.push(attempt);
         const launch: LaunchSpec = { ...baseSpec, attemptId, workspacePath: workspace.path };
-        await this.#emit(runId, "node.attempt_started", { attemptId, n: attempt.n, kind: attempt.kind, workspace, confinement: nodeRun.confinement }, nodeRun.id, attemptId);
+        await this.#emit(
+          runId,
+          "node.attempt_started",
+          {
+            attemptId,
+            n: attempt.n,
+            kind: attempt.kind,
+            workspace,
+            confinement: nodeRun.confinement,
+          },
+          nodeRun.id,
+          attemptId,
+        );
         const execution = adapter.launch(launch);
         this.#activeExecutions.set(node.id, execution);
-        const collected = this.options.enforceTimeouts === false
-          ? await this.#collect(execution, runId, nodeRun.id, attemptId)
-          : await this.#collectWithTimeout(execution, runId, nodeRun.id, attemptId, node.limits.timeoutMinutes * 60_000);
+        const collected =
+          this.options.enforceTimeouts === false
+            ? await this.#collect(execution, runId, nodeRun.id, attemptId)
+            : await this.#collectWithTimeout(
+                execution,
+                runId,
+                nodeRun.id,
+                attemptId,
+                node.limits.timeoutMinutes * 60_000,
+              );
         this.#activeExecutions.delete(node.id);
         outcome = collected.outcome;
         candidate = collected.report;
         denials = collected.denials;
         inferred.push(...collected.inferredDenials);
-        const retry = decideRetry(outcome, this.options.maxRetries ?? node.limits.maxRetries, agentRetries, infraRetries);
+        const retry = decideRetry(
+          outcome,
+          this.options.maxRetries ?? node.limits.maxRetries,
+          agentRetries,
+          infraRetries,
+        );
         if (retry.retry) {
-          if (retry.kind === "infra_retry") infraRetries += 1; else agentRetries += 1;
+          if (retry.kind === "infra_retry") infraRetries += 1;
+          else agentRetries += 1;
           attempt.processOutcome = outcome;
           attempt.endedAt = this.options.clock.now();
-          await this.#emit(runId, "node.attempt_finished", { processOutcome: outcome }, nodeRun.id, attemptId);
+          await this.#emit(
+            runId,
+            "node.attempt_finished",
+            { processOutcome: outcome },
+            nodeRun.id,
+            attemptId,
+          );
           await this.options.workspace.remove(workspace.path);
+          activeWorkspace = undefined;
+          delete nodeRun.workspace;
           await this.options.clock.sleep(retry.delayMs ?? 0);
           continue;
         }
-        observed = await this.options.inspectFiles?.(workspace.path) ?? [];
-        if ((candidate.state === "absent" || candidate.state === "invalid") && !["infra_failure", "agent_error", "crashed", "spawn_failed", "killed"].includes(outcome.kind)) {
-          await this.#emit(runId, "node.report_requested", { why: candidate.state, ...(candidate.state === "invalid" ? { zodErrors: candidate.zodErrors } : {}) }, nodeRun.id, attemptId);
+        if (
+          (candidate.state === "absent" || candidate.state === "invalid") &&
+          !["infra_failure", "agent_error", "crashed", "spawn_failed", "killed"].includes(
+            outcome.kind,
+          )
+        ) {
+          await this.#emit(
+            runId,
+            "node.report_requested",
+            {
+              why: candidate.state,
+              ...(candidate.state === "invalid" ? { zodErrors: candidate.zodErrors } : {}),
+            },
+            nodeRun.id,
+            attemptId,
+          );
           const reportExecution = adapter.requestReport(execution, launch);
-          const reportCollection = await this.#collect(reportExecution, runId, nodeRun.id, attemptId);
+          const reportCollection = await this.#collect(
+            reportExecution,
+            runId,
+            nodeRun.id,
+            attemptId,
+          );
           candidate = reportCollection.report;
           denials = reportCollection.denials ?? denials;
           inferred.push(...reportCollection.inferredDenials);
-          await this.#emit(runId, "node.report_received", { reportState: candidate.state }, nodeRun.id, attemptId);
+          await this.#emit(
+            runId,
+            "node.report_received",
+            { reportState: candidate.state },
+            nodeRun.id,
+            attemptId,
+          );
         }
+        const committed = await this.options.workspace.commit?.({
+          path: workspace.path,
+          baseCommit,
+          cancelled: this.#runCancelled || this.#cancelledNodes.has(node.id),
+        });
+        if (committed?.resultCommit) {
+          nodeRun.resultCommit = committed.resultCommit;
+          nodeRun.workspace = { ...nodeRun.workspace, baseCommit, state: "kept" };
+        }
+        historyRewritten = committed?.historyRewritten ?? false;
+        observed = (await this.options.inspectFiles?.(workspace.path)) ?? [];
         attempt.processOutcome = outcome;
         attempt.endedAt = this.options.clock.now();
-        await this.#emit(runId, "node.attempt_finished", { processOutcome: outcome }, nodeRun.id, attemptId);
+        await this.#emit(
+          runId,
+          "node.attempt_finished",
+          { processOutcome: outcome },
+          nodeRun.id,
+          attemptId,
+        );
         break;
       }
     } catch (error) {
-      outcome = { kind: "spawn_failed", cause: "other", detail: error instanceof Error ? error.message : "Agent launch failed", durationMs: 0 };
+      if (isWorkspaceCreateFailure(error)) workspaceCreateFailure = error;
+      else
+        outcome = {
+          kind: "spawn_failed",
+          cause: "other",
+          detail: error instanceof Error ? error.message : "Agent launch failed",
+          durationMs: 0,
+        };
     } finally {
       await slots.release(nodeRun.id);
     }
-    if ((this.#runCancelled || this.#cancelledNodes.has(node.id)) && activeWorkspace) await this.options.markWorkspaceUntrusted?.(activeWorkspace);
+    if (workspaceCreateFailure) {
+      nodeRun.status = "failed";
+      nodeRun.reason = {
+        code: "WORKSPACE_CREATE_FAILED",
+        params: { detail: workspaceCreateFailure.message },
+      };
+      await this.#state(runId, nodeRun, "failed", nodeRun.reason, "running");
+      return;
+    }
+    if ((this.#runCancelled || this.#cancelledNodes.has(node.id)) && activeWorkspace) {
+      if (nodeRun.workspace) nodeRun.workspace = { ...nodeRun.workspace, trust: "untrusted" };
+      await this.options.workspace.markUntrusted?.(activeWorkspace);
+      await this.options.markWorkspaceUntrusted?.(activeWorkspace);
+    }
     const report = candidate.state === "valid" ? candidate.report : undefined;
     nodeRun.reportState = candidate.state;
     if (report) nodeRun.report = report;
@@ -321,25 +598,57 @@ export class RunEngine {
     if (observed.length) nodeRun.observedFiles = observed;
     if (outcome.cost) nodeRun.cost = outcome.cost;
     if (outcome.consumption) nodeRun.consumption = outcome.consumption;
-    const result = resolveNodeResult({
-      cancelledByUser: this.#runCancelled || this.#cancelledNodes.has(node.id), outcome, reportState: candidate.state,
-      ...(report ? { report } : {}), ...(denials === undefined ? {} : { denials }),
-      capabilities: { reportsDenials: capabilities.reportsDenials, supportsTurnLimit: capabilities.supportsTurnLimit },
-      observedFiles: observed, writeScope: node.writeScope,
+    const resolvedResult = resolveNodeResultWithDiscrepancies({
+      cancelledByUser: this.#runCancelled || this.#cancelledNodes.has(node.id),
+      outcome,
+      reportState: candidate.state,
+      ...(report ? { report } : {}),
+      ...(denials === undefined ? {} : { denials }),
+      capabilities: {
+        reportsDenials: capabilities.reportsDenials,
+        supportsTurnLimit: capabilities.supportsTurnLimit,
+      },
+      observedFiles: observed,
+      writeScope: node.writeScope,
+      historyRewritten,
     });
-      nodeRun.status = result.status;
+    const result = resolvedResult.result;
+    nodeRun.discrepancies = resolvedResult.discrepancies;
+    nodeRun.status = result.status;
     nodeRun.denialCheck = result.denialCheck ?? nodeRun.denialCheck;
-    if (result.reason) nodeRun.reason = result.reason; else delete nodeRun.reason;
-    if (result.inconsistency) nodeRun.inconsistency = result.inconsistency; else delete nodeRun.inconsistency;
+    if (result.reason) nodeRun.reason = result.reason;
+    else delete nodeRun.reason;
+    if (result.inconsistency) nodeRun.inconsistency = result.inconsistency;
+    else delete nodeRun.inconsistency;
     await this.#state(runId, nodeRun, nodeRun.status, nodeRun.reason, "running");
   }
 
-  async #collect(execution: AgentExecution, runId: string, nodeRunId: string, attemptId: string): Promise<{ outcome: ProcessOutcome; report: ReportCandidate; denials?: Array<{ tool: string; reason: string; input?: unknown }>; inferredDenials: NonNullable<NodeRun["inferredDenials"]> }> {
+  async #collect(
+    execution: AgentExecution,
+    runId: string,
+    nodeRunId: string,
+    attemptId: string,
+  ): Promise<{
+    outcome: ProcessOutcome;
+    report: ReportCandidate;
+    denials?: Array<{ tool: string; reason: string; input?: unknown }>;
+    inferredDenials: NonNullable<NodeRun["inferredDenials"]>;
+  }> {
     const denials: Array<{ tool: string; reason: string; input?: unknown }> = [];
     const inferredDenials: NonNullable<NodeRun["inferredDenials"]> = [];
     for await (const event of execution.events) {
-      if (event.type === "permission_denied") denials.push({ tool: event.tool, reason: event.reason, ...(event.input === undefined ? {} : { input: event.input }) });
-      if (event.type === "inferred_denial") inferredDenials.push({ source: event.source, message: event.message, ...(event.target ? { target: event.target } : {}) });
+      if (event.type === "permission_denied")
+        denials.push({
+          tool: event.tool,
+          reason: event.reason,
+          ...(event.input === undefined ? {} : { input: event.input }),
+        });
+      if (event.type === "inferred_denial")
+        inferredDenials.push({
+          source: event.source,
+          message: event.message,
+          ...(event.target ? { target: event.target } : {}),
+        });
       if (event.type === "model_mismatch") {
         const n = [...this.#lastNodeRuns.values()].find((item) => item.id === nodeRunId);
         if (n && !n.warnings.includes("MODEL_MISMATCH")) n.warnings.push("MODEL_MISMATCH");
@@ -355,13 +664,36 @@ export class RunEngine {
       await this.#persistAgentEvent(runId, nodeRunId, attemptId, event);
     }
     const result = await execution.completion;
-    return { outcome: result.outcome, report: result.report, ...(denials.length ? { denials } : result.outcome.denials === undefined ? {} : { denials: result.outcome.denials }), inferredDenials };
+    return {
+      outcome: result.outcome,
+      report: result.report,
+      ...(denials.length
+        ? { denials }
+        : result.outcome.denials === undefined
+          ? {}
+          : { denials: result.outcome.denials }),
+      inferredDenials,
+    };
   }
 
-  async #collectWithTimeout(execution: AgentExecution, runId: string, nodeRunId: string, attemptId: string, timeoutMs: number): Promise<{ outcome: ProcessOutcome; report: ReportCandidate; denials?: Array<{ tool: string; reason: string; input?: unknown }>; inferredDenials: NonNullable<NodeRun["inferredDenials"]> }> {
+  async #collectWithTimeout(
+    execution: AgentExecution,
+    runId: string,
+    nodeRunId: string,
+    attemptId: string,
+    timeoutMs: number,
+  ): Promise<{
+    outcome: ProcessOutcome;
+    report: ReportCandidate;
+    denials?: Array<{ tool: string; reason: string; input?: unknown }>;
+    inferredDenials: NonNullable<NodeRun["inferredDenials"]>;
+  }> {
     const controller = new AbortController();
     const collecting = this.#collect(execution, runId, nodeRunId, attemptId);
-    const timer = this.options.clock.sleep(timeoutMs, controller.signal).then(() => ({ expired: true as const }), () => ({ expired: false as const }));
+    const timer = this.options.clock.sleep(timeoutMs, controller.signal).then(
+      () => ({ expired: true as const }),
+      () => ({ expired: false as const }),
+    );
     try {
       const winner = await Promise.race([
         collecting.then((result) => ({ expired: false as const, result })),
@@ -373,7 +705,10 @@ export class RunEngine {
       }
       await execution.cancel("timeout");
       const stopped = await collecting;
-      return { ...stopped, outcome: { kind: "killed", by: "timeout", phase: "tree_kill", durationMs: timeoutMs } };
+      return {
+        ...stopped,
+        outcome: { kind: "killed", by: "timeout", phase: "tree_kill", durationMs: timeoutMs },
+      };
     } catch (error) {
       controller.abort();
       throw error;
@@ -382,39 +717,174 @@ export class RunEngine {
 
   #lastNodeRuns = new Map<string, NodeRun>();
 
-  async #persistAgentEvent(runId: string, nodeRunId: string, attemptId: string, event: NormalizedEvent): Promise<void> {
+  async #persistAgentEvent(
+    runId: string,
+    nodeRunId: string,
+    attemptId: string,
+    event: NormalizedEvent,
+  ): Promise<void> {
     const common = { runId, nodeRunId, attemptId, ts: event.ts };
     let persisted: PersistedEvent;
     switch (event.type) {
-      case "session_started": persisted = { ...common, type: "agent.session_started", payload: { sessionId: event.sessionId, ...(event.model ? { model: event.model } : {}), ...(event.tools ? { tools: event.tools } : {}), ...(event.agentVersion ? { agentVersion: event.agentVersion } : {}) } }; break;
-      case "assistant_text": persisted = { ...common, type: "agent.text", payload: { text: event.text, ...(event.subagent ? { subagent: event.subagent } : {}) } }; break;
-      case "tool_call": persisted = { ...common, type: "agent.tool_call", payload: { ...(event.toolUseId ? { toolUseId: event.toolUseId } : {}), name: event.name, input: event.input } }; break;
-      case "tool_result": persisted = { ...common, type: "agent.tool_result", payload: { ...(event.toolUseId ? { toolUseId: event.toolUseId } : {}), ok: event.ok, content: event.content } }; break;
-      case "permission_denied": persisted = { ...common, type: "agent.permission_denied", payload: { tool: event.tool, reason: event.reason, ...(event.input === undefined ? {} : { input: event.input }) } }; break;
-      case "inferred_denial": persisted = { ...common, type: "agent.inferred_denial", payload: { source: event.source, message: event.message, ...(event.target ? { target: event.target } : {}) } }; break;
-      case "usage": persisted = { ...common, type: "agent.usage", payload: { consumption: event.consumption ?? {}, ...(event.cost ? { cost: event.cost } : {}) } }; break;
-      case "subscription_usage": persisted = { ...common, type: "agent.subscription_usage", payload: { agentId: event.agentId, authMode: event.authMode, windows: event.windows, readAt: event.readAt, live: event.live, source: event.source } }; break;
-      case "stderr": persisted = { ...common, type: "agent.stderr", payload: { line: event.line } }; break;
-      case "model_mismatch": persisted = { ...common, type: "error", payload: { code: "MODEL_MISMATCH", context: { requested: event.requested, effective: event.effective } } }; break;
-      case "raw": persisted = { ...common, type: "error", payload: { code: "AGENT_RAW_EVENT", context: { data: event.data } } }; break;
+      case "session_started":
+        persisted = {
+          ...common,
+          type: "agent.session_started",
+          payload: {
+            sessionId: event.sessionId,
+            ...(event.model ? { model: event.model } : {}),
+            ...(event.tools ? { tools: event.tools } : {}),
+            ...(event.agentVersion ? { agentVersion: event.agentVersion } : {}),
+          },
+        };
+        break;
+      case "assistant_text":
+        persisted = {
+          ...common,
+          type: "agent.text",
+          payload: { text: event.text, ...(event.subagent ? { subagent: event.subagent } : {}) },
+        };
+        break;
+      case "tool_call":
+        persisted = {
+          ...common,
+          type: "agent.tool_call",
+          payload: {
+            ...(event.toolUseId ? { toolUseId: event.toolUseId } : {}),
+            name: event.name,
+            input: event.input,
+          },
+        };
+        break;
+      case "tool_result":
+        persisted = {
+          ...common,
+          type: "agent.tool_result",
+          payload: {
+            ...(event.toolUseId ? { toolUseId: event.toolUseId } : {}),
+            ok: event.ok,
+            content: event.content,
+          },
+        };
+        break;
+      case "permission_denied":
+        persisted = {
+          ...common,
+          type: "agent.permission_denied",
+          payload: {
+            tool: event.tool,
+            reason: event.reason,
+            ...(event.input === undefined ? {} : { input: event.input }),
+          },
+        };
+        break;
+      case "inferred_denial":
+        persisted = {
+          ...common,
+          type: "agent.inferred_denial",
+          payload: {
+            source: event.source,
+            message: event.message,
+            ...(event.target ? { target: event.target } : {}),
+          },
+        };
+        break;
+      case "usage":
+        persisted = {
+          ...common,
+          type: "agent.usage",
+          payload: {
+            consumption: event.consumption ?? {},
+            ...(event.cost ? { cost: event.cost } : {}),
+          },
+        };
+        break;
+      case "subscription_usage":
+        persisted = {
+          ...common,
+          type: "agent.subscription_usage",
+          payload: {
+            agentId: event.agentId,
+            authMode: event.authMode,
+            windows: event.windows,
+            readAt: event.readAt,
+            live: event.live,
+            source: event.source,
+          },
+        };
+        break;
+      case "stderr":
+        persisted = { ...common, type: "agent.stderr", payload: { line: event.line } };
+        break;
+      case "model_mismatch":
+        persisted = {
+          ...common,
+          type: "error",
+          payload: {
+            code: "MODEL_MISMATCH",
+            context: { requested: event.requested, effective: event.effective },
+          },
+        };
+        break;
+      case "raw":
+        persisted = {
+          ...common,
+          type: "error",
+          payload: { code: "AGENT_RAW_EVENT", context: { data: event.data } },
+        };
+        break;
     }
     await this.options.store.append(persisted);
   }
 
-  async #state(runId: string, nodeRun: NodeRun, to: NodeRun["status"], reason?: NodeRun["reason"], from: NodeRun["status"] = nodeRun.status): Promise<void> {
-    await this.#emit(runId, "node.state_changed", { from, to, ...(reason ? { reason } : {}) }, nodeRun.id);
+  async #state(
+    runId: string,
+    nodeRun: NodeRun,
+    to: NodeRun["status"],
+    reason?: NodeRun["reason"],
+    from: NodeRun["status"] = nodeRun.status,
+  ): Promise<void> {
+    await this.#emit(
+      runId,
+      "node.state_changed",
+      { from, to, ...(reason ? { reason } : {}) },
+      nodeRun.id,
+    );
   }
 
-  async #emit(runId: string, type: PersistedEvent["type"], payload: Record<string, unknown>, nodeRunId?: string, attemptId?: string): Promise<void> {
-    await this.options.store.append({ runId, ...(nodeRunId ? { nodeRunId } : {}), ...(attemptId ? { attemptId } : {}), ts: this.options.clock.now(), type, payload } as unknown as PersistedEvent);
+  async #emit(
+    runId: string,
+    type: PersistedEvent["type"],
+    payload: Record<string, unknown>,
+    nodeRunId?: string,
+    attemptId?: string,
+  ): Promise<void> {
+    await this.options.store.append({
+      runId,
+      ...(nodeRunId ? { nodeRunId } : {}),
+      ...(attemptId ? { attemptId } : {}),
+      ts: this.options.clock.now(),
+      type,
+      payload,
+    } as unknown as PersistedEvent);
   }
 
-  #id(): string { return this.options.createId?.() ?? uuidV7(this.options.clock.now()); }
+  #id(): string {
+    return this.options.createId?.() ?? uuidV7(this.options.clock.now());
+  }
 }
 
 function uuidV7(now: string): string {
   const time = Math.max(0, Date.parse(now)).toString(16).padStart(12, "0").slice(-12);
-  const random = Array.from({ length: 20 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
+  const random = Array.from({ length: 20 }, () => Math.floor(Math.random() * 16).toString(16)).join(
+    "",
+  );
   const variant = ((parseInt(random[4] ?? "8", 16) & 3) | 8).toString(16);
   return `${time.slice(0, 8)}-${time.slice(8)}-7${random.slice(0, 3)}-${variant}${random.slice(5, 8)}-${random.slice(8, 20)}`;
+}
+
+function isWorkspaceCreateFailure(
+  error: unknown,
+): error is Error & { code: "WORKSPACE_CREATE_FAILED" } {
+  return error instanceof Error && "code" in error && error.code === "WORKSPACE_CREATE_FAILED";
 }

@@ -19,7 +19,7 @@ export interface CreateWorktreeOptions extends WorktreeLocationOptions {
 }
 
 export class WorkspaceCreateError extends Error {
-  readonly name = "WorkspaceCreateError";
+  override readonly name = "WorkspaceCreateError";
   readonly code = "WORKSPACE_CREATE_FAILED";
   readonly workspacePath: string;
 
@@ -33,13 +33,13 @@ export function getWorktreeRoot(options: WorktreeLocationOptions = {}): string {
   const platform = options.platform ?? process.platform;
   const env = options.env ?? process.env;
   if (platform === "win32") {
-    const localAppData = env.LOCALAPPDATA;
+    const localAppData = env["LOCALAPPDATA"];
     if (!localAppData || !isAbsolute(localAppData)) {
       throw new Error("LOCALAPPDATA must be an absolute path on Windows");
     }
     return join(localAppData, "Zeko", "wt");
   }
-  const dataHome = env.XDG_DATA_HOME || join(homedir(), ".local", "share");
+  const dataHome = env["XDG_DATA_HOME"] || join(homedir(), ".local", "share");
   if (!isAbsolute(dataHome)) throw new Error("XDG_DATA_HOME must be an absolute path");
   return join(dataHome, "Zeko", "wt");
 }
@@ -68,25 +68,40 @@ export function assertSafeWorktreePath(input: {
   }
 }
 
-export async function createWorktree(options: CreateWorktreeOptions): Promise<{ path: string; branch: string }> {
+export async function createWorktree(
+  options: CreateWorktreeOptions,
+): Promise<{ path: string; branch: string }> {
   const platform = options.platform ?? process.platform;
   const repoPath = resolve(options.repoPath);
   const root = resolve(options.worktreeRoot ?? getWorktreeRoot(options));
   const runKey = options.runId.replaceAll("-", "").slice(0, 8);
   const nodeKey = options.nodeKey ?? options.nodeId;
-  if (!/^[a-zA-Z0-9_-]+$/.test(runKey) || !/^[a-zA-Z0-9_-]+$/.test(options.nodeId) || !/^[a-zA-Z0-9_-]+$/.test(nodeKey)) {
-    throw new WorkspaceCreateError(root, { cause: new Error("runId and nodeId must be valid path and branch segments") });
+  if (
+    !/^[a-zA-Z0-9_-]+$/.test(runKey) ||
+    !/^[a-zA-Z0-9_-]+$/.test(options.nodeId) ||
+    !/^[a-zA-Z0-9_-]+$/.test(nodeKey)
+  ) {
+    throw new WorkspaceCreateError(root, {
+      cause: new Error("runId and nodeId must be valid path and branch segments"),
+    });
   }
   const worktreePath = resolve(root, runKey, nodeKey);
   const branch = `zeko/${runKey}/${options.nodeId}`;
   try {
-    assertSafeWorktreePath({ repoPath, worktreePath, tempDirectory: options.tempDirectory, platform });
+    assertSafeWorktreePath({
+      repoPath,
+      worktreePath,
+      ...(options.tempDirectory ? { tempDirectory: options.tempDirectory } : {}),
+      platform,
+    });
     await mkdir(join(root, runKey), { recursive: true });
   } catch (error) {
     throw new WorkspaceCreateError(worktreePath, { cause: error });
   }
   try {
-    await runGit("worktree", ["add", "-b", branch, worktreePath, options.baseCommit], { cwd: repoPath });
+    await runGit("worktree", ["add", "-b", branch, worktreePath, options.baseCommit], {
+      cwd: repoPath,
+    });
     return { path: worktreePath, branch };
   } catch (error) {
     throw new WorkspaceCreateError(worktreePath, { cause: error });

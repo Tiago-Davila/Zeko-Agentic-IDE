@@ -24,33 +24,71 @@ async function initializeRepository(path: string): Promise<string> {
 }
 
 afterEach(async () => {
-  await Promise.all(directories.splice(0).map((path) => rm(path, { recursive: true, force: true })));
+  await Promise.all(
+    directories.splice(0).map((path) => rm(path, { recursive: true, force: true })),
+  );
 });
 
 describe("worktrees", () => {
   it("uses the platform data directory outside the repository", () => {
-    expect(getWorktreeRoot({ platform: "win32", env: { LOCALAPPDATA: "C:\\Users\\test\\AppData\\Local" } })).toBe("C:\\Users\\test\\AppData\\Local\\Zeko\\wt");
-    expect(getWorktreeRoot({ platform: "linux", env: { XDG_DATA_HOME: "/home/test/.local/share" } })).toBe("/home/test/.local/share/Zeko/wt");
+    expect(
+      getWorktreeRoot({
+        platform: "win32",
+        env: { ["LOCALAPPDATA"]: "C:\\Users\\test\\AppData\\Local" },
+      }),
+    ).toBe("C:\\Users\\test\\AppData\\Local\\Zeko\\wt");
+    expect(
+      getWorktreeRoot({
+        platform: "linux",
+        env: { ["XDG_DATA_HOME"]: "/home/test/.local/share" },
+      }).replaceAll("\\", "/"),
+    ).toBe("/home/test/.local/share/Zeko/wt");
   });
 
   it("rejects paths inside the repository or system temp directory", async () => {
     const root = await tempDirectory();
-    expect(() => assertSafeWorktreePath({ repoPath: root, worktreePath: join(root, "nested"), tempDirectory: "C:\\temp", platform: "win32" })).toThrow(/outside the original repository/);
-    expect(() => assertSafeWorktreePath({ repoPath: "C:\\repo", worktreePath: "C:\\temp\\zeko", tempDirectory: "C:\\temp", platform: "win32" })).toThrow(/temporary directory/);
+    expect(() =>
+      assertSafeWorktreePath({
+        repoPath: root,
+        worktreePath: join(root, "nested"),
+        tempDirectory: "C:\\temp",
+        platform: "win32",
+      }),
+    ).toThrow(/outside the original repository/);
+    expect(() =>
+      assertSafeWorktreePath({
+        repoPath: "C:\\repo",
+        worktreePath: "C:\\temp\\zeko",
+        tempDirectory: "C:\\temp",
+        platform: "win32",
+      }),
+    ).toThrow(/temporary directory/);
   });
 
   it("creates an isolated worktree from the requested commit", async () => {
     const parent = await tempDirectory();
     const repo = join(parent, "repo");
-    const localData = process.platform === "win32" ? process.env.LOCALAPPDATA : process.env.XDG_DATA_HOME;
-    const outsideRoot = join(localData ?? join(homedir(), ".local", "share"), `zeko-test-worktrees-${process.pid}-${Date.now()}`);
+    const localData =
+      process.platform === "win32" ? process.env["LOCALAPPDATA"] : process.env["XDG_DATA_HOME"];
+    const outsideRoot = join(
+      localData ?? join(homedir(), ".local", "share"),
+      `zeko-test-worktrees-${process.pid}-${Date.now()}`,
+    );
     directories.push(outsideRoot);
     await Promise.all([mkdir(repo), mkdir(outsideRoot, { recursive: true })]);
     const baseCommit = await initializeRepository(repo);
     try {
-      const workspace = await createWorktree({ repoPath: repo, runId: "12345678-aaaa", nodeId: "agent-a", baseCommit, worktreeRoot: outsideRoot });
+      const workspace = await createWorktree({
+        repoPath: repo,
+        runId: "12345678-aaaa",
+        nodeId: "agent-a",
+        baseCommit,
+        worktreeRoot: outsideRoot,
+      });
       expect(workspace.branch).toBe("zeko/12345678/agent-a");
-      expect((await runGit("rev-parse", ["HEAD"], { cwd: workspace.path })).stdout.trim()).toBe(baseCommit);
+      expect((await runGit("rev-parse", ["HEAD"], { cwd: workspace.path })).stdout.trim()).toBe(
+        baseCommit,
+      );
       expect((await runGit("status", ["--porcelain"], { cwd: repo })).stdout).toBe("");
       await runGit("worktree", ["remove", "--force", workspace.path], { cwd: repo });
       await runGit("branch", ["-D", workspace.branch], { cwd: repo });
@@ -61,12 +99,14 @@ describe("worktrees", () => {
 
   it("returns WORKSPACE_CREATE_FAILED for a worktree under system temp", async () => {
     const parent = await tempDirectory();
-    await expect(createWorktree({
-      repoPath: parent,
-      runId: "12345678-aaaa",
-      nodeId: "agent-a",
-      baseCommit: "HEAD",
-      worktreeRoot: join(tmpdir(), "zeko-forbidden"),
-    })).rejects.toMatchObject({ code: "WORKSPACE_CREATE_FAILED" });
+    await expect(
+      createWorktree({
+        repoPath: parent,
+        runId: "12345678-aaaa",
+        nodeId: "agent-a",
+        baseCommit: "HEAD",
+        worktreeRoot: join(tmpdir(), "zeko-forbidden"),
+      }),
+    ).rejects.toMatchObject({ code: "WORKSPACE_CREATE_FAILED" });
   });
 });

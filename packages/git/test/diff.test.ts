@@ -20,7 +20,9 @@ async function setupRepository(): Promise<{ path: string; baseCommit: string }> 
 }
 
 afterEach(async () => {
-  await Promise.all(directories.splice(0).map((path) => rm(path, { recursive: true, force: true })));
+  await Promise.all(
+    directories.splice(0).map((path) => rm(path, { recursive: true, force: true })),
+  );
 });
 
 describe("getFileDiff", () => {
@@ -30,10 +32,24 @@ describe("getFileDiff", () => {
     await runGit("add", ["change.txt"], { cwd: path });
     await runGit("commit", ["--quiet", "-m", "change"], { cwd: path });
     const resultCommit = (await runGit("rev-parse", ["HEAD"], { cwd: path })).stdout.trim();
-    const first = await getFileDiff({ cwd: path, baseCommit, resultCommit, path: "change.txt", limit: 6 });
+    const first = await getFileDiff({
+      cwd: path,
+      baseCommit,
+      resultCommit,
+      path: "change.txt",
+      limit: 6,
+    });
     expect(first.patch).toContain("diff --git a/change.txt b/change.txt");
     expect(first.complete).toBe(false);
-    const second = await getFileDiff({ cwd: path, baseCommit, resultCommit, path: "change.txt", offset: first.nextOffset, limit: 100 });
+    expect(first.nextOffset).toBeDefined();
+    const second = await getFileDiff({
+      cwd: path,
+      baseCommit,
+      resultCommit,
+      path: "change.txt",
+      offset: first.nextOffset ?? 0,
+      limit: 100,
+    });
     expect(first.patch + second.patch).toContain("-before");
     expect(first.patch + second.patch).toContain("+after");
     expect(second.complete).toBe(true);
@@ -41,7 +57,11 @@ describe("getFileDiff", () => {
 
   it("rejects paths that escape the repository", async () => {
     const { path, baseCommit } = await setupRepository();
-    await expect(getFileDiff({ cwd: path, baseCommit, resultCommit: baseCommit, path: "../secret" })).rejects.toThrow(/relative repository path/);
-    await expect(getFileDiff({ cwd: path, baseCommit, resultCommit: baseCommit, path: "C:\\secret" })).rejects.toThrow(/relative repository path/);
+    await expect(
+      getFileDiff({ cwd: path, baseCommit, resultCommit: baseCommit, path: "../secret" }),
+    ).rejects.toThrow(/relative repository path/);
+    await expect(
+      getFileDiff({ cwd: path, baseCommit, resultCommit: baseCommit, path: "C:\\secret" }),
+    ).rejects.toThrow(/relative repository path/);
   });
 });

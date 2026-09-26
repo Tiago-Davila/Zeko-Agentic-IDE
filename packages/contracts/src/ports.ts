@@ -4,8 +4,18 @@ import type { PersistedEvent } from "./events.js";
 import type { Run } from "./run.js";
 
 export interface WorkspacePort {
-  create(input: { runId: string; nodeId: string; baseCommit: string }): Promise<{ path: string; branch: string }>;
+  create(input: {
+    runId: string;
+    nodeId: string;
+    baseCommit: string;
+  }): Promise<{ path: string; branch: string }>;
   remove(path: string): Promise<void>;
+  commit?(input: {
+    path: string;
+    baseCommit: string;
+    cancelled: boolean;
+  }): Promise<{ resultCommit?: string; historyRewritten: boolean }>;
+  markUntrusted?(path: string): Promise<void>;
 }
 
 export interface RunStorePort {

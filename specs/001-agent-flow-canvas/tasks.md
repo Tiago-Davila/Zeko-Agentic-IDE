@@ -609,7 +609,7 @@ sobre repositorios temporales (git no es un proveedor de IA).
   con confirmación explícita. Tests: sin confirmación no borra nada. **Archivos**:
   `packages/git/src/cleanup.ts`, `packages/git/test/cleanup.test.ts`. **Cubre**: FR-048, FR-049.
   **Base**: R-15. **Depende de**: T071
-- [ ] T076 [US2] Implementar `WorkspacePort` con git:
+- [X] T076 [US2] Implementar `WorkspacePort` con git:
   - worktree por intento; el de un intento con error se descarta al reintentar;
   - confianza guardada fuera del worktree;
   - base = `resultCommit` de la única fuente de `inputSources`.
