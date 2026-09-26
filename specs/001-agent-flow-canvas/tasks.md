@@ -621,7 +621,7 @@ sobre repositorios temporales (git no es un proveedor de IA).
   `packages/git/test/workspace-port.test.ts`,
   `packages/runtime/test/workspace-port.integration.test.ts`. **Cubre**: FR-041, FR-043, FR-044,
   US2-12. **Base**: R-15, R-22, T008. **Depende de**: T073, T059, T055
-- [ ] T077 [US2] Integración Windows de aislamiento: el hash del árbol de trabajo, `HEAD`, la rama
+- [X] T077 [US2] Integración Windows de aislamiento: el hash del árbol de trabajo, `HEAD`, la rama
   actual y `status --porcelain` del repo original son idénticos antes y después de un run con
   varios nodos. Vive en `runtime` porque ejecuta el motor. **Archivos**:
   `packages/runtime/test/isolation.win.test.ts`. **Cubre**: FR-045, SC-004. **Base**: R-26, T008.
