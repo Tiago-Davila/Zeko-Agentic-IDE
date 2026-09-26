@@ -1046,7 +1046,7 @@ en modo `replay` con los fixtures de Codex.
   Con tests. **Archivos**: `packages/adapters/src/codex/signatures.ts`,
   `packages/adapters/test/codex/signatures.test.ts`. **Cubre**: FR-023, FR-032, NFR-008.
   **Base**: R-13, R-18, D12, `[001c §3, §4, §8, §12]`. **Depende de**: T123
-- [ ] T126 [US4] `ProcessOutcome` y reporte de Codex:
+- [X] T126 [US4] `ProcessOutcome` y reporte de Codex:
   - `exited` = exit 0 + `turn.completed` + ninguna firma de infraestructura;
   - `agent_error` = `turn.failed` o exit ≠ 0 sin eventos;
   - `killed`, `crashed` y `spawn_failed`;
