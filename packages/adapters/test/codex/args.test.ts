@@ -53,7 +53,8 @@ describe("buildCodexArgs", () => {
 
   it("puts unverified report-fork flags behind an explicit option and omits -s", () => {
     const args = buildCodexArgs(baseSpec({ platform: "linux" }), { outputSchemaPath: "schema.json", windowsSandbox: "unelevated", forkThreadId: "thread-123" });
-    expect(args.slice(0, 3)).toEqual(["exec", "fork", "thread-123"]);
+    expect(args.slice(0, 2)).toEqual(["exec", "fork"]);
+    expect(args.indexOf("thread-123")).toBeGreaterThan(args.indexOf("--output-schema"));
     expect(args).toContain('sandbox_mode="workspace-write"');
     expect(args).not.toContain("-s");
   });

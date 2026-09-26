@@ -4,6 +4,7 @@ import type { AgentUsageReading } from "@zeko/contracts";
 
 export interface CodexRolloutData {
   readonly model?: string;
+  readonly effort?: string;
   readonly durationMs?: number;
   readonly rejections: readonly unknown[];
   readonly usage?: AgentUsageReading;
@@ -36,6 +37,7 @@ export class CodexRolloutReader {
 
 export function parseCodexRolloutJsonl(contents: string, now = new Date()): CodexRolloutData {
   let model: string | undefined;
+  let effort: string | undefined;
   let durationMs: number | undefined;
   let usage: AgentUsageReading | undefined;
   const rejections: unknown[] = [];
@@ -45,13 +47,16 @@ export function parseCodexRolloutJsonl(contents: string, now = new Date()): Code
         if (!envelope) continue;
         const payload = record(envelope["payload"]) ?? envelope;
         const type = text(payload["type"]) ?? text(envelope["type"]);
-        if (type === "turn_context") model = text(payload["model"]) ?? model;
+        if (type === "turn_context") {
+          model = text(payload["model"]) ?? model;
+          effort = text(payload["effort"]) ?? text(payload["reasoning_effort"]) ?? effort;
+        }
         if (type === "task_complete") durationMs = integer(payload["duration_ms"]) ?? durationMs;
         if (type === "token_count") usage = parseUsage(payload["rate_limits"], now);
         if (type?.toLowerCase().includes("reject")) rejections.push(payload);
       } catch { /* Tolerate partial final JSONL records. */ }
     }
-  return { ...(model ? { model } : {}), ...(durationMs === undefined ? {} : { durationMs }), rejections, ...(usage ? { usage } : {}) };
+  return { ...(model ? { model } : {}), ...(effort ? { effort } : {}), ...(durationMs === undefined ? {} : { durationMs }), rejections, ...(usage ? { usage } : {}) };
 }
 
 async function findRollouts(root: string): Promise<string[]> {

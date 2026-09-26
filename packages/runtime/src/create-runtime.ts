@@ -178,11 +178,15 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
     },
     async getRun(runId: string) {
       const run = await runs.get(runId); if (!run) return undefined;
-      const nodeRuns = db.prepare("SELECT node_id AS nodeId,node_type AS nodeType,agent_id AS agentId,status,reason_code AS reasonCode,reason_params AS reasonParams,base_commit AS baseCommit,result_commit AS resultCommit,inferred_denials AS inferredDenials,cost_usd AS costUsd,cost_basis AS costBasis FROM node_runs WHERE run_id=? ORDER BY rowid").all(runId);
+      const nodeRuns = db.prepare("SELECT n.id,n.node_id AS nodeId,n.node_type AS nodeType,n.agent_id AS agentId,n.model,n.report,n.report_state AS reportState,n.status,n.reason_code AS reasonCode,n.reason_params AS reasonParams,n.base_commit AS baseCommit,n.result_commit AS resultCommit,n.inferred_denials AS inferredDenials,n.cost_usd AS costUsd,n.cost_basis AS costBasis,(SELECT w.path FROM workspaces w WHERE w.node_run_id=n.id ORDER BY rowid DESC LIMIT 1) AS workspacePath FROM node_runs n WHERE n.run_id=? ORDER BY n.rowid").all(runId);
       const processes = runs.processTree.forRun(runId, false);
       return { run, nodeRuns: nodeRuns.map((row) => {
         const value = row as Record<string, unknown>;
-        return { ...row, reasonParams: JSON.parse(String(value["reasonParams"] ?? "{}")), inferredDenials: JSON.parse(String(value["inferredDenials"] ?? "[]")), ...(typeof value["costUsd"] === "number" ? { cost: { amountUsd: value["costUsd"], basis: value["costBasis"] } } : {}) };
+        const attempts = db.prepare("SELECT id,n,kind,session_id AS sessionId,process_outcome AS processOutcome,started_at AS startedAt,ended_at AS endedAt FROM attempts WHERE node_run_id=? ORDER BY n").all(String(value["id"])).map((attempt) => {
+          const record = attempt as Record<string, unknown>;
+          return { ...attempt, ...(record["processOutcome"] ? { processOutcome: JSON.parse(String(record["processOutcome"])) } : {}) };
+        });
+        return { ...row, model: value["model"] ? JSON.parse(String(value["model"])) : undefined, report: value["report"] ? JSON.parse(String(value["report"])) : undefined, reasonParams: JSON.parse(String(value["reasonParams"] ?? "{}")), inferredDenials: JSON.parse(String(value["inferredDenials"] ?? "[]")), attempts, ...(typeof value["costUsd"] === "number" ? { cost: { amountUsd: value["costUsd"], basis: value["costBasis"] } } : {}) };
       }), processes };
     },
     async nodeOutputPage(runId: string, nodeId: string, afterSeq = 0, limit = 500) { return runs.events.page(runId, nodeId, afterSeq, limit); },

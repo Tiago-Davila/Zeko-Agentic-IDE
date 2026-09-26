@@ -13,7 +13,7 @@ export function buildCodexArgs(spec: LaunchSpec, options: CodexInvocationOptions
   if (spec.agentId !== "codex") throw new Error("Codex requires a codex LaunchSpec");
   if (!("reasoningEffort" in spec.model)) throw new Error("Codex requires an explicit model and reasoning effort");
   const args = [
-    "exec", ...(options.forkThreadId ? ["fork", options.forkThreadId] : []), "--json", "--ignore-user-config", "--ignore-rules",
+    "exec", ...(options.forkThreadId ? ["fork"] : []), "--json", "--ignore-user-config", "--ignore-rules",
     "-m", spec.model.model,
     "-c", `model_reasoning_effort="${spec.model.reasoningEffort}"`,
   ];
@@ -26,6 +26,6 @@ export function buildCodexArgs(spec: LaunchSpec, options: CodexInvocationOptions
     "--output-schema", options.outputSchemaPath,
   );
   for (const feature of disabledFeatures) args.push("--disable", feature);
-  args.push("-c", 'web_search="disabled"', "-");
+  args.push("-c", 'web_search="disabled"', ...(options.forkThreadId ? [options.forkThreadId] : []), "-");
   return args;
 }

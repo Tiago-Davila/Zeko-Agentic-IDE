@@ -54,7 +54,8 @@ export class CodexAdapter implements AgentAdapter {
     this.#authArgs = options.authArgs ?? ["login", "status"];
     this.#sandboxSetup = options.sandboxSetup ?? hasWindowsSandboxSetup;
     this.#apiKey = options.apiKey;
-    this.#rollouts = new CodexRolloutReader({ codexHome: options.codexHome ?? process.env["CODEX_HOME"] ?? join(homedir(), ".codex") });
+    // The child receives a sanitized environment without CODEX_HOME, so it writes to the default home.
+    this.#rollouts = new CodexRolloutReader({ codexHome: options.codexHome ?? join(homedir(), ".codex") });
     this.#ownsSupervisor = options.supervisor === undefined;
   }
 
