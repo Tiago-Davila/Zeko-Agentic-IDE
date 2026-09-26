@@ -936,7 +936,7 @@ aprobaciones por TTY. Nada de UI todavía.
   Con tests. **Archivos**: `packages/adapters/src/claude-code/parser.ts`,
   `packages/adapters/test/claude-code/parser.test.ts`. **Cubre**: FR-023, FR-029, FR-052, FR-063.
   **Base**: R-08, R-17, R-27, `[001 §2]`. **Depende de**: T112, T050
-- [ ] T114 [US2] `ProcessOutcome` y reporte de Claude:
+- [X] T114 [US2] `ProcessOutcome` y reporte de Claude:
   - se decide por `is_error`, **nunca** por `subtype`;
   - `error_max_turns` → `turn_limit`;
   - `close` sin `result` → `killed` o `crashed`;
