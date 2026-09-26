@@ -1,4 +1,6 @@
 import { resolve } from "node:path";
+import { createInterface } from "node:readline/promises";
+import { stdin, stderr as processStderr } from "node:process";
 import { createZekoRuntime } from "@zeko/runtime";
 import { summarizeRun } from "../output/summary.js";
 
@@ -11,6 +13,7 @@ export interface RunCommandOptions {
   readonly stderr?: (line: string) => void;
   readonly createRuntime?: typeof createZekoRuntime;
   readonly runtimeOptions?: Parameters<typeof createZekoRuntime>[0];
+  readonly approvalPrompt?: (nodeId: string, summary: unknown) => Promise<"approved" | "rejected">;
 }
 
 export async function runCommand(options: RunCommandOptions): Promise<number> {
@@ -49,7 +52,15 @@ export async function runCommand(options: RunCommandOptions): Promise<number> {
         const nodeId = String(payload["nodeId"] ?? "?");
         emit(options.json, stdout, stderr, { type: "node.state", runId: event.runId ?? runId, nodeId, status: payload["status"], ...(payload["reason"] ? { reason: payload["reason"] } : {}) });
         if (!options.json) stderr(`[${new Date().toTimeString().slice(0, 8)}] ${nodeId} ${String(payload["status"])}${payload["reason"] && typeof payload["reason"] === "object" ? ` ${(payload["reason"] as { code?: string }).code ?? ""}` : ""}`);
-      } else if (event.type === "approval.requested") emit(options.json, stdout, stderr, { type: "approval.requested", runId: event.runId ?? runId, nodeId: payload["nodeId"], summary: payload["summary"] });
+      } else if (event.type === "approval.requested") {
+        const nodeId = String(payload["nodeId"] ?? "?");
+        emit(options.json, stdout, stderr, { type: "approval.requested", runId: event.runId ?? runId, nodeId, summary: payload["summary"] });
+        setTimeout(() => {
+          void (options.approvalPrompt ? options.approvalPrompt(nodeId, payload["summary"]) : promptApproval(nodeId, payload["summary"]))
+            .then((decision) => runtime.decideApproval(event.runId ?? runId, nodeId, decision))
+            .catch((error: unknown) => stderr(error instanceof Error ? error.message : String(error)));
+        }, 0);
+      }
       else if (event.type === "node.result") emit(options.json, stdout, stderr, { type: "node.result", runId: event.runId ?? runId, nodeId: payload["nodeId"], result: payload["result"] });
       else if (event.type === "run.finished") finished = true;
     });
@@ -67,6 +78,18 @@ export async function runCommand(options: RunCommandOptions): Promise<number> {
     stderr(error instanceof Error ? error.message : String(error));
     return exitCode;
   } finally { runtime.close(); }
+}
+
+async function promptApproval(nodeId: string, summary: unknown): Promise<"approved" | "rejected"> {
+  processStderr.write(`Approval requested for node "${nodeId}". ${JSON.stringify(summary)}\n`);
+  const reader = createInterface({ input: stdin, output: processStderr });
+  try {
+    for (;;) {
+      const answer = (await reader.question(`Approve node "${nodeId}"? [a]pprove / [r]eject `)).trim().toLowerCase();
+      if (answer === "a" || answer === "approve") return "approved";
+      if (answer === "r" || answer === "reject") return "rejected";
+    }
+  } finally { reader.close(); }
 }
 
 function emit(json: boolean | undefined, stdout: (line: string) => void, stderr: (line: string) => void, event: Record<string, unknown>) {

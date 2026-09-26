@@ -858,7 +858,7 @@ CLI ejecuta un flujo de dos nodos con el agente simulado, **antes de cualquier t
   Tests con el adaptador `fake`. **Archivos**: `apps/cli/src/commands/run.ts`,
   `apps/cli/src/output/summary.ts`, `apps/cli/test/run.test.ts`. **Cubre**: FR-050, FR-051,
   FR-059, US7-1, US7-2. **Base**: contracts/cli.md. **Depende de**: T102
-- [ ] T104 [US7] Aprobaciones en la TTY (`[a]pprove / [r]eject`) mientras otras ramas siguen.
+- [X] T104 [US7] Aprobaciones en la TTY (`[a]pprove / [r]eject`) mientras otras ramas siguen.
   Sin TTY, `APPROVAL_REQUIRES_TTY` y código 3 **antes** de iniciar; nunca decide sola. Con tests.
   **Archivos**: `apps/cli/src/tty/approval-prompt.ts`, `apps/cli/test/approvals.test.ts`.
   **Cubre**: FR-012, FR-059, NFR-006, US7-3. **Base**: contracts/cli.md punto 4. **Depende de**:

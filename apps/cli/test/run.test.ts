@@ -41,4 +41,16 @@ describe("zeko run", () => {
       expect(code).toBe(3); expect(stderr.join(" ")).toContain("APPROVAL_REQUIRES_TTY");
     } finally { await rm(root, { recursive: true, force: true }); }
   });
+
+  it("asks on the TTY and sends an explicit approval decision to the runtime", async () => {
+    const root = await mkdtemp(join(tmpdir(), "zeko-cli-run-"));
+    try {
+      await initRepo(root); await mkdir(join(root, ".zeko/flows"), { recursive: true });
+      await writeFile(join(root, ".zeko/flows/approval.flow.yaml"), "schemaVersion: 1\nid: approval\nname: Approval\nnodes:\n  - id: goal\n    type: input\n    position: { x: 0, y: 0 }\n    objective: Goal\n  - id: review\n    type: approval\n    position: { x: 1, y: 0 }\nedges:\n  - { from: goal, to: review }\n");
+      const prompts: string[] = []; const output: string[] = [];
+      const code = await runCommand({ flow: "approval", project: root, stdinIsTTY: true, json: true, approvalPrompt: async (nodeId) => { prompts.push(nodeId); return "approved"; }, stdout: (line) => output.push(line), runtimeOptions: { dbPath: join(root, "zeko.db"), worktreeRoot: join(root, "wt") } });
+      expect(code).toBe(0); expect(prompts).toEqual(["review"]);
+      expect(output.map((line) => JSON.parse(line).type)).toContain("approval.requested");
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
 });

@@ -49,7 +49,10 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
         emit("node.state", { nodeId: node?.nodeId, status: payload["to"], reason: payload["reason"], hold: payload["hold"] }, event.runId);
       }
       else if (event.type === "node.result") emit("node.result", { nodeId: event.nodeRunId, result: payload }, event.runId);
-      else if (event.type === "approval.requested") emit("approval.requested", { nodeId: event.nodeRunId, summary: payload["summary"] }, event.runId);
+      else if (event.type === "approval.requested") {
+        const node = event.nodeRunId ? db.prepare("SELECT node_id AS nodeId FROM node_runs WHERE id=?").get(event.nodeRunId) as { nodeId: string } | undefined : undefined;
+        emit("approval.requested", { nodeId: node?.nodeId, summary: payload["summary"] }, event.runId);
+      }
       else if (event.type === "agent.subscription_usage") emit("agent.usage", payload, event.runId);
       else if (event.type === "error") emit("engine.error", payload, event.runId);
       else if (event.type === "agent.text" || event.type === "agent.tool_call" || event.type === "agent.tool_result" || event.type === "agent.permission_denied" || event.type === "agent.stderr") emit("node.output", { nodeId: event.nodeRunId, events: [{ type: event.type, ...payload }] }, event.runId);
@@ -60,7 +63,7 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
   const listeners = new Set<RuntimeListener>();
   const projects = new Map<string, string>();
   const engines = new Map<string, RunEngine>();
-  const approvals = new Map<string, (approved: boolean) => void>();
+  const approvals = new Map<string, { promise: Promise<boolean>; resolve: (approved: boolean) => void }>();
   const running = new Map<string, Promise<unknown>>();
   const recovered = await recoverInterruptedRuns({ db, runs, redactor });
 
@@ -106,12 +109,16 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
       baseCommit: repository.head, platform: process.platform === "win32" ? "win32" : "linux", hostPid: process.pid,
       hostStartedAt: new Date(Date.now() - process.uptime() * 1000).toISOString(), origin, createId: (() => { let first = true; return () => { if (first) { first = false; return runId; } return cryptoId(); }; })(),
       concurrencyLimit: config.concurrencyLimit, inspectFiles: async () => [], markWorkspaceUntrusted: async () => undefined,
-      requestApproval: (request) => options.approval
-        ? options.approval({ runId, nodeId: request.nodeId, summary: request.summary })
-        : new Promise<boolean>((resolveApproval) => {
-          approvals.set(`${runId}:${request.nodeId}`, resolveApproval);
-          emit("approval.requested", { nodeId: request.nodeId, summary: request.summary }, runId);
-        }),
+      requestApproval: (request) => {
+        if (options.approval) return options.approval({ runId, nodeId: request.nodeId, summary: request.summary });
+        const key = `${runId}:${request.nodeId}`;
+        const existing = approvals.get(key);
+        if (existing) return existing.promise;
+        let resolveApproval!: (approved: boolean) => void;
+        const promise = new Promise<boolean>((resolvePromise) => { resolveApproval = resolvePromise; });
+        approvals.set(key, { promise, resolve: resolveApproval });
+        return promise;
+      },
     });
     engines.set(runId, engine);
     const execution = engine.execute().then((result) => {
@@ -142,9 +149,9 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
     async cancelRun(runId: string) { await engines.get(runId)?.cancelRun(); },
     async cancelNode(runId: string, nodeId: string) { await engines.get(runId)?.cancelNode(nodeId); },
     async decideApproval(runId: string, nodeId: string, decision: "approved" | "rejected") {
-      const resolveApproval = approvals.get(`${runId}:${nodeId}`);
-      if (!resolveApproval) throw new RuntimeError("NOT_WAITING_APPROVAL", "Node is not waiting for approval");
-      approvals.delete(`${runId}:${nodeId}`); resolveApproval(decision === "approved");
+      const pending = approvals.get(`${runId}:${nodeId}`);
+      if (!pending) throw new RuntimeError("NOT_WAITING_APPROVAL", "Node is not waiting for approval");
+      approvals.delete(`${runId}:${nodeId}`); pending.resolve(decision === "approved");
     },
     async listRuns(projectId: string, _flowId?: string, limit = 50) { return db.prepare("SELECT id,flow_id AS flowId,status,started_at AS startedAt,ended_at AS endedAt FROM runs WHERE project_id=(SELECT id FROM projects WHERE root_path=?) ORDER BY started_at DESC LIMIT ?").all(rootFor(projectId), limit); },
     async getRun(runId: string) { return runs.get(runId); },
