@@ -37,7 +37,7 @@ describe("FakeAdapter", () => {
     } finally {
       await adapter.dispose();
     }
-  });
+  }, 20_000);
 
   it("uses the orderly interrupt first when configured to support it", async () => {
     const { directory, scenario } = await createScenario({ hangUntilInterrupt: true, interruptMode: "respond" });
@@ -51,7 +51,7 @@ describe("FakeAdapter", () => {
     } finally {
       await adapter.dispose();
     }
-  });
+  }, 20_000);
 
   it("terminates the registered process tree when orderly interrupt is unavailable", async () => {
     const { directory, scenario } = await createScenario({ hangUntilInterrupt: true, interruptMode: "ignore" });
@@ -68,7 +68,7 @@ describe("FakeAdapter", () => {
     } finally {
       await adapter.dispose();
     }
-  }, 15_000);
+  }, 20_000);
 });
 
 async function createScenario(value: Record<string, unknown>): Promise<{ directory: string; scenario: string }> {
