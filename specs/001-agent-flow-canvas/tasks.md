@@ -644,7 +644,7 @@ motor en `zeko/<run>/*`, el dependiente parte del predecesor, los archivos obser
   `packages/adapters/src/process/process-table.ts`,
   `packages/adapters/test/process/process-table.test.ts`. **Cubre**: FR-030. **Base**: R-14, U-05.
   **Depende de**: T005
-- [ ] T079 [US2] Seguimiento del árbol: cierre transitivo desde la raíz; los descendientes quedan
+- [X] T079 [US2] Seguimiento del árbol: cierre transitivo desde la raíz; los descendientes quedan
   registrados aunque muera el padre intermedio (caso `cmd.exe` de `[001 §7]`); incluye procesos de
   otro usuario que descienden del PID lanzado (sandbox `elevated` de Codex). Tests con instantáneas
   sintéticas. **Archivos**: `packages/adapters/src/process/tree-tracker.ts`,
