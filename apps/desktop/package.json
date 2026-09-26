@@ -1,0 +1,21 @@
+{
+  "name": "@zeko/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": { "build": "electron-vite build" },
+  "dependencies": {
+    "@zeko/runtime": "workspace:*",
+    "@xyflow/react": "^12.8.4",
+    "@xterm/xterm": "^5.5.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "electron": "^38.2.0",
+    "electron-vite": "^5.0.0",
+    "vite": "^7.1.7"
+  }
+}

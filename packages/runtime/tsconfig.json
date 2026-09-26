@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": { "rootDir": ".", "outDir": "./dist", "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo" },
+  "references": [
+    { "path": "../contracts" }, { "path": "../core" }, { "path": "../adapters" },
+    { "path": "../git" }, { "path": "../storage" }, { "path": "../i18n" }
+  ],
+  "include": ["src/**/*.ts", "test/**/*.ts"]
+}

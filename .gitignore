@@ -1,1 +1,17 @@
 .claude
+# Node / pnpm
+node_modules/
+dist/
+build/
+coverage/
+*.log
+.env*
+.pnpm-store/
+
+# Tooling
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/

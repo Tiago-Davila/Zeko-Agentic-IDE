@@ -1,0 +1,15 @@
+{
+  "type": "stream_event",
+  "event": {
+    "type": "content_block_start",
+    "index": 0,
+    "content_block": {
+      "type": "thinking",
+      "thinking": "",
+      "signature": ""
+    }
+  },
+  "session_id": "57910248-3c54-41d5-96bd-995ef20e8d2f",
+  "parent_tool_use_id": null,
+  "uuid": "ff69c285-d4e0-4d60-b70a-76f3de149d4a"
+}

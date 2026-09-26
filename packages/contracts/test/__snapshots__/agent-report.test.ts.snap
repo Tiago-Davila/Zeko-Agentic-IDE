@@ -1,0 +1,84 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`AgentReportSchema > matches the generated schema and its strict output subset 1`] = `
+{
+  "additionalProperties": false,
+  "properties": {
+    "blockers": {
+      "description": "What prevented completion. Must be empty only if status is COMPLETED and nothing blocked you.",
+      "items": {
+        "type": "string",
+      },
+      "type": "array",
+    },
+    "checks": {
+      "description": "Verifications you performed. Empty if none.",
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "evidence": {
+            "description": "Concrete evidence for the outcome.",
+            "type": "string",
+          },
+          "name": {
+            "description": "Name of the check.",
+            "type": "string",
+          },
+          "outcome": {
+            "description": "Result of the check.",
+            "enum": [
+              "PASSED",
+              "FAILED",
+              "NOT_RUN",
+            ],
+            "type": "string",
+          },
+        },
+        "required": [
+          "name",
+          "outcome",
+          "evidence",
+        ],
+        "type": "object",
+      },
+      "type": "array",
+    },
+    "filesChanged": {
+      "description": "Paths you modified, relative to the repository root. Empty if none.",
+      "items": {
+        "type": "string",
+      },
+      "type": "array",
+    },
+    "findings": {
+      "description": "Relevant observations for the next step. Empty if none.",
+      "items": {
+        "type": "string",
+      },
+      "type": "array",
+    },
+    "status": {
+      "description": "COMPLETED: all acceptance criteria met. BLOCKED: could not proceed because something outside your control is missing or was denied. FAILED: you attempted the task and it did not meet the acceptance criteria.",
+      "enum": [
+        "COMPLETED",
+        "BLOCKED",
+        "FAILED",
+      ],
+      "type": "string",
+    },
+    "summary": {
+      "description": "What you did and the outcome, in plain language.",
+      "type": "string",
+    },
+  },
+  "required": [
+    "status",
+    "summary",
+    "filesChanged",
+    "checks",
+    "blockers",
+    "findings",
+  ],
+  "type": "object",
+}
+`;

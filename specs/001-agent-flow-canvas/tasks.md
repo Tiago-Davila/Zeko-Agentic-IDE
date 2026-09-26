@@ -47,38 +47,38 @@ Marcadores:
 **Propósito**: workspaces, TypeScript estricto, Vitest, lint y la estructura de paquetes de
 plan.md.
 
-- [ ] T001 Crear la raíz del monorepo pnpm con scripts `build`, `test`, `test:win`, `lint` y
+- [X] T001 Crear la raíz del monorepo pnpm con scripts `build`, `test`, `test:win`, `lint` y
   `typecheck`, y fijar Node 24 LTS. **Archivos**: `package.json`, `pnpm-workspace.yaml`, `.npmrc`,
   `.nvmrc`, `.gitignore`. **Cubre**: NFR-001. **Base**: plan.md §Technical Context, R-02.
   **Depende de**: —
-- [ ] T002 Crear la configuración base de TypeScript: `strict`, `noImplicitAny`, ESM,
+- [X] T002 Crear la configuración base de TypeScript: `strict`, `noImplicitAny`, ESM,
   `noUncheckedIndexedAccess`, project references. **Archivos**: `tsconfig.base.json`,
   `tsconfig.json`. **Cubre**: —. **Base**: Principio XV. **Depende de**: T001
-- [ ] T003 [P] Configurar Vitest para todo el workspace. `pnpm test` excluye `*.win.test.ts`;
+- [X] T003 [P] Configurar Vitest para todo el workspace. `pnpm test` excluye `*.win.test.ts`;
   `pnpm test:win` los incluye solo en `win32`. Un setup global fija `ZEKO_TEST=1`: con esa variable,
   los adaptadores reales se niegan a resolver `claude` o `codex` desde el `PATH` o desde npm y solo
   aceptan una ruta inyectada (T115, T120). Así ningún test llama a un proveedor real aunque los CLI
   estén instalados en la máquina. **Archivos**: `vitest.workspace.ts`, `vitest.config.ts`,
   `vitest.setup.ts`. **Cubre**: —. **Base**: Principio XVI, R-26. **Depende de**: T002
-- [ ] T004 [P] Configurar ESLint (flat config) y Prettier: sin `any`, sin promesas flotantes, sin
+- [X] T004 [P] Configurar ESLint (flat config) y Prettier: sin `any`, sin promesas flotantes, sin
   `catch` vacío. **Archivos**: `eslint.config.js`, `.prettierrc`. **Cubre**: —. **Base**:
   Principio XV. **Depende de**: T002
-- [ ] T005 Crear el esqueleto de los ocho paquetes, cada uno con `package.json`, `tsconfig.json`,
+- [X] T005 Crear el esqueleto de los ocho paquetes, cada uno con `package.json`, `tsconfig.json`,
   `src/index.ts` vacío y `test/`: `contracts` (solo depende de zod), `core`, `adapters`, `git`,
   `storage`, `i18n`, `runtime` y `testing` (dobles de prueba; solo depende de `contracts` y los
   demás paquetes lo usan únicamente como `devDependency`). **Archivos**: `packages/*/package.json`, `packages/*/tsconfig.json`,
   `packages/*/src/index.ts`. **Cubre**: FR-059. **Base**: plan.md §Structure Decision, R-02.
   **Depende de**: T002
-- [ ] T006 [P] Crear el esqueleto de `apps/cli` con su binario `zeko`. **Archivos**:
+- [X] T006 [P] Crear el esqueleto de `apps/cli` con su binario `zeko`. **Archivos**:
   `apps/cli/package.json`, `apps/cli/tsconfig.json`, `apps/cli/src/index.ts`. **Cubre**: FR-059.
   **Base**: R-01. **Depende de**: T005
-- [ ] T007 [P] Crear el esqueleto de `apps/desktop` con electron-vite y cuatro entradas vacías:
+- [X] T007 [P] Crear el esqueleto de `apps/desktop` con electron-vite y cuatro entradas vacías:
   `main`, `engine-host`, `preload` y `renderer` (React). **Archivos**: `apps/desktop/package.json`,
   `apps/desktop/electron.vite.config.ts`, `apps/desktop/src/main/index.ts`,
   `apps/desktop/src/engine-host/index.ts`, `apps/desktop/src/preload/index.ts`,
   `apps/desktop/src/renderer/main.tsx`, `apps/desktop/src/renderer/index.html`. **Cubre**: —.
   **Base**: R-01. **Depende de**: T005
-- [ ] T008 Agregar reglas de dependencias entre paquetes en ESLint:
+- [X] T008 Agregar reglas de dependencias entre paquetes en ESLint:
   `contracts ← core ← runtime → {adapters, git, storage} ← apps`.
   - `core` no puede importar `node:fs`, `node:child_process`, `node:sqlite` ni paquetes de
     infraestructura.
@@ -90,7 +90,7 @@ plan.md.
   Incluye un test con un import prohibido por cada regla. **Archivos**: `eslint.config.js`,
   `scripts/lint-boundaries.test.ts`. **Cubre**: FR-016. **Base**: Principio IV, plan.md
   §Structure Decision. **Depende de**: T004, T005, T006, T007
-- [ ] T009 [P] Crear el CI con Ubuntu (lint, typecheck, `pnpm test`) y Windows (lo mismo más
+- [X] T009 [P] Crear el CI con Ubuntu (lint, typecheck, `pnpm test`) y Windows (lo mismo más
   `pnpm test:win`). No usa secretos de proveedores y falla si `claude` o `codex` están en el `PATH`
   de los tests. **Archivos**: `.github/workflows/ci.yml`. **Cubre**: NFR-001. **Base**: Principio
   XVI, R-26. **Depende de**: T003, T004
@@ -106,13 +106,13 @@ lint.
 **Propósito**: schemas del archivo de flujo, AgentReport, eventos normalizados, ProcessOutcome,
 interfaz de adaptador y matriz de capacidades. Todo lo demás depende de esta fase.
 
-- [ ] T010 Definir los códigos tipados: `ReasonCode` (todos los de data-model §NodeResult y
+- [X] T010 Definir los códigos tipados: `ReasonCode` (todos los de data-model §NodeResult y
   §Transiciones, incluidos `WRITE_OUTSIDE_SCOPE` e `INFRA_FAILURE_EXHAUSTED`), `WarningCode`
   (incluidos `MODEL_DEFAULTED`, `MODEL_MISMATCH` y `SCOPE_ENFORCEMENT_DETECTION_ONLY`) y
   `DiagnosticCode`. Incluye un test de unicidad. **Archivos**: `packages/contracts/src/codes.ts`,
   `packages/contracts/test/codes.test.ts`. **Cubre**: FR-039, NFR-011, NFR-013. **Base**: R-24.
   **Depende de**: T005
-- [ ] T011 [P] Schema `FlowFile`: `Flow`, `InputNode`, `AgentNode` (con `models` por agente,
+- [X] T011 [P] Schema `FlowFile`: `Flow`, `InputNode`, `AgentNode` (con `models` por agente,
   opcional), `ApprovalNode` y `Edge`, con `additionalProperties: false` en todos los niveles y
   límites finitos. Tests: un campo desconocido (por ejemplo `apiKey`) da `SCHEMA_ERROR` (FR-058),
   rangos de límites, `writeScope` sin `..` ni rutas absolutas, una entrada de Codex sin
@@ -121,12 +121,12 @@ interfaz de adaptador y matriz de capacidades. Todo lo demás depende de esta fa
   `packages/contracts/src/flow-file.ts`, `packages/contracts/test/flow-file.test.ts`. **Cubre**:
   FR-004–012, FR-015, FR-058, NFR-007, NFR-008. **Base**: contracts/flow-file.md, R-04, R-27.
   **Depende de**: T010
-- [ ] T012 [P] Schema `ProjectConfig`: `concurrencyLimit` (8, 1..64), `usageNearLimitThreshold`
+- [X] T012 [P] Schema `ProjectConfig`: `concurrencyLimit` (8, 1..64), `usageNearLimitThreshold`
   (0.9, 0.5..1.0) y `defaultModels` con los defaults que trae Zeko. Tests de defaults y rangos.
   **Archivos**: `packages/contracts/src/project-config.ts`,
   `packages/contracts/test/project-config.test.ts`. **Cubre**: FR-011, FR-011a, FR-027, FR-053.
   **Base**: R-27, contracts/flow-file.md §config. **Depende de**: T010
-- [ ] T013 [P] Schema `AgentReport` (`.strict()`, alias `WorkReport`) y generación del JSON Schema
+- [X] T013 [P] Schema `AgentReport` (`.strict()`, alias `WorkReport`) y generación del JSON Schema
   que reciben los agentes. Tests:
   - snapshot del JSON generado;
   - solo usa las palabras clave permitidas (U-10);
@@ -138,17 +138,17 @@ interfaz de adaptador y matriz de capacidades. Todo lo demás depende de esta fa
   `packages/contracts/generated/agent-report.schema.json`,
   `packages/contracts/test/agent-report.test.ts`. **Cubre**: FR-033–035. **Base**: R-06, T-11,
   `[001b §A3]`, `[001c §6]`. **Depende de**: T010
-- [ ] T014 [P] Schemas `TaskAssignment` y `PredecessorResult`, con tests. **Archivos**:
+- [X] T014 [P] Schemas `TaskAssignment` y `PredecessorResult`, con tests. **Archivos**:
   `packages/contracts/src/task-assignment.ts`, `packages/contracts/test/task-assignment.test.ts`.
   **Cubre**: FR-040, FR-042. **Base**: Principio VII, contracts/agent-report.md §Uso posterior.
   **Depende de**: T013
-- [ ] T015 [P] Schema `NormalizedEvent`: `session_started`, `assistant_text`, `tool_call`,
+- [X] T015 [P] Schema `NormalizedEvent`: `session_started`, `assistant_text`, `tool_call`,
   `tool_result`, `permission_denied`, `inferred_denial`, `usage`, `subscription_usage`,
   `model_mismatch`, `stderr` y `raw`. Todos llevan `ts` y `attemptId`. Con tests. **Archivos**:
   `packages/contracts/src/adapter/normalized-event.ts`,
   `packages/contracts/test/normalized-event.test.ts`. **Cubre**: FR-023, FR-029, FR-063.
   **Base**: contracts/adapter.md §NormalizedEvent, `[001 §2]`, `[001c §3]`. **Depende de**: T010
-- [ ] T016 [P] Schemas `ProcessOutcome` (unión discriminada: `exited`, `agent_error`,
+- [X] T016 [P] Schemas `ProcessOutcome` (unión discriminada: `exited`, `agent_error`,
   `turn_limit`, `killed{by, phase}`, `crashed`, `infra_failure{cause: process_create | session_lock}`
   y `spawn_failed`), con campos ausentes cuando no hay dato, y `ReportCandidate`. Tests: `denials`
   ausente es distinto de `[]`. **Archivos**:
@@ -156,48 +156,48 @@ interfaz de adaptador y matriz de capacidades. Todo lo demás depende de esta fa
   `packages/contracts/src/adapter/report-candidate.ts`,
   `packages/contracts/test/process-outcome.test.ts`. **Cubre**: FR-032, FR-036. **Base**: R-05,
   R-18, D2. **Depende de**: T010
-- [ ] T017 [P] Schemas `AgentCapabilities` (todas las filas de la matriz de adapter.md, incluidas
+- [X] T017 [P] Schemas `AgentCapabilities` (todas las filas de la matriz de adapter.md, incluidas
   `infersDenials` y `explicitModel`), `AgentAvailability` (sin campos de email ni de cuenta) y
   `AgentUsageReading`. Tests: `AgentAvailability` rechaza un campo `email`. **Archivos**:
   `packages/contracts/src/adapter/capabilities.ts`,
   `packages/contracts/src/adapter/availability.ts`, `packages/contracts/src/adapter/usage.ts`,
   `packages/contracts/test/capabilities.test.ts`. **Cubre**: FR-016, FR-021, FR-025, FR-052,
   FR-065, NFR-007, NFR-012. **Base**: contracts/adapter.md §Matriz, R-28. **Depende de**: T010
-- [ ] T018 Definir `LaunchSpec` (con `model` resuelto obligatorio) y la forma `AgentAdapter` /
+- [X] T018 Definir `LaunchSpec` (con `model` resuelto obligatorio) y la forma `AgentAdapter` /
   `AgentExecution` (`id`, `capabilities(platform)`, `detect`, `readUsage`, `launch`,
   `requestReport`, `cancel`, `rootPid` y `sensitiveValues`, la lista de credenciales que la
   ejecución inyectó y que el redactor debe ocultar; nunca se persiste). **Archivos**:
   `packages/contracts/src/adapter/launch-spec.ts`, `packages/contracts/src/adapter/adapter.ts`,
   `packages/contracts/test/launch-spec.test.ts`. **Cubre**: FR-011a, FR-013, FR-016. **Base**:
   contracts/adapter.md §Operaciones, Principio III. **Depende de**: T015, T016, T017
-- [ ] T019 [P] Declarar la matriz de capacidades de Claude Code y de Codex por plataforma (`win32`,
+- [X] T019 [P] Declarar la matriz de capacidades de Claude Code y de Codex por plataforma (`win32`,
   `linux`) como datos, con tests que la comparan celda por celda con contracts/adapter.md.
   **Archivos**: `packages/adapters/src/capabilities/claude-code.ts`,
   `packages/adapters/src/capabilities/codex.ts`, `packages/adapters/test/capabilities.test.ts`.
   **Cubre**: FR-017–023, FR-032, FR-050–053, FR-064–066, NFR-012. **Base**: R-10, R-13,
   `[001 §6]`, `[001b §B]`, `[001c §7–9]`. **Depende de**: T017
-- [ ] T020 [P] Schemas de ejecución: `NodeStatus`, `RunStatus`, `Run`, `NodeRun` (con `model`
+- [X] T020 [P] Schemas de ejecución: `NodeStatus`, `RunStatus`, `Run`, `NodeRun` (con `model`
   resuelto e `inferredDenials`), `Attempt`, `IsolatedWorkspace`, `ApprovalDecision`, `CostTotals` y
   `NodeResult`, con tests. **Archivos**: `packages/contracts/src/run.ts`,
   `packages/contracts/src/node-result.ts`, `packages/contracts/test/run.test.ts`. **Cubre**:
   FR-028, FR-036–039, FR-050, FR-060. **Base**: data-model §2–3. **Depende de**: T010, T016
-- [ ] T021 [P] Schemas de los eventos persistidos de data-model §5 (incluido
+- [X] T021 [P] Schemas de los eventos persistidos de data-model §5 (incluido
   `agent.inferred_denial`), con tests. **Archivos**: `packages/contracts/src/events.ts`,
   `packages/contracts/test/events.test.ts`. **Cubre**: FR-063. **Base**: data-model §5.
   **Depende de**: T015, T020
-- [ ] T022 Definir los puertos que usa `core`: `WorkspacePort`, `RunStorePort`, `ClockPort`,
+- [X] T022 Definir los puertos que usa `core`: `WorkspacePort`, `RunStorePort`, `ClockPort`,
   `SlotLeasePort` y `UsageStorePort`. **Archivos**: `packages/contracts/src/ports.ts`,
   `packages/contracts/test/ports.test.ts`. **Cubre**: FR-059. **Base**: R-02, Principio IV.
   **Depende de**: T018, T020
-- [ ] T023 Schemas IPC: `IpcRequest`, `IpcResponse`, `IpcEvent`, `NodeView` (con `model` y
+- [X] T023 Schemas IPC: `IpcRequest`, `IpcResponse`, `IpcEvent`, `NodeView` (con `model` y
   `warnings`) y `FILE_CHANGED_ON_DISK{currentHash}`, con tests. **Archivos**:
   `packages/contracts/src/ipc.ts`, `packages/contracts/test/ipc.test.ts`. **Cubre**: FR-021,
   FR-028, FR-029, NFR-002, NFR-003. **Base**: contracts/ipc.md, R-25. **Depende de**: T020, T021
-- [ ] T024 [P] Schemas `CliEvent` (NDJSON): `validation`, `preflight`, `run.started`,
+- [X] T024 [P] Schemas `CliEvent` (NDJSON): `validation`, `preflight`, `run.started`,
   `node.state`, `approval.requested`, `node.result` y `run.finished`, con tests. **Archivos**:
   `packages/contracts/src/cli-events.ts`, `packages/contracts/test/cli-events.test.ts`. **Cubre**:
   FR-059. **Base**: contracts/cli.md. **Depende de**: T020
-- [ ] T025 [P] Crear el catálogo i18n: `t(key, params)` sin dependencias y `en.json`. Incluye un
+- [X] T025 [P] Crear el catálogo i18n: `t(key, params)` sin dependencias y `en.json`. Incluye un
   test que falla si algún código de T010 no tiene entrada. **Archivos**:
   `packages/i18n/src/index.ts`, `packages/i18n/src/en.json`, `packages/i18n/test/catalog.test.ts`.
   **Cubre**: NFR-013. **Base**: R-24. **Depende de**: T010
@@ -213,16 +213,16 @@ adapter.md; todo código tiene texto en el catálogo.
 **Propósito**: validación de flujos, modelo por nodo, confinamiento, estados y transiciones de
 nodos y runs, y el prompt del nodo.
 
-- [ ] T026 [US1] Reglas de grafo con tests (un caso por regla): `NO_INPUT_NODE`,
+- [X] T026 [US1] Reglas de grafo con tests (un caso por regla): `NO_INPUT_NODE`,
   `MULTIPLE_INPUT_NODES`, `INPUT_HAS_PREDECESSOR`, `DISCONNECTED_NODE`,
   `APPROVAL_WITHOUT_PREDECESSOR`, aristas a nodos inexistentes y aristas duplicadas. **Archivos**:
   `packages/core/src/validation/graph.ts`, `packages/core/test/validation/graph.test.ts`. **Cubre**:
   FR-006, FR-009, FR-010, FR-012. **Base**: data-model §Reglas de validación. **Depende de**: T011
-- [ ] T027 [US1] Detección de ciclos (`CYCLE` con los nodos del ciclo) y `validateEdge`, que rechaza
+- [X] T027 [US1] Detección de ciclos (`CYCLE` con los nodos del ciclo) y `validateEdge`, que rechaza
   una arista antes de crearla, con tests (US1-3). **Archivos**:
   `packages/core/src/validation/cycles.ts`, `packages/core/test/validation/cycles.test.ts`.
   **Cubre**: FR-007. **Base**: data-model §Reglas. **Depende de**: T026
-- [ ] T028 [US1] Linaje de código: `codeSource` e `inputSources`, más el error
+- [X] T028 [US1] Linaje de código: `codeSource` e `inputSources`, más el error
   `MULTIPLE_CODE_SOURCES`. Tests:
   - dos predecesores que modifican código (US1-4);
   - herencia a través de una aprobación;
@@ -232,12 +232,12 @@ nodos y runs, y el prompt del nodo.
   **Archivos**: `packages/core/src/validation/code-lineage.ts`,
   `packages/core/test/validation/code-lineage.test.ts`. **Cubre**: FR-008, FR-041. **Base**: R-22,
   T-02 (clarificación 2026-09-23). **Depende de**: T026
-- [ ] T029 [P] [US1] Límites y alcance con tests: `INVALID_LIMIT`, validación de globs de
+- [X] T029 [P] [US1] Límites y alcance con tests: `INVALID_LIMIT`, validación de globs de
   `writeScope`, y `SCOPE_PATH_NOT_FOUND` como advertencia (recibe la lista de archivos de `HEAD`
   como dato). **Archivos**: `packages/core/src/validation/limits-and-scope.ts`,
   `packages/core/test/validation/limits-and-scope.test.ts`. **Cubre**: FR-011, FR-017, NFR-008,
   casos límite. **Base**: data-model §Reglas. **Depende de**: T026
-- [ ] T030 [US1] **Modelo explícito por nodo**: `resolveNodeModel(node, projectConfig)` →
+- [X] T030 [US1] **Modelo explícito por nodo**: `resolveNodeModel(node, projectConfig)` →
   `{model, reasoningEffort?, source: 'node' | 'project_default'}`.
   - Si falta el modelo, advertencia `MODEL_DEFAULTED` (nunca un error).
   - **Nunca** devuelve "sin modelo" ni delega en el default del agente.
@@ -250,14 +250,14 @@ nodos y runs, y el prompt del nodo.
   `packages/core/test/validation/model.test.ts`. **Cubre**: FR-011, FR-011a, FR-015, FR-016.
   **Base**: R-27, `[001c §1]` (el default cambia sin cambiar la configuración), `[001 §1]`.
   **Depende de**: T011, T012
-- [ ] T031 [US1] `validateFlow`: agrega las reglas de T026–T030, calcula `OPTION_NOT_APPLICABLE`
+- [X] T031 [US1] `validateFlow`: agrega las reglas de T026–T030, calcula `OPTION_NOT_APPLICABLE`
   según capacidades (recibidas como dato, nunca importadas de `adapters`) y devuelve diagnósticos
   por nodo, con tests de integración de las reglas. Los tests usan perfiles de capacidades
   sintéticos, construidos con el tipo `AgentCapabilities` de `contracts`. **Archivos**:
   `packages/core/src/validation/validate-flow.ts`,
   `packages/core/test/validation/validate-flow.test.ts`. **Cubre**: FR-009, FR-011, FR-015.
   **Base**: data-model §Reglas, Principio IV. **Depende de**: T027, T028, T029, T030, T017
-- [ ] T032 [P] [US5] Confinamiento derivado y advertencias por capacidades:
+- [X] T032 [P] [US5] Confinamiento derivado y advertencias por capacidades:
   - nivel `confined`, `write_only` o `unconfined`, con su motivo;
   - terminal efectiva y lista `notApplicable`;
   - advertencias: `DENIAL_CHECK_NOT_AVAILABLE`, `TURN_LIMIT_NOT_APPLICABLE`,
@@ -271,29 +271,29 @@ nodos y runs, y el prompt del nodo.
   **Archivos**: `packages/core/src/policy/confinement.ts`,
   `packages/core/test/policy/confinement.test.ts`. **Cubre**: FR-017–023, FR-066, NFR-009, NFR-012.
   **Base**: data-model §Nivel de confinamiento, R-10, R-13, T-05. **Depende de**: T017
-- [ ] T033 [US2] Máquina de estados de nodo (agente, aprobación y entrada, incluido
+- [X] T033 [US2] Máquina de estados de nodo (agente, aprobación y entrada, incluido
   `interrupted`). Rechaza transiciones inválidas. Con tests. **Archivos**:
   `packages/core/src/state/node-machine.ts`, `packages/core/test/state/node-machine.test.ts`.
   **Cubre**: FR-028, FR-031, FR-062. **Base**: data-model §3, T-03. **Depende de**: T020
-- [ ] T034 [US2] Máquina de estados de run (`running`, `finished`, `cancelled`, `interrupted`) y
+- [X] T034 [US2] Máquina de estados de run (`running`, `finished`, `cancelled`, `interrupted`) y
   cálculo de `outcome`, con tests. **Archivos**: `packages/core/src/state/run-machine.ts`,
   `packages/core/test/state/run-machine.test.ts`. **Cubre**: FR-060, FR-062. **Base**: data-model
   §Estados de run. **Depende de**: T033
-- [ ] T035 [US2] Propagación de omitidos: los descendientes pendientes pasan a `skipped` con el
+- [X] T035 [US2] Propagación de omitidos: los descendientes pendientes pasan a `skipped` con el
   motivo y el nodo de origen (`UPSTREAM_NOT_SUCCEEDED`, `REJECTED_BY_USER`, `RUN_CANCELLED`); las
   ramas independientes siguen. Tests US2-6 y US3-3. **Archivos**:
   `packages/core/src/state/propagation.ts`, `packages/core/test/state/propagation.test.ts`.
   **Cubre**: FR-031. **Base**: data-model §Propagación. **Depende de**: T033
-- [ ] T036 [P] [US6] Totales de costo del run: suma de los nodos con dato, `partial` y `estimated`,
+- [X] T036 [P] [US6] Totales de costo del run: suma de los nodos con dato, `partial` y `estimated`,
   sin imputar faltantes. Con tests. **Archivos**: `packages/core/src/policy/cost-totals.ts`,
   `packages/core/test/policy/cost-totals.test.ts`. **Cubre**: FR-050, FR-051. **Base**: R-17.
   **Depende de**: T020
-- [ ] T037 [P] [US2] Armado de `PredecessorResult` por predecesor; una aprobación transmite los
+- [X] T037 [P] [US2] Armado de `PredecessorResult` por predecesor; una aprobación transmite los
   resultados de sus predecesores. Con tests. **Archivos**:
   `packages/core/src/prompt/predecessor-results.ts`,
   `packages/core/test/prompt/predecessor-results.test.ts`. **Cubre**: FR-040. **Base**: R-16,
   contracts/agent-report.md §Uso posterior. **Depende de**: T014, T020
-- [ ] T038 [US2] Render del `TaskAssignment`, en este orden:
+- [X] T038 [US2] Render del `TaskAssignment`, en este orden:
   1. restricciones de Zeko;
   2. política del proyecto;
   3. tarea;
@@ -319,38 +319,38 @@ advertencias salen de las capacidades; las transiciones inválidas de nodo y run
 **Propósito**: FR-036 en el orden exacto de la spec, con una tarea por regla. Todas modifican
 `resolve-node-result.ts`, así que van en secuencia.
 
-- [ ] T039 [US2] Cálculo de discrepancias: `undeclared`, `declaredNotObserved` y `scopeViolations`
+- [X] T039 [US2] Cálculo de discrepancias: `undeclared`, `declaredNotObserved` y `scopeViolations`
   (comparando archivos observados con los globs de `writeScope`), rutas normalizadas a `/`,
   `historyRewritten` como dato. Con tests. **Archivos**:
   `packages/core/src/result/discrepancies.ts`, `packages/core/test/result/discrepancies.test.ts`.
   **Cubre**: FR-037. **Base**: R-07, R-10(c). **Depende de**: T020, T029
-- [ ] T040 [US2] Esqueleto de `resolveNodeResult` con la **regla 1** (cancelado por el usuario →
+- [X] T040 [US2] Esqueleto de `resolveNodeResult` con la **regla 1** (cancelado por el usuario →
   `cancelled`, aunque haya reporte o `result`) y la **regla 7** (en cualquier otro caso →
   `completed`). Tests de las dos reglas. **Archivos**:
   `packages/core/src/result/resolve-node-result.ts`,
   `packages/core/test/result/rule-1-cancelled.test.ts`. **Cubre**: FR-036.1, FR-036.7. **Base**:
   R-05, D2. **Depende de**: T039
-- [ ] T041 [US2] **Regla 2a/2b**: tiempo agotado (`killed{by: timeout}`) y límite de turnos
+- [X] T041 [US2] **Regla 2a/2b**: tiempo agotado (`killed{by: timeout}`) y límite de turnos
   (`turn_limit`) → `failed`, sin importar el reporte. Con tests. **Archivos**:
   `packages/core/src/result/resolve-node-result.ts`,
   `packages/core/test/result/rule-2-limits.test.ts`. **Cubre**: FR-032, FR-036.2, US2-11.
   **Base**: R-11, `[001b §A2]`. **Depende de**: T040
-- [ ] T042 [US2] **Regla 2c/2e**: `agent_error` o `crashed` → `failed` con `PROCESS_ERROR` y sus
+- [X] T042 [US2] **Regla 2c/2e**: `agent_error` o `crashed` → `failed` con `PROCESS_ERROR` y sus
   parámetros; `spawn_failed` → `AGENT_UNAVAILABLE` o `AGENT_NOT_AUTHENTICATED`. Con tests.
   **Archivos**: `packages/core/src/result/resolve-node-result.ts`,
   `packages/core/test/result/rule-2-process-error.test.ts`. **Cubre**: FR-036.2, casos límite.
   **Base**: `[001 §3]` (modelo inválido con `subtype: success`). **Depende de**: T041
-- [ ] T043 [US2] **Regla 2d**: `infra_failure` con los relanzamientos de infraestructura agotados →
+- [X] T043 [US2] **Regla 2d**: `infra_failure` con los relanzamientos de infraestructura agotados →
   `failed` con `INFRA_FAILURE_EXHAUSTED`. Con tests. **Archivos**:
   `packages/core/src/result/resolve-node-result.ts`,
   `packages/core/test/result/rule-2-infra.test.ts`. **Cubre**: FR-032, FR-036.2. **Base**: R-18,
   `[001c §4]`. **Depende de**: T042
-- [ ] T044 [US2] **Regla 3**: reporte `absent` o `invalid` después del pedido adicional → `failed`
+- [X] T044 [US2] **Regla 3**: reporte `absent` o `invalid` después del pedido adicional → `failed`
   con `REPORT_MISSING` o `REPORT_INVALID`; un estado declarado inválido cuenta como ausente. Con
   tests (US2-9). **Archivos**: `packages/core/src/result/resolve-node-result.ts`,
   `packages/core/test/result/rule-3-report.test.ts`. **Cubre**: FR-036.3, FR-038. **Base**:
   `[001b §A2]`. **Depende de**: T043
-- [ ] T045 [US2] **Regla 4a**: con `reportsDenials` y alguna denegación → `blocked` con
+- [X] T045 [US2] **Regla 4a**: con `reportsDenials` y alguna denegación → `blocked` con
   `ACTION_DENIED`. Tests:
   - `denials` ausente o `[]` no bloquea;
   - las `inferredDenials` **no** activan la regla;
@@ -359,21 +359,21 @@ advertencias salen de las capacidades; las transiciones inválidas de nodo y run
   **Archivos**: `packages/core/src/result/resolve-node-result.ts`,
   `packages/core/test/result/rule-4a-denials.test.ts`. **Cubre**: FR-023, FR-036.4, US2-8.
   **Base**: `[001 §6]`, T-06 (clarificación 2026-09-24). **Depende de**: T044
-- [ ] T046 [US2] **Regla 4b**: `scopeViolations` no vacío → `blocked` con `WRITE_OUTSIDE_SCOPE` y
+- [X] T046 [US2] **Regla 4b**: `scopeViolations` no vacío → `blocked` con `WRITE_OUTSIDE_SCOPE` y
   la lista de archivos, **con cualquier agente**, aunque el agente declare COMPLETED. Tests con
   capacidades de Claude y de Codex. **Archivos**: `packages/core/src/result/resolve-node-result.ts`,
   `packages/core/test/result/rule-4b-scope.test.ts`. **Cubre**: FR-017, FR-036.4, FR-037, US5-3.
   **Base**: T-04 (clarificación 2026-09-24). **Depende de**: T045
-- [ ] T047 [US2] **Regla 5**: reporte que declara FAILED → `failed`; que declara BLOCKED →
+- [X] T047 [US2] **Regla 5**: reporte que declara FAILED → `failed`; que declara BLOCKED →
   `blocked`. Con tests. **Archivos**: `packages/core/src/result/resolve-node-result.ts`,
   `packages/core/test/result/rule-5-declared.test.ts`. **Cubre**: FR-036.5. **Base**: `[001b §A1]`.
   **Depende de**: T046
-- [ ] T048 [US2] **Regla 6**: COMPLETED con `blockers` no vacío → `blocked` con
+- [X] T048 [US2] **Regla 6**: COMPLETED con `blockers` no vacío → `blocked` con
   `REPORTED_COMPLETED_WITH_BLOCKERS` e `inconsistency`. Con tests (US2-7). **Archivos**:
   `packages/core/src/result/resolve-node-result.ts`,
   `packages/core/test/result/rule-6-inconsistency.test.ts`. **Cubre**: FR-036.6. **Base**:
   `[001b §A]` (manda la spec: "bloqueado", no "fallido"). **Depende de**: T047
-- [ ] T049 [US2] Matriz de precedencia: casos que cumplen dos o más reglas a la vez (por ejemplo,
+- [X] T049 [US2] Matriz de precedencia: casos que cumplen dos o más reglas a la vez (por ejemplo,
   cancelado con timeout, o denegación con reporte FAILED) y verifican que gana la de menor número.
   También: `undeclared`, `declaredNotObserved` e `historyRewritten` nunca cambian el estado; la
   función no recibe el id del agente. **Archivos**:
@@ -390,7 +390,7 @@ demuestra el orden. Esto cubre SC-005 a nivel unitario.
 **Propósito**: poder probar todo sin proveedores reales. Fixtures curados de `spikes/*/samples/`,
 un ejecutable `fake-agent` y un adaptador en memoria para los tests del motor.
 
-- [ ] T050 [P] [US2] Curar los fixtures: copiar a `packages/adapters/test/fixtures/` los samples
+- [X] T050 [P] [US2] Curar los fixtures: copiar a `packages/adapters/test/fixtures/` los samples
   que usan los tests.
   - Claude: `001/events/*`, `q1-verbose-raw.jsonl`, `q3-error-bad-model.json`, `q7-cancel.json`,
     `q6-perms.json` y `001b/a-schema.json`.
@@ -401,7 +401,7 @@ un ejecutable `fake-agent` y un adaptador en memoria para los tests del motor.
   `packages/adapters/test/fixtures/**`, `packages/adapters/test/fixtures/index.ts`,
   `packages/adapters/test/fixtures/PROVENANCE.md`. **Cubre**: Principio XVI. **Base**: R-26.
   **Depende de**: T005
-- [ ] T051 [P] [US2] Patrones de detección de secretos y datos personales, como función pura: claves
+- [X] T051 [P] [US2] Patrones de detección de secretos y datos personales, como función pura: claves
   con prefijo conocido (`sk-…`, `sk-ant-…`), `Authorization: Bearer …`, JWT (`eyJ…`), tokens de
   `auth.json` (`id_token`, `access_token`, `refresh_token`), emails y `account_id`. Vive en
   `contracts` (datos puros, sin dependencias) porque lo usan `storage` (redactor, T088) y `adapters`
@@ -409,12 +409,12 @@ un ejecutable `fake-agent` y un adaptador en memoria para los tests del motor.
   comunes. **Archivos**: `packages/contracts/src/redaction-patterns.ts`,
   `packages/contracts/test/redaction-patterns.test.ts`. **Cubre**: NFR-007. **Base**: R-28,
   `[001c §2, §11]`, T008. **Depende de**: T005
-- [ ] T052 [US2] **Verificar que ningún fixture contiene claves de API ni emails**: un test recorre
+- [X] T052 [US2] **Verificar que ningún fixture contiene claves de API ni emails**: un test recorre
   `spikes/*/samples/**` y `packages/adapters/test/fixtures/**` con los patrones de T051 y falla si
   encuentra alguno. Se ejecuta en `pnpm test` y en CI. **Archivos**:
   `packages/adapters/test/fixtures-no-secrets.test.ts`. **Cubre**: NFR-007. **Base**: R-28,
   `[001c §11]` (el harness redactó emails). **Depende de**: T050, T051
-- [ ] T053 [US2] Ejecutable `fake-agent` (proceso Node real) guiado por un escenario JSON.
+- [X] T053 [US2] Ejecutable `fake-agent` (proceso Node real) guiado por un escenario JSON.
   - Modo `native`: emite `NormalizedEvent` JSONL con retardos.
   - Modo `replay`: reproduce líneas crudas de un fixture de Claude o de Codex.
   - Opciones del guion: salir con o sin evento final; código de salida; responder o ignorar un
@@ -426,7 +426,7 @@ un ejecutable `fake-agent` y un adaptador en memoria para los tests del motor.
   `packages/adapters/test/fake-agent/main.ts`, `packages/adapters/test/fake-agent/scenario.ts`,
   `packages/adapters/test/fake-agent/scenario.test.ts`. **Cubre**: FR-030, SC-003, SC-005.
   **Base**: R-26, `[001 §7]`, `[001c §9]`. **Depende de**: T015, T050
-- [ ] T054 [P] [US2] Biblioteca de escenarios:
+- [X] T054 [P] [US2] Biblioteca de escenarios:
   - resultados: `done`, `blocked`, `failed`, `no-report`, `invalid-report`,
     `completed-with-blockers`, `denied`;
   - límites y fallos: `hang-until-timeout`, `crash`, `infra-267-exit0`;
@@ -436,7 +436,7 @@ un ejecutable `fake-agent` y un adaptador en memoria para los tests del motor.
 
   **Archivos**: `packages/adapters/test/fake-agent/scenarios/*.json`. **Cubre**: FR-036, NFR-007.
   **Base**: R-26. **Depende de**: T053
-- [ ] T055 [US2] Dobles de prueba en `packages/testing`, sin procesos, para los tests de `core` y de
+- [X] T055 [US2] Dobles de prueba en `packages/testing`, sin procesos, para los tests de `core` y de
   `runtime`:
   - `ScriptedAdapter`: implementa `AgentAdapter` con escenarios deterministas y capacidades
     configurables;
@@ -462,18 +462,18 @@ regla de FR-036; el test de fixtures demuestra que no hay claves ni emails en ni
 aprobación, cancelación, reintentos y modelo explícito. Todo con `ScriptedAdapter` y puertos en
 memoria.
 
-- [ ] T056 [US2] `nextActions(state)` puro: el nodo de entrada se completa enseguida; un nodo de
+- [X] T056 [US2] `nextActions(state)` puro: el nodo de entrada se completa enseguida; un nodo de
   agente queda listo cuando todos sus predecesores terminaron `completed` o `approved`; varios
   listos se lanzan en paralelo. Tests US2-1 y US2-3. **Archivos**:
   `packages/core/src/scheduler/next-actions.ts`,
   `packages/core/test/scheduler/next-actions.test.ts`. **Cubre**: FR-010, FR-026, FR-027.
   **Base**: R-21, plan.md §Flujo paso 6. **Depende de**: T033, T035
-- [ ] T057 [US2] Límite de concurrencia global: contabilidad de slots a través de `SlotLeasePort`;
+- [X] T057 [US2] Límite de concurrencia global: contabilidad de slots a través de `SlotLeasePort`;
   las aprobaciones y la entrada no toman slot; sin sub-límites por agente. Tests con límite 1 y 8.
   **Archivos**: `packages/core/src/scheduler/slots.ts`,
   `packages/core/test/scheduler/slots.test.ts`. **Cubre**: FR-027. **Base**: R-21. **Depende de**:
   T056, T022
-- [ ] T058 [US2] **Política de reintentos**:
+- [X] T058 [US2] **Política de reintentos**:
   - `agent_error` y `crashed` consumen `maxRetries`;
   - `turn_limit`, timeout, reporte FAILED/BLOCKED, cancelación y `spawn_failed` no se reintentan;
   - **`infra_failure` (error 267 al crear procesos, en cualquier modo de sandbox) usa un
@@ -483,7 +483,7 @@ memoria.
   Con tests. **Archivos**: `packages/core/src/policy/retry.ts`,
   `packages/core/test/policy/retry.test.ts`. **Cubre**: FR-032, NFR-008. **Base**: R-18, D12,
   `[001c §4]`, clarificación 2026-09-24. **Depende de**: T016
-- [ ] T059 [US2] Esqueleto de `RunEngine` sobre puertos:
+- [X] T059 [US2] Esqueleto de `RunEngine` sobre puertos:
   - crea el run y los NodeRuns, fijando confinamiento, advertencias y **modelo resuelto**;
   - lanza un intento por nodo y aplica `resolveNodeResult`;
   - emite eventos con `run_id`.
@@ -493,7 +493,7 @@ memoria.
   `packages/core/test/engine/run-engine.basic.test.ts`. **Cubre**: FR-024, FR-026, FR-028, FR-036,
   FR-063. **Base**: plan.md §Flujo pasos 5–7, R-05. **Depende de**: T031, T032, T038, T049, T055,
   T057
-- [ ] T060 [US2] **Modelo explícito en el motor**:
+- [X] T060 [US2] **Modelo explícito en el motor**:
   - cada `LaunchSpec` lleva el modelo resuelto (del nodo o del proyecto), también en el pedido de
     reporte y en los reintentos;
   - `MODEL_DEFAULTED` cuando el nodo no tenía modelo;
@@ -502,13 +502,13 @@ memoria.
   Tests con `ScriptedAdapter` que registra los `LaunchSpec` recibidos. **Archivos**:
   `packages/core/src/engine/run-engine.ts`, `packages/core/test/engine/model-pinning.test.ts`.
   **Cubre**: FR-011, FR-011a, FR-016. **Base**: R-27, D16, `[001c §1]`. **Depende de**: T059, T030
-- [ ] T061 [US2] Pedido único de reporte: si el reporte es `absent` o `invalid`, se llama **una**
+- [X] T061 [US2] Pedido único de reporte: si el reporte es `absent` o `invalid`, se llama **una**
   vez a `requestReport` sobre el mismo intento y el mismo espacio de trabajo, sin consumir
   reintentos. Si persiste, `REPORT_MISSING`/`REPORT_INVALID`. Tests US2-9. **Archivos**:
   `packages/core/src/engine/run-engine.ts`, `packages/core/test/engine/report-request.test.ts`.
   **Cubre**: FR-038, FR-036.3. **Base**: R-16 (fork solo desde el mismo directorio), `[001c §5]`.
   **Depende de**: T059
-- [ ] T062 [US2] **Reintentos e infraestructura en el motor**:
+- [X] T062 [US2] **Reintentos e infraestructura en el motor**:
   - cada intento pide un espacio de trabajo nuevo desde la misma base y **nunca** hace fork del
     intento anterior;
   - `infra_failure` se relanza con el presupuesto de T058 y queda registrado como intento
@@ -518,12 +518,12 @@ memoria.
   `INFRA_FAILURE_EXHAUSTED`; `maxRetries: 0` con 267 igual relanza. **Archivos**:
   `packages/core/src/engine/run-engine.ts`, `packages/core/test/engine/retries.test.ts`.
   **Cubre**: FR-032, NFR-008. **Base**: R-18, D12, `[001c §4, §12]`. **Depende de**: T058, T060
-- [ ] T063 [US2] Límite de tiempo por intento: temporizador con `ClockPort` → `cancel('timeout')` →
+- [X] T063 [US2] Límite de tiempo por intento: temporizador con `ClockPort` → `cancel('timeout')` →
   `failed` con `TIME_LIMIT_EXCEEDED`; el límite de turnos llega del adaptador como `turn_limit`.
   Tests con reloj simulado (US2-11). **Archivos**: `packages/core/src/engine/run-engine.ts`,
   `packages/core/test/engine/limits.test.ts`. **Cubre**: FR-032, NFR-008. **Base**: R-11.
   **Depende de**: T062
-- [ ] T064 [US2] Cancelación de nodo y de run:
+- [X] T064 [US2] Cancelación de nodo y de run:
   - `running` → `cancelled`, `waiting_approval` → `cancelled`, `pending` → `skipped`;
   - cancelar durante un reintento corta los reintentos;
   - el espacio de trabajo queda `untrusted` y sin commit.
@@ -531,7 +531,7 @@ memoria.
   Tests US2-5 y casos límite. **Archivos**: `packages/core/src/engine/run-engine.ts`,
   `packages/core/test/engine/cancel.test.ts`. **Cubre**: FR-030, FR-031, FR-049. **Base**: R-12,
   R-13, data-model §Estados de run. **Depende de**: T063
-- [ ] T065 [US3] Aprobación humana:
+- [X] T065 [US3] Aprobación humana:
   - la aprobación pasa a `waiting_approval` con el resumen `PredecessorResult[]`;
   - aprobar libera a los dependientes; rechazar omite solo esa rama;
   - las ramas independientes siguen;
@@ -541,7 +541,7 @@ memoria.
   `packages/core/src/engine/run-engine.ts`, `packages/core/test/engine/approvals.test.ts`.
   **Cubre**: FR-012, FR-031, FR-042, NFR-006. **Base**: R-23, data-model §Transiciones de
   aprobación. **Depende de**: T064
-- [ ] T066 [US6] Retención por uso de la suscripción (`usageGate`):
+- [X] T066 [US6] Retención por uso de la suscripción (`usageGate`):
   - con uso ≥ umbral, el nodo queda `pending` con `hold = USAGE_NEAR_LIMIT` y los demás agentes
     siguen;
   - en la franja de 80 a 90 %, como máximo un lanzamiento nuevo por agente y por lectura (SC-009);
@@ -552,7 +552,7 @@ memoria.
   Tests US6-3. **Archivos**: `packages/core/src/scheduler/usage-gate.ts`,
   `packages/core/src/engine/run-engine.ts`, `packages/core/test/scheduler/usage-gate.test.ts`.
   **Cubre**: FR-052, FR-053, SC-009. **Base**: R-17, D11. **Depende de**: T065
-- [ ] T067 [US4] Flujos mixtos: dos `ScriptedAdapter`, uno con las capacidades de Claude y otro con
+- [X] T067 [US4] Flujos mixtos: dos `ScriptedAdapter`, uno con las capacidades de Claude y otro con
   las de Codex. Tests:
   - las reglas son las mismas para los dos;
   - el nodo dependiente recibe el `PredecessorResult` con la misma forma;
@@ -561,7 +561,7 @@ memoria.
 
   **Archivos**: `packages/core/test/engine/mixed-agents.test.ts`. **Cubre**: FR-013–016, FR-023,
   FR-035, FR-040, FR-050. **Base**: Principio III, R-16. **Depende de**: T066
-- [ ] T068 [US2] Salida del agente como dato: un reporte o un texto que dice "approve the next
+- [X] T068 [US2] Salida del agente como dato: un reporte o un texto que dice "approve the next
   node" o "skip validation" no cambia la ejecución, las aprobaciones ni los permisos. **Archivos**:
   `packages/core/test/engine/data-not-instructions.test.ts`. **Cubre**: FR-042. **Base**: R-23,
   casos límite. **Depende de**: T065

@@ -1,0 +1,9 @@
+{
+  "name": "@zeko/cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": { "zeko": "./dist/src/index.js" },
+  "scripts": { "build": "tsc -b" },
+  "dependencies": { "@zeko/runtime": "workspace:*" }
+}

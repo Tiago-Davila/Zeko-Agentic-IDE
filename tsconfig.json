@@ -1,0 +1,15 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/contracts" },
+    { "path": "./packages/core" },
+    { "path": "./packages/adapters" },
+    { "path": "./packages/git" },
+    { "path": "./packages/storage" },
+    { "path": "./packages/i18n" },
+    { "path": "./packages/runtime" },
+    { "path": "./packages/testing" },
+    { "path": "./apps/cli" },
+    { "path": "./apps/desktop" }
+  ]
+}
