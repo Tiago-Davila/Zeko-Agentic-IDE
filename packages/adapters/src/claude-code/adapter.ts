@@ -13,6 +13,7 @@ export interface ClaudeCodeAdapterOptions {
   /** Prefix arguments used by supervised replay executables in tests. */
   readonly prefixArgs?: readonly string[];
   readonly versionArgs?: readonly string[];
+  readonly authArgs?: readonly string[];
   readonly supervisor?: ProcessSupervisor;
   readonly interruptGraceMs?: number;
   readonly platform?: NodeJS.Platform;
@@ -25,6 +26,7 @@ export class ClaudeCodeAdapter implements AgentAdapter {
   readonly #binaryPath: string | undefined;
   readonly #prefixArgs: readonly string[];
   readonly #versionArgs: readonly string[];
+  readonly #authArgs: readonly string[];
   readonly #supervisor: ProcessSupervisor;
   readonly #interruptGraceMs: number;
   readonly #platform: NodeJS.Platform;
@@ -34,6 +36,7 @@ export class ClaudeCodeAdapter implements AgentAdapter {
     this.#binaryPath = options.binaryPath;
     this.#prefixArgs = options.prefixArgs ?? [];
     this.#versionArgs = options.versionArgs ?? [];
+    this.#authArgs = options.authArgs ?? ["auth", "status"];
     this.#supervisor = options.supervisor ?? new ProcessSupervisor();
     this.#interruptGraceMs = options.interruptGraceMs ?? 5_000;
     this.#platform = options.platform ?? process.platform;
@@ -57,11 +60,13 @@ export class ClaudeCodeAdapter implements AgentAdapter {
     }
     const version = result.code === 0 ? parseClaudeVersion(result.stdout) : undefined;
     const installed = result.code === 0 && version !== undefined;
+    const authResult = installed ? await runVersion(command, this.#authArgs) : { code: null, stdout: "" };
+    const auth = parseClaudeAuth(authResult.stdout);
     return {
       agentId: this.id,
       installed,
       ...(version ? { version } : {}),
-      auth: { state: "unknown", mode: "detect", verified: false },
+      auth,
       problems: installed ? [] : ["Claude Code installation could not be verified"],
     };
   }
@@ -248,4 +253,19 @@ async function runVersion(command: string, args: readonly string[]): Promise<{ c
 
 function parseClaudeVersion(output: string): string | undefined {
   return /(?:Claude Code\s+)?(\d+\.\d+(?:\.\d+)?(?:[-+][\w.-]+)?)/iu.exec(output)?.[1];
+}
+
+function parseClaudeAuth(output: string): AgentAvailability["auth"] {
+  try {
+    const value: unknown = JSON.parse(output);
+    if (typeof value !== "object" || value === null || Array.isArray(value)) return { state: "unknown", mode: "detect", verified: false };
+    const record = value as Record<string, unknown>;
+    if (record["loggedIn"] === false) return { state: "not_authenticated", mode: "detect", verified: true };
+    if (record["loggedIn"] !== true) return { state: "unknown", mode: "detect", verified: false };
+    const authMethod = typeof record["authMethod"] === "string" ? record["authMethod"].toLowerCase().replaceAll(/[^a-z]/gu, "") : "";
+    const mode = authMethod === "claudeai" ? "subscription" : authMethod === "apikey" ? "api_key" : "detect";
+    return { state: "authenticated", mode, verified: true };
+  } catch {
+    return { state: "unknown", mode: "detect", verified: false };
+  }
 }

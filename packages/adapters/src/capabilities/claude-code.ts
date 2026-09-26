@@ -17,7 +17,7 @@ const claudeCodeCapabilityRow = {
   reportsCost: true,
   reportsConsumption: true,
   subscriptionUsage: "live",
-  authModes: [{ mode: "detect", verified: false }],
+  authModes: [{ mode: "subscription", verified: true }, { mode: "api_key", verified: true }, { mode: "detect", verified: false }],
   infraFailureClasses: [],
   processTree: "windows_process_tree",
 } as const satisfies AgentCapabilities;
