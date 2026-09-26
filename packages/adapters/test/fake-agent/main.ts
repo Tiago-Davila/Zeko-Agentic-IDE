@@ -20,6 +20,11 @@ export async function runFakeAgent(scenarioFile: string): Promise<void> {
     return;
   }
 
+  const startupDelay = Number(process.env["ZEKO_FAKE_AGENT_STARTUP_DELAY_MS"] ?? 0);
+  if (Number.isSafeInteger(startupDelay) && startupDelay > 0 && startupDelay <= 10_000) {
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, startupDelay));
+  }
+
   for (const line of scenario.stderrLines) process.stderr.write(`${line}\n`);
   for (const file of scenario.files) {
     const target = isAbsolute(file.path) ? file.path : resolve(process.cwd(), file.path);

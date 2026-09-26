@@ -679,7 +679,7 @@ motor en `zeko/<run>/*`, el dependiente parte del predecesor, los archivos obser
   **Archivos**: `packages/adapters/test/process/no-kill-by-name.test.ts`, `eslint.config.js`.
   **Cubre**: FR-030, FR-062. **Base**: D8, R-14, `[001c §9]` (el filtro por nombre mató al propio
   runner). **Depende de**: T081
-- [ ] T083 [US2] Adaptador `fake` basado en procesos: lanza `fake-agent` en modo `native` a través
+- [X] T083 [US2] Adaptador `fake` basado en procesos: lanza `fake-agent` en modo `native` a través
   del supervisor, con capacidades configurables; cancela en dos fases si `orderlyInterrupt`, si no
   mata el árbol. Con tests. **Archivos**: `packages/adapters/src/fake/fake-adapter.ts`,
   `packages/adapters/test/fake/fake-adapter.test.ts`. **Cubre**: FR-016, FR-030. **Base**: R-26.

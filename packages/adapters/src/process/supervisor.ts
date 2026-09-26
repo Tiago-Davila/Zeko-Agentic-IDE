@@ -71,7 +71,7 @@ export class ProcessSupervisor {
       child.once("close", (code, signal) => {
         tracked.closed = true;
         resolve({ code, signal });
-        this.#stopPollingWhenIdle();
+        // Keep observing this tree after the root exits: an already-registered child can outlive it.
       });
     });
     if (!child.stdin || !child.stdout || !child.stderr) throw new Error("Supervised process stdio pipes were not created");
@@ -157,11 +157,15 @@ export class ProcessSupervisor {
   async #poll(): Promise<void> {
     if (this.#active.size === 0) return;
     const snapshot = await this.#snapshot();
-    for (const tracked of this.#active) tracked.tracker.update(snapshot);
+    for (const tracked of [...this.#active]) {
+      tracked.tracker.update(snapshot);
+      if (tracked.closed && tracked.tracker.live(snapshot).length === 0) this.#active.delete(tracked);
+    }
+    this.#stopPollingWhenIdle();
   }
 
   #stopPollingWhenIdle(): void {
-    if ([...this.#active].some((tracked) => !tracked.closed)) return;
+    if (this.#active.size > 0) return;
     if (this.#timer) clearInterval(this.#timer);
     this.#timer = undefined;
   }
