@@ -1183,7 +1183,7 @@ confinamiento y capacidades, costo y uso, e historial. La UI solo pinta lo que c
   `apps/desktop/src/renderer/dialogs/file-conflict-dialog.tsx`. **Cubre**: FR-054–057, US1-5–7,
   SC-007. **Base**: clarificación 2026-09-24, contracts/flow-file.md §Conflictos. **Depende de**:
   T141, T136
-- [ ] T144 [US5] Nivel de confinamiento y capacidades en el nodo:
+- [X] T144 [US5] Nivel de confinamiento y capacidades en el nodo:
   - insignia `Confined` / `Write-only confined` / `Unconfined` con su motivo, antes, durante y
     después del run;
   - advertencias de `NodeView` (terminal, comandos, denegaciones no disponibles, turnos, red, costo,

@@ -106,6 +106,13 @@ h1, h2, h3, p { margin-top: 0; }
 .flow-node__glyph--approval { color: #9c6a25; background: #faf2e3; }
 .flow-node__name { display: block; margin-bottom: 5px; color: #263f49; font-size: 12px; font-weight: 700; }
 .flow-node__detail { display: block; max-width: 190px; overflow: hidden; color: #8a989c; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.node-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 9px; }
+.confinement-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 6px; color: #33745f; background: #edf6f2; border-radius: 10px; font-size: 8px; font-weight: 700; }
+.confinement-badge--write_only { color: #93681f; background: #faf3e4; }
+.confinement-badge--unconfined { color: #a14d43; background: #fbefed; }
+.confinement-badge__dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.confinement-reason { width: 100%; overflow: hidden; color: #89979a; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+.capability-warning { max-width: 100%; padding: 3px 5px; overflow: hidden; color: #8a672f; background: #faf5e9; border-radius: 3px; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
 .flow-handle { width: 9px; height: 9px; background: #fbffff; border: 2px solid #6b9b98; }
 .canvas-hint { position: absolute; bottom: 24px; left: 50%; padding: 9px 13px; color: #819196; background: #f9fbfbdd; border: 1px solid #dce5e7; border-radius: 20px; font-size: 11px; pointer-events: none; transform: translateX(-50%); }
 .canvas-message { position: absolute; z-index: 5; top: 94px; left: 50%; display: flex; align-items: center; gap: 15px; max-width: min(540px, calc(100vw - 40px)); padding: 11px 13px; color: #8e4837; background: #fff8ee; border: 1px solid #efd5a8; border-radius: 7px; box-shadow: 0 6px 22px #19354213; font-size: 12px; transform: translateX(-50%); }

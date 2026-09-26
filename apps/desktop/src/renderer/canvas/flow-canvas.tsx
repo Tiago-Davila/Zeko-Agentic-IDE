@@ -13,7 +13,7 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { DEFAULT_MODELS, type AgentNode, type Diagnostic, type Edge, type FlowFile, type FlowNode, type ProjectConfig } from "@zeko/contracts";
-import { ipc } from "../ipc/client.js";
+import { ipc, type NodeView } from "../ipc/client.js";
 import { useT } from "../i18n/use-t.js";
 import { AgentCanvasNode, ApprovalCanvasNode, InputCanvasNode, type FlowNodeData } from "./node-types.js";
 import { AgentNodePanel } from "../panels/agent-node-panel.js";
@@ -39,14 +39,15 @@ export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, dirty, s
   const [notApplicable, setNotApplicable] = useState<string[]>([]);
   const [diagnostics, setDiagnostics] = useState<Diagnostic[]>([]);
   const [validationReady, setValidationReady] = useState(false);
+  const [nodeViews, setNodeViews] = useState<NodeView[]>([]);
   const validationRequestId = useRef(0);
   const selectedNode = flow.nodes.find((node) => node.id === selectedNodeId);
   const nodes = useMemo<CanvasNode<FlowNodeData>[]>(() => flow.nodes.map((node) => ({
     id: node.id,
     type: node.type,
     position: node.position,
-    data: { flowNode: node, diagnostics: diagnostics.filter((item) => item.nodeId === node.id) },
-  })), [diagnostics, flow.nodes]);
+    data: { flowNode: node, diagnostics: diagnostics.filter((item) => item.nodeId === node.id), nodeView: nodeViews.find((view) => view.nodeId === node.id) ?? null },
+  })), [diagnostics, flow.nodes, nodeViews]);
   const edges = useMemo<CanvasEdge[]>(() => flow.edges.map((edge) => ({
     id: `${edge.from}->${edge.to}`,
     source: edge.from,
@@ -72,12 +73,13 @@ export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, dirty, s
       void ipc.request("flow.validate", { projectId, flow }).then(({ diagnostics: nextDiagnostics, nodeViews }) => {
         if (requestId !== validationRequestId.current) return;
         setDiagnostics(nextDiagnostics);
+        setNodeViews(nodeViews);
         setValidationReady(true);
         const view = selectedNode?.type === "agent" ? nodeViews.find((item) => item.nodeId === selectedNode.id) : undefined;
         setNotApplicable(view?.notApplicable ?? []);
       }).catch(() => {
         if (requestId !== validationRequestId.current) return;
-        setNotApplicable([]); setDiagnostics([]); setValidationReady(false);
+        setNotApplicable([]); setDiagnostics([]); setNodeViews([]); setValidationReady(false);
       });
     }, 180);
     return () => window.clearTimeout(timer);
