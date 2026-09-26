@@ -7,7 +7,7 @@
   "engines": { "node": ">=24 <25" },
   "scripts": {
     "build": "pnpm -r --if-present build",
-    "test": "vitest run --workspace vitest.workspace.ts",
+    "test": "vitest run --workspace vitest.workspace.ts --project unit",
     "test:win": "node scripts/run-win-tests.mjs",
     "lint": "eslint .",
     "typecheck": "tsc -b"
