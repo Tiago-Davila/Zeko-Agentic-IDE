@@ -28,11 +28,23 @@ export function buildClaudeArgs(spec: LaunchSpec, options: ClaudeInvocationOptio
     "--restricted",
     "--permission-mode", "acceptEdits",
     "--model", spec.model.model,
-    "--json-schema", options.schemaPath,
+    "--json-schema", claudeSchema(options.schemaPath),
     "--max-turns", String((spec.maxTurns ?? 40) + 2),
     "--tools", tools.join(","),
     "--allowedTools", ...allowedTools,
   ];
   if (options.resumeSessionId) args.push("--resume", options.resumeSessionId, "--fork-session");
   return args;
+}
+
+function claudeSchema(serialized: string): string {
+  try {
+    const value: unknown = JSON.parse(serialized);
+    if (typeof value !== "object" || value === null || Array.isArray(value)) return serialized;
+    const supported = { ...(value as Record<string, unknown>) };
+    delete supported["$schema"];
+    return JSON.stringify(supported);
+  } catch {
+    return serialized;
+  }
 }

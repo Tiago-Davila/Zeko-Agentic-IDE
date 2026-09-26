@@ -36,6 +36,14 @@ describe("buildClaudeArgs", () => {
     expect(args).not.toContain("Edit");
   });
 
+  it("removes the unsupported JSON Schema dialect marker for Claude", () => {
+    const schema = JSON.stringify({ $schema: "https://json-schema.org/draft/2020-12/schema", type: "object", properties: {} });
+    const args = buildClaudeArgs(baseSpec(), { schemaPath: schema });
+    const forwarded = JSON.parse(args[args.indexOf("--json-schema") + 1]!) as Record<string, unknown>;
+    expect(forwarded).toEqual({ type: "object", properties: {} });
+    expect(forwarded).not.toHaveProperty("$schema");
+  });
+
   it("adds the platform shell with only explicitly allowed commands", () => {
     const args = buildClaudeArgs(baseSpec({
       terminal: { enabled: true, allowedCommands: ["git status", "pwsh -File check.ps1"] },
