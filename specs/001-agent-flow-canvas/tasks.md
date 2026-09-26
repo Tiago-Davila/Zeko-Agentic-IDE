@@ -750,7 +750,7 @@ redacción antes de toda escritura.
   `packages/storage/src/repos/approvals.ts`, `packages/storage/src/repos/process-tree.ts`,
   `packages/storage/test/repos/workspaces.test.ts`. **Cubre**: FR-012, FR-048, FR-049, FR-062.
   **Base**: data-model §4. **Depende de**: T089
-- [ ] T092 [P] [US6] Repositorio `agent_usage` (implementa `UsageStorePort`), con tests.
+- [X] T092 [P] [US6] Repositorio `agent_usage` (implementa `UsageStorePort`), con tests.
   **Archivos**: `packages/storage/src/repos/agent-usage.ts`,
   `packages/storage/test/repos/agent-usage.test.ts`. **Cubre**: FR-052. **Base**: R-17.
   **Depende de**: T089
