@@ -911,7 +911,7 @@ aprobaciones por TTY. Nada de UI todavía.
   `spikes/001d-claude-gaps/FINDINGS.md`, `spikes/001d-claude-gaps/samples/**`,
   `specs/001-agent-flow-canvas/research.md`. **Cubre**: FR-017, FR-025. **Base**: plan.md §Orden
   sugerido paso 1, U-02, U-03, U-04, U-07. **Depende de**: —
-- [ ] T112 [US2] Constructor de argumentos de Claude:
+- [X] T112 [US2] Constructor de argumentos de Claude:
   - base: `-p --output-format stream-json --verbose --input-format stream-json --strict-mcp-config
     --restricted --permission-mode acceptEdits`;
   - **`--model <modelo resuelto>` siempre**;
