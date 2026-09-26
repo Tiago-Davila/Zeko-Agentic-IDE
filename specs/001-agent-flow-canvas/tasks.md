@@ -1126,7 +1126,7 @@ MessagePort, con validación zod en los dos extremos.
 - [X] T134 [US1] Preload: expone solo `zeko.request` y `zeko.onEvent` con `contextBridge`, sin
   acceso a Node. **Archivos**: `apps/desktop/src/preload/index.ts`. **Cubre**: —. **Base**:
   contracts/ipc.md §Transporte, Principio IV. **Depende de**: T132
-- [ ] T135 [US1] Tests de contrato IPC: los dos extremos validan; un mensaje inválido se descarta y
+- [X] T135 [US1] Tests de contrato IPC: los dos extremos validan; un mensaje inválido se descarta y
   produce `engine.error`; cada método de contracts/ipc.md responde con su forma. **Archivos**:
   `apps/desktop/test/ipc-contract.test.ts`. **Cubre**: FR-063. **Base**: contracts/ipc.md.
   **Depende de**: T133, T134
