@@ -1003,7 +1003,7 @@ en modo `replay` con los fixtures de Codex.
   **Archivos**: `packages/adapters/src/codex/binary.ts`,
   `packages/adapters/test/codex/binary.test.ts`. **Cubre**: FR-030, FR-065. **Base**: R-13, D7,
   `[001c §9]` (matar el shim no cancela). **Depende de**: T005, T109
-- [ ] T121 [US4] Entorno del proceso de Codex: quita `CODEX_API_KEY`, `OPENAI_API_KEY` y
+- [X] T121 [US4] Entorno del proceso de Codex: quita `CODEX_API_KEY`, `OPENAI_API_KEY` y
   `CODEX_HOME` heredados. Con clave de API, inyecta `CODEX_API_KEY` solo en ese proceso y declara
   el valor en `AgentExecution.sensitiveValues` (T018). El `runtime` lo registra en el redactor
   (T088): el adaptador no importa `storage`. Con tests. **Archivos**: `packages/adapters/src/codex/env.ts`,
