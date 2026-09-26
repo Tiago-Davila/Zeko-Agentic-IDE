@@ -650,7 +650,7 @@ motor en `zeko/<run>/*`, el dependiente parte del predecesor, los archivos obser
   sintéticas. **Archivos**: `packages/adapters/src/process/tree-tracker.ts`,
   `packages/adapters/test/process/tree-tracker.test.ts`. **Cubre**: FR-030, FR-062. **Base**: R-14,
   `[001 §7]`, `[001c §9]`. **Depende de**: T078
-- [ ] T080 [US2] Lanzamiento con el supervisor: `spawn` sin shell, registro de la raíz
+- [X] T080 [US2] Lanzamiento con el supervisor: `spawn` sin shell, registro de la raíz
   `(pid, creationTime)`, streams de stdout/stderr por línea, fin del intento en `close` (no en
   `exit`) y tick de seguimiento cada 2 s. Tests con `fake-agent`. **Archivos**:
   `packages/adapters/src/process/supervisor.ts`,
