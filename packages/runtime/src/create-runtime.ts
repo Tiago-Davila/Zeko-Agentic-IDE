@@ -162,7 +162,12 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
       }));
       return { agents: results.map((result) => result.availability), usage: results.flatMap((result) => result.usage ? [result.usage] : []) };
     },
-    async preflight(projectId: string, flowId: string) { const loaded = await filesFor(projectId).loadFlow(flowId); if (!loaded.flow) return { ok: false, diagnostics: loaded.diagnostics, agents: [], perNodeAuth: [], warnings: [] }; return { ...await checkPreflight(loaded.flow, adapters), diagnostics: loaded.diagnostics }; },
+    async preflight(projectId: string, flowId: string) {
+      const loaded = await filesFor(projectId).loadFlow(flowId);
+      const uncommittedChanges = (await getRepositoryInfo(rootFor(projectId))).uncommittedChanges;
+      if (!loaded.flow) return { ok: false, uncommittedChanges, diagnostics: loaded.diagnostics, agents: [], perNodeAuth: [], warnings: [], missing: [] };
+      return { ...await checkPreflight(loaded.flow, adapters), uncommittedChanges, diagnostics: loaded.diagnostics };
+    },
     async startRun(projectId: string, flowId: string, fileHash: string, origin?: "cli" | "desktop") { return startRun(projectId, flowId, fileHash, origin); },
     async cancelRun(runId: string) { await engines.get(runId)?.cancelRun(); },
     async forceCancelRun(runId: string) { await engines.get(runId)?.forceCancelRun(); },

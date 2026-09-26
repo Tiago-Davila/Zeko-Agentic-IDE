@@ -1191,7 +1191,7 @@ confinamiento y capacidades, costo y uso, e historial. La UI solo pinta lo que c
 
   **Archivos**: `apps/desktop/src/renderer/canvas/node-badges.tsx`. **Cubre**: FR-020–023, FR-066,
   NFR-009, NFR-012, US5-1, US5-4–7. **Base**: R-10, R-13. **Depende de**: T142
-- [ ] T145 [US2] Diálogo de verificación previa: agentes faltantes, forma de autenticación por nodo
+- [X] T145 [US2] Diálogo de verificación previa: agentes faltantes, forma de autenticación por nodo
   (sin email), "API key (unverified)" y aviso de cambios sin confirmar. **Archivos**:
   `apps/desktop/src/renderer/dialogs/preflight-dialog.tsx`. **Cubre**: FR-025, FR-065, NFR-007,
   US2-2. **Base**: R-19. **Depende de**: T143

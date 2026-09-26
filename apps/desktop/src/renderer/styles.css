@@ -166,6 +166,20 @@ h1, h2, h3, p { margin-top: 0; }
 .file-diagnostic small { display: block; margin-top: 3px; color: #8d999c; font: 9px "Cascadia Code", Consolas, monospace; }
 .file-diagnostic span { color: #89969a; white-space: nowrap; }
 .editor-error { position: fixed; z-index: 12; top: 86px; left: 50%; padding: 11px 15px; color: #8e4339; background: #fff2ef; border: 1px solid #f0d9d4; border-radius: 6px; font-size: 11px; transform: translateX(-50%); }
+.preflight-dialog { max-height: min(760px, calc(100vh - 40px)); overflow: auto; }
+.preflight-repository { display: flex; align-items: center; gap: 9px; margin: 17px 0; padding: 11px 12px; color: #477360; background: #edf6f1; border-radius: 6px; font-size: 11px; }
+.preflight-repository--warning { color: #8d6327; background: #faf2e2; }
+.preflight-status-dot { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: currentColor; }
+.preflight-agent-list { display: grid; gap: 8px; }
+.preflight-agent { padding: 12px; background: white; border: 1px solid #e1e9e9; border-radius: 6px; }
+.preflight-agent__heading { display: flex; align-items: center; justify-content: space-between; color: #314b55; font-size: 11px; }
+.preflight-agent__heading code { color: #849397; font-size: 9px; }
+.preflight-agent__details { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 9px; }
+.preflight-agent__details > span { padding: 4px 6px; color: #6c7e82; background: #f1f5f5; border-radius: 4px; font-size: 9px; }
+.preflight-agent__details > .preflight-tag--warning { color: #916525; background: #fbf3e2; }
+.preflight-blocked { margin: 13px 0 0; padding: 10px; color: #93473c; background: #fbefed; border-radius: 5px; font-size: 11px; }
+.preflight-warning { margin: 10px 0 0; padding: 9px 10px; color: #8a672f; background: #faf5e9; border-radius: 5px; font-size: 10px; }
+.run-start-toast { position: fixed; z-index: 6; right: 20px; bottom: 20px; padding: 12px 16px; color: #f4fbf8; background: #193542; border: 1px solid #38515b; border-radius: 7px; box-shadow: 0 7px 24px #19354224; font-size: 11px; }
 
 @media (max-width: 1080px) {
   .app-shell { grid-template-columns: 190px minmax(0, 1fr); }

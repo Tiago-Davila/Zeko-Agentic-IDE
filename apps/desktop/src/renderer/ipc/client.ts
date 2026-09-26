@@ -22,6 +22,7 @@ export interface NodeView {
 }
 export interface PreflightResult {
   ok: boolean;
+  uncommittedChanges: boolean;
   agents: AgentAvailability[];
   perNodeAuth: Array<{ nodeId: string; agentId: AgentId; state: AgentAvailability["auth"]["state"]; mode?: AgentAvailability["auth"]["mode"]; verified: boolean; installed: boolean }>;
   warnings: WarningCode[];

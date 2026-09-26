@@ -3,7 +3,9 @@ import type { Diagnostic, FlowFile } from "@zeko/contracts";
 import { IpcClientError, ipc } from "../ipc/client.js";
 import { useT } from "../i18n/use-t.js";
 import { FileConflictDialog } from "../dialogs/file-conflict-dialog.js";
+import { PreflightDialog } from "../dialogs/preflight-dialog.js";
 import { FlowCanvas } from "../canvas/flow-canvas.js";
+import type { PreflightResult } from "../ipc/client.js";
 
 interface FlowEditorProps { projectId: string; flowId: string; onBack: () => void }
 interface Conflict { currentHash: string }
@@ -18,6 +20,10 @@ export function FlowEditor({ projectId, flowId, onBack }: FlowEditorProps) {
   const [dirty, setDirty] = useState(false);
   const [error, setError] = useState<string>();
   const [conflict, setConflict] = useState<Conflict>();
+  const [preflight, setPreflight] = useState<PreflightResult>();
+  const [starting, setStarting] = useState(false);
+  const [runId, setRunId] = useState<string>();
+  const [preflightError, setPreflightError] = useState<string>();
 
   async function reload(): Promise<void> {
     setLoading(true);
@@ -71,6 +77,30 @@ export function FlowEditor({ projectId, flowId, onBack }: FlowEditorProps) {
     setConflict(undefined);
   }
 
+  async function checkBeforeRun(): Promise<void> {
+    setPreflightError(undefined);
+    try {
+      setPreflight(await ipc.request("run.preflight", { projectId, flowId }));
+    } catch (cause) {
+      setError(cause instanceof IpcClientError ? t("error.generic", { code: cause.code }) : t("preflight.failed"));
+    }
+  }
+
+  async function startRun(): Promise<void> {
+    if (!preflight?.ok || !fileHash) return;
+    setStarting(true);
+    setPreflightError(undefined);
+    try {
+      const result = await ipc.request("run.start", { projectId, flowId, fileHash });
+      setRunId(result.runId);
+      setPreflight(undefined);
+    } catch (cause) {
+      setPreflightError(cause instanceof IpcClientError ? t("error.generic", { code: cause.code }) : t("run.startFailed"));
+    } finally {
+      setStarting(false);
+    }
+  }
+
   if (loading) return <main className="flow-editor-state"><span className="eyebrow">{t("flow.loading")}</span></main>;
   if (!flow) return <main className="flow-editor-state">
     <button className="button button--quiet" type="button" onClick={onBack}>{t("canvas.back")}</button>
@@ -88,7 +118,9 @@ export function FlowEditor({ projectId, flowId, onBack }: FlowEditorProps) {
   return <>
     {error && <div className="editor-error" role="alert">{error}</div>}
     <FlowCanvas projectId={projectId} flow={flow} onChange={(next) => { setFlow(next); setDirty(true); }} onBack={onBack}
-      onSave={() => void save()} dirty={dirty} saving={saving} />
+      onSave={() => void save()} onStartRun={() => void checkBeforeRun()} dirty={dirty} saving={saving} />
+    {runId && <div className="run-start-toast" role="status">{t("run.started")}</div>}
     {conflict && <FileConflictDialog onCancel={() => setConflict(undefined)} onKeep={keepMyVersion} onReload={() => void reload()} />}
+    {preflight && <PreflightDialog result={preflight} running={starting} error={preflightError} onCancel={() => setPreflight(undefined)} onStart={() => void startRun()} />}
   </>;
 }
