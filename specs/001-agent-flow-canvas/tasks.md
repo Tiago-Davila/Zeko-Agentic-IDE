@@ -1123,7 +1123,7 @@ MessagePort, con validación zod en los dos extremos.
   `apps/desktop/src/engine-host/dispatch.ts`, `apps/desktop/src/engine-host/output-batcher.ts`,
   `apps/desktop/test/engine-host/output-batcher.test.ts`. **Cubre**: FR-028, FR-029, NFR-002,
   NFR-003. **Base**: R-01, R-25. **Depende de**: T132, T101, T023
-- [ ] T134 [US1] Preload: expone solo `zeko.request` y `zeko.onEvent` con `contextBridge`, sin
+- [X] T134 [US1] Preload: expone solo `zeko.request` y `zeko.onEvent` con `contextBridge`, sin
   acceso a Node. **Archivos**: `apps/desktop/src/preload/index.ts`. **Cubre**: —. **Base**:
   contracts/ipc.md §Transporte, Principio IV. **Depende de**: T132
 - [ ] T135 [US1] Tests de contrato IPC: los dos extremos validan; un mensaje inválido se descarta y
