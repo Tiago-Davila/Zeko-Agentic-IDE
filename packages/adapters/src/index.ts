@@ -5,3 +5,5 @@ export { disposeProcessSnapshotWorker } from "./process/process-table.js";
 export type { ProcessEntry } from "./process/process-table.js";
 export { ClaudeCodeAdapter } from "./claude-code/adapter.js";
 export type { ClaudeCodeAdapterOptions } from "./claude-code/adapter.js";
+export { CodexAdapter } from "./codex/adapter.js";
+export type { CodexAdapterOptions } from "./codex/adapter.js";

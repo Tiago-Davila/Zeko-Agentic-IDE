@@ -1060,7 +1060,7 @@ en modo `replay` con los fixtures de Codex.
   `packages/adapters/src/codex/schema-file.ts`, `packages/adapters/test/codex/schema-file.test.ts`.
   **Cubre**: FR-033, FR-034. **Base**: R-06, `[001c §6]` (sin strict → `turn.failed`).
   **Depende de**: T013, T109
-- [ ] T128 [US4] `launch`, `requestReport` y `cancel` de Codex:
+- [X] T128 [US4] `launch`, `requestReport` y `cancel` de Codex:
   - `launch` a través del supervisor, con el prompt por stdin y stdin cerrado;
   - `requestReport` con `exec fork <thread_id>` desde el **mismo `cwd`**, con el sandbox como
     `-c sandbox_mode="…"` porque fork **no acepta `-s`** `[001c §5]`; los flags de fork no
