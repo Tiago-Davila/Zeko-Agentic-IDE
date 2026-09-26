@@ -779,7 +779,7 @@ redacción antes de toda escritura.
   adaptador `fake` y `storage`. **Archivos**:
   `packages/runtime/test/persisted-no-secrets.test.ts`. **Cubre**: NFR-007, FR-065. **Base**:
   R-28, T008. **Depende de**: T090, T083
-- [ ] T096 [US8] Durabilidad: un proceso hijo escribe eventos, se lo mata a mitad de camino y, al
+- [X] T096 [US8] Durabilidad: un proceso hijo escribe eventos, se lo mata a mitad de camino y, al
   reabrir, todos los eventos confirmados están. **Archivos**:
   `packages/storage/test/durability.test.ts`. **Cubre**: NFR-005. **Base**: R-20. **Depende de**:
   T090
