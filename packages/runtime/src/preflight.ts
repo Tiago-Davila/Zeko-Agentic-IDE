@@ -44,7 +44,7 @@ export async function preflight(flow: FlowFile, adapters: Partial<Record<AgentId
   const missing: PreflightResult["missing"][number][] = [];
   for (const item of perNodeAuth) {
     if (!item.installed) missing.push({ nodeId: item.nodeId, agentId: item.agentId, reason: "not_installed" });
-    else if (item.state !== "authenticated") missing.push({ nodeId: item.nodeId, agentId: item.agentId, reason: "not_authenticated" });
+    else if (item.state === "not_authenticated") missing.push({ nodeId: item.nodeId, agentId: item.agentId, reason: "not_authenticated" });
   }
   const warnings: WarningCode[] = perNodeAuth.some((item) => item.mode === "api_key" && !item.verified) ? ["AUTH_API_KEY_UNVERIFIED"] : [];
   return { ok: missing.length === 0, agents, perNodeAuth, warnings, missing };

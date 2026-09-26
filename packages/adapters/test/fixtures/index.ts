@@ -29,6 +29,7 @@ export const FIXTURE_INDEX = {
       "claude/events/system.task_started.json", "claude/events/system.thinking_tokens.json",
       "claude/events/user.text.json", "claude/events/user.tool_result.json",
       "claude/events/user.tool_result_error.json",
+      "claude/e2e-success.jsonl", "claude/e2e-denied.jsonl", "claude/e2e-scope.jsonl",
     ],
     samples: {
       verboseRaw: "claude/q1-verbose-raw.jsonl",

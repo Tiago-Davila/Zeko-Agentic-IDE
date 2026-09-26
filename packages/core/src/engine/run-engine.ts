@@ -56,7 +56,7 @@ export interface RunEngineOptions {
   reportSchema?: Record<string, unknown>;
   createId?: () => string;
   inspectFiles?: (
-    workspacePath: string,
+    input: { workspacePath: string; baseCommit: string; resultCommit: string },
   ) => Promise<Array<{ path: string; change: string; eolOnly: boolean }>>;
   markWorkspaceUntrusted?: (workspacePath: string) => Promise<void>;
   requestApproval?: (request: {
@@ -567,7 +567,11 @@ export class RunEngine {
           nodeRun.workspace = { ...nodeRun.workspace, baseCommit, state: "kept" };
         }
         historyRewritten = committed?.historyRewritten ?? false;
-        observed = (await this.options.inspectFiles?.(workspace.path)) ?? [];
+        observed = (await this.options.inspectFiles?.({
+          workspacePath: workspace.path,
+          baseCommit,
+          resultCommit: committed?.resultCommit ?? baseCommit,
+        })) ?? [];
         attempt.processOutcome = outcome;
         attempt.endedAt = this.options.clock.now();
         await this.#emit(

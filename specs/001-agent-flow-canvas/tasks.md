@@ -973,7 +973,7 @@ aprobaciones por TTY. Nada de UI todavía.
   `packages/adapters/src/claude-code/detect.ts`, `packages/adapters/test/claude-code/detect.test.ts`.
   **Cubre**: FR-025. **Base**: R-19, T-07 (clarificación 2026-09-24).
   **Depende de**: T115
-- [ ] T118 [US2] Registrar el adaptador de Claude en el runtime. Test de extremo a extremo: `zeko run`
+- [X] T118 [US2] Registrar el adaptador de Claude en el runtime. Test de extremo a extremo: `zeko run`
   con `fake-agent` en modo `replay` del dialecto de Claude, cubriendo un nodo completado, uno con
   denegaciones (`ACTION_DENIED`) y uno con escritura fuera de alcance (`WRITE_OUTSIDE_SCOPE`).
   **Archivos**: `packages/runtime/src/adapter-registry.ts`,

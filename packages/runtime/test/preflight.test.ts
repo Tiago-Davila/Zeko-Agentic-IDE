@@ -21,6 +21,16 @@ describe("runtime preflight", () => {
     expect(result.ok).toBe(false); expect(result.missing).toEqual([{ nodeId: "one", agentId: "claude-code", reason: "not_installed" }]);
   });
 
+  it("allows Claude Code when authentication cannot be verified without a free check", async () => {
+    const scripted = new ScriptedAdapter({ id: "claude-code", capabilities: CLAUDE_LIKE_CAPABILITIES, availability: {
+      agentId: "claude-code", installed: true, auth: { state: "unknown", mode: "detect", verified: false }, problems: [],
+    } });
+    const result = await preflight(flow, { "claude-code": scripted });
+    expect(result.ok).toBe(true);
+    expect(result.missing).toEqual([]);
+    expect(result.perNodeAuth[0]).toMatchObject({ state: "unknown", verified: false, installed: true });
+  });
+
   it("does not expose provider problems that can include account email", async () => {
     const scripted = new ScriptedAdapter({ id: "claude-code", capabilities: CLAUDE_LIKE_CAPABILITIES, availability: {
       agentId: "claude-code", installed: true, auth: { state: "not_authenticated", verified: false }, problems: ["signed in as person@example.com"],

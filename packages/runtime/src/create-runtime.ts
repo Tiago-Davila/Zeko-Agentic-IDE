@@ -2,6 +2,7 @@ import { mkdir } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { randomUUID } from "node:crypto";
 import type { AgentAdapter, AgentId, FlowFile, ProjectConfig, PersistedEvent } from "@zeko/contracts";
+import { ClaudeCodeAdapter } from "@zeko/adapters";
 import { validateEdge, validateFlow as validateGraphFlow, RunEngine } from "@zeko/core";
 import { cleanupRunWorktrees, getFileDiff, getObservedFiles, getRepositoryInfo, GitWorkspacePort } from "@zeko/git";
 import { createRedactor, migrate, NodeSqliteDriver, RunsRepository, SqliteSlotLeases, type SqlDriver } from "@zeko/storage";
@@ -64,7 +65,9 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
     },
   };
   const slots = new SqliteSlotLeases(db);
-  const adapters = createAdapterRegistry(options.adapters);
+  const configuredAdapters = { ...options.adapters };
+  if (!configuredAdapters["claude-code"]) configuredAdapters["claude-code"] = new ClaudeCodeAdapter();
+  const adapters = createAdapterRegistry(configuredAdapters);
   const listeners = new Set<RuntimeListener>();
   const projects = new Map<string, string>();
   const engines = new Map<string, RunEngine>();
@@ -113,7 +116,7 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
       }) }, projectRoot: root, flowFile: join(root, ".zeko", "flows", `${flowId}.flow.yaml`), flowHash: fileHash,
       baseCommit: repository.head, platform: process.platform === "win32" ? "win32" : "linux", hostPid: process.pid,
       hostStartedAt: new Date(Date.now() - process.uptime() * 1000).toISOString(), origin, createId: (() => { let first = true; return () => { if (first) { first = false; return runId; } return cryptoId(); }; })(),
-      concurrencyLimit: config.concurrencyLimit, inspectFiles: async () => [], markWorkspaceUntrusted: async () => undefined,
+      concurrencyLimit: config.concurrencyLimit, inspectFiles: async ({ workspacePath, baseCommit, resultCommit }) => getObservedFiles({ cwd: workspacePath, baseCommit, resultCommit }), markWorkspaceUntrusted: async () => undefined,
       requestApproval: (request) => {
         if (options.approval) return options.approval({ runId, nodeId: request.nodeId, summary: request.summary });
         const key = `${runId}:${request.nodeId}`;
