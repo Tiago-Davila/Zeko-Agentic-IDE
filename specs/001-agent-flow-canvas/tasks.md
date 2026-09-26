@@ -582,7 +582,7 @@ sobre repositorios temporales (git no es un proveedor de IA).
   tipados con contexto. Con tests. **Archivos**: `packages/git/src/git-cli.ts`,
   `packages/git/test/git-cli.test.ts`. **Cubre**: FR-043. **Base**: R-15, Principio XV.
   **Depende de**: T005
-- [ ] T070 [P] [US1] Información del repositorio: repositorio o no (`NOT_A_GIT_REPO`), `HEAD`
+- [X] T070 [P] [US1] Información del repositorio: repositorio o no (`NOT_A_GIT_REPO`), `HEAD`
   (`NO_COMMITS`), `status --porcelain` (`UNCOMMITTED_CHANGES_EXCLUDED`) y lista de archivos de
   `HEAD` (para `SCOPE_PATH_NOT_FOUND`). Con tests. **Archivos**: `packages/git/src/repo-info.ts`,
   `packages/git/test/repo-info.test.ts`. **Cubre**: FR-002, casos límite. **Base**: plan.md §Flujo
