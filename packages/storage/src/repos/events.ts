@@ -22,8 +22,12 @@ export class EventsRepository {
   }
 
   async flush(): Promise<void> {
-    if (this.#flushing) return this.#flushing;
     if (this.#timer) { clearTimeout(this.#timer); this.#timer = undefined; }
+    if (this.#flushing) {
+      await this.#flushing;
+      if (this.#queue.length) await this.flush();
+      return;
+    }
     if (!this.#queue.length) return;
     const batch = this.#queue.splice(0);
     this.#flushing = (async () => {

@@ -7,6 +7,7 @@ export interface SqliteSlotLeaseOptions {
   now?: () => number;
   isHostAlive?: (pid: number, startedAt: number) => boolean;
   heartbeatIntervalMs?: number;
+  leaseTtlMs?: number;
 }
 
 export class SqliteSlotLeases implements SlotLeasePort {
@@ -15,6 +16,7 @@ export class SqliteSlotLeases implements SlotLeasePort {
   readonly #now: () => number;
   readonly #isHostAlive: (pid: number, startedAt: number) => boolean;
   readonly #heartbeatIntervalMs: number;
+  readonly #leaseTtlMs: number;
   readonly #owned = new Set<string>();
   #timer: ReturnType<typeof setInterval> | undefined;
 
@@ -22,20 +24,20 @@ export class SqliteSlotLeases implements SlotLeasePort {
     this.#hostPid = options.hostPid ?? process.pid;
     this.#hostStartedAt = options.hostStartedAt ?? Date.now() - process.uptime() * 1_000;
     this.#now = options.now ?? Date.now;
-    this.#isHostAlive = options.isHostAlive ?? ((pid) => {
-      try { process.kill(pid, 0); return true; } catch { return false; }
-    });
+    this.#isHostAlive = options.isHostAlive ?? (() => true);
     this.#heartbeatIntervalMs = options.heartbeatIntervalMs ?? 5_000;
+    this.#leaseTtlMs = options.leaseTtlMs ?? 15_000;
     if (this.#heartbeatIntervalMs < 1) throw new RangeError("Heartbeat interval must be positive");
+    if (this.#leaseTtlMs < this.#heartbeatIntervalMs) throw new RangeError("Lease TTL must be at least one heartbeat interval");
   }
 
   async acquire(projectId: string, nodeRunId: string, limit: number): Promise<boolean> {
     if (!Number.isInteger(limit) || limit < 1) throw new RangeError("Slot limit must be positive");
     const now = this.#now();
     const acquired = this.db.transaction(() => {
-      const leases = this.db.prepare("SELECT node_run_id,host_pid,host_started_at FROM slot_leases").all() as Array<{ node_run_id: string; host_pid: number; host_started_at: number }>;
+      const leases = this.db.prepare("SELECT node_run_id,host_pid,host_started_at,heartbeat_at FROM slot_leases").all() as Array<{ node_run_id: string; host_pid: number; host_started_at: number; heartbeat_at: number }>;
       const purge = this.db.prepare("DELETE FROM slot_leases WHERE node_run_id=?");
-      for (const lease of leases) if (!this.#isHostAlive(lease.host_pid, lease.host_started_at)) purge.run(lease.node_run_id);
+      for (const lease of leases) if (!this.#isHostAlive(lease.host_pid, lease.host_started_at) || now - lease.heartbeat_at > this.#leaseTtlMs) purge.run(lease.node_run_id);
       const existing = this.db.prepare("SELECT host_pid,host_started_at FROM slot_leases WHERE project_id=? AND node_run_id=?").get(projectId, nodeRunId) as { host_pid: number; host_started_at: number } | undefined;
       if (existing) return existing.host_pid === this.#hostPid && existing.host_started_at === this.#hostStartedAt;
       const count = this.db.prepare("SELECT COUNT(*) AS count FROM slot_leases WHERE project_id=?").get(projectId) as { count: number };

@@ -24,14 +24,19 @@ export async function recoverInterruptedRuns(options: RecoveryOptions): Promise<
   const workspaces = new WorkspacesRepository(options.db);
   const now = options.now ?? (() => new Date().toISOString());
   const live = options.currentProcesses ?? (async () => getProcessSnapshot());
-  const alive = options.hostIsAlive ?? (async (pid) => (await live()).some((process) => process.pid === pid));
+  const alive = options.hostIsAlive ?? (async (pid, startedAt) => {
+    const identity = (await live()).find((process) => process.pid === pid);
+    if (!identity) return false;
+    return process.platform !== "win32" || identity.creationTime === startedAt;
+  });
   const runIds: string[] = [];
   const terminatedPids: number[] = [];
 
   for (const candidate of options.runs.runningHosts()) {
     if (await alive(candidate.hostPid, candidate.hostStartedAt)) continue;
     const identities = processes.forRun(candidate.runId);
-    for (const identity of identities) {
+    const toTerminate = process.platform === "linux" ? identities.filter((identity) => identity.isRoot) : identities;
+    for (const identity of toTerminate) {
       if (await supervisor.terminateRecovered({ pid: identity.pid, creationTime: identity.creationTime })) terminatedPids.push(identity.pid);
     }
     const at = now();

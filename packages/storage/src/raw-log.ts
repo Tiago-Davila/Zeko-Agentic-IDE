@@ -4,7 +4,9 @@ import type { PersistedEvent } from "@zeko/contracts";
 import type { Redacted } from "./redactor.js";
 
 export class RawLogWriter {
-  constructor(private readonly root = join(process.env["LOCALAPPDATA"] ?? join(process.env["XDG_STATE_HOME"] ?? process.env["HOME"] ?? ".", ".local", "state"), "Zeko", "logs")) {}
+  constructor(private readonly root = process.env["LOCALAPPDATA"]
+    ? join(process.env["LOCALAPPDATA"], "Zeko", "logs")
+    : join(process.env["XDG_STATE_HOME"] ?? join(process.env["HOME"] ?? ".", ".local", "state"), "zeko", "logs")) {}
 
   async append(event: Redacted<PersistedEvent>, nodeId: string, seq?: number): Promise<void> {
     if (!event.attemptId) return;

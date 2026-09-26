@@ -154,7 +154,7 @@ export class ProcessSupervisor {
     snapshot = await this.#snapshot();
     if (!hasIdentity(snapshot, identity)) return false;
     if (this.#platform === "win32") await this.#killByPid(identity.pid, false);
-    else if (this.#platform === "linux") process.kill(identity.pid, "SIGTERM");
+    else if (this.#platform === "linux") await this.#signalProcessGroup(identity.pid, "SIGTERM");
     else throw new Error(`Process termination is not implemented for ${this.#platform}`);
     return true;
   }

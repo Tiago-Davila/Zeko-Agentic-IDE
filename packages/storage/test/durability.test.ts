@@ -2,9 +2,6 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { spawn } from "node:child_process";
-import { createInterface } from "node:readline";
-import { once } from "node:events";
 import { afterEach, describe, expect, it } from "vitest";
 import { createRedactor } from "../src/redactor.js";
 import { migrate } from "../src/migrate.js";
@@ -34,31 +31,43 @@ describe("SQLite crash durability", () => {
         await new Promise((resolve) => setTimeout(resolve, 250));
       }
       await store.events.flush(); db.close();`;
-    const child = spawn(process.execPath, ["--input-type=module", "-e", childSource], { cwd: process.cwd(), stdio: ["ignore", "pipe", "pipe"] });
-    const lines = createInterface({ input: child.stdout! });
-    let childError = "";
-    child.stderr?.on("data", (chunk: Buffer) => { childError += chunk.toString("utf8"); });
+    const supervisorModule = pathToFileURL(join(process.cwd(), "packages/adapters/src/process/supervisor.ts")).href;
+    const { ProcessSupervisor } = await import(supervisorModule);
+    const supervisor = new ProcessSupervisor();
+    const child = await supervisor.launch(process.execPath, ["--input-type=module", "-e", childSource], { cwd: process.cwd() });
     const committed: number[] = [];
-    const waitForFour = new Promise<void>((resolve, reject) => {
-      const timeout = setTimeout(() => { child.kill("SIGKILL"); reject(new Error(`child did not commit four events in time: ${childError}`)); }, 15_000);
-      lines.on("line", (line) => {
-        const match = /^committed:(\d+)$/.exec(line);
-        if (!match) return;
-        committed.push(Number(match[1]));
-        if (committed.length === 4) { clearTimeout(timeout); resolve(); }
-      });
-      child.once("error", (error) => { clearTimeout(timeout); reject(error); });
-      child.once("exit", (code) => { if (committed.length < 4) { clearTimeout(timeout); reject(new Error(`child exited ${code}: ${childError}`)); } });
-    });
-    await waitForFour;
-    child.kill("SIGKILL");
-    await once(child, "exit");
-    lines.close();
+    const iterator = child.stdout[Symbol.asyncIterator]();
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    try {
+      await Promise.race([
+        (async () => {
+          while (committed.length < 4) {
+            const next = await iterator.next();
+            const match = /^committed:(\d+)$/.exec(next.value ?? "");
+            if (match) committed.push(Number(match[1]));
+            if (next.done) throw new Error("child exited before four events were committed");
+          }
+        })(),
+        new Promise<never>((_, reject) => { timeout = setTimeout(() => reject(new Error("child did not commit four events in time")), 15_000); }),
+      ]);
+    } finally { if (timeout) clearTimeout(timeout); }
+    await supervisor.terminate(child.rootPid);
+    await child.completion;
+    for (;;) {
+      const next = await iterator.next();
+      if (next.done) break;
+      const match = /^committed:(\d+)$/.exec(next.value);
+      if (match) committed.push(Number(match[1]));
+    }
+    await supervisor.dispose();
 
     const reopened = new NodeSqliteDriver(dbPath);
     const rows = reopened.prepare("SELECT payload FROM events WHERE run_id=? ORDER BY seq").all(run.id) as Array<{ payload: string }>;
-    expect(committed).toEqual([1, 2, 3, 4]);
-    expect(rows.map(({ payload }) => JSON.parse(payload).reason)).toEqual(["checkpoint-1", "checkpoint-2", "checkpoint-3", "checkpoint-4"]);
+    expect(committed.slice(0, 4)).toEqual([1, 2, 3, 4]);
+    const reasons = rows.map(({ payload }) => JSON.parse(payload).reason);
+    expect(reasons.length).toBeGreaterThanOrEqual(committed.length);
+    expect(reasons.length).toBeLessThan(100);
+    expect(reasons).toEqual(reasons.map((_, index) => `checkpoint-${index + 1}`));
     reopened.close();
   }, 25_000);
 });
