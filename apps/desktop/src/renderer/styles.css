@@ -89,32 +89,139 @@ h1, h2, h3, p { margin-top: 0; }
 .button--node::before { content: "+"; color: var(--teal); font-size: 16px; }
 .button--node:hover { border-color: #9bbfba; background: #f3faf8; }
 .canvas-body { position: relative; flex: 1; min-height: 0; --dock-width: clamp(440px, 54%, 960px); }
-.canvas-body .react-flow { background: #eef3f3; }
-.canvas-body .react-flow__controls { overflow: hidden; border: 1px solid #dce5e7; border-radius: 7px; box-shadow: 0 3px 12px #1935420c; }
-.canvas-body .react-flow__controls-button { width: 29px; height: 29px; background: #fbfcfc; border-color: #e4ebeb; }
-.canvas-body .react-flow__edge-path { stroke: #7a989b; stroke-width: 2; }
-.canvas-body .react-flow__connection-path { stroke: var(--teal); stroke-width: 2; }
-.flow-node { position: relative; width: 224px; min-height: 113px; padding: 13px 15px; background: #fff; border: 1px solid #d7e2e3; border-radius: 9px; box-shadow: 0 5px 18px #19354210; }
-.flow-node--input { border-top: 3px solid #68aa9d; }
-.flow-node--agent { border-top: 3px solid #809cb0; }
-.flow-node--approval { border-top: 3px solid #d2a75f; }
-.flow-node--selected { border-color: #5eaaa0; box-shadow: 0 0 0 3px #70b4a51c, 0 7px 20px #19354213; }
-.flow-node__top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; }
-.flow-node__type { color: #809196; font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
-.flow-node__glyph { display: grid; width: 22px; height: 22px; place-items: center; color: #28685f; background: #e9f4f1; border-radius: 6px; font-size: 14px; }
-.flow-node__glyph--agent { color: #536d86; background: #edf2f6; }
-.flow-node__glyph--approval { color: #9c6a25; background: #faf2e3; }
-.flow-node__name { display: block; margin-bottom: 5px; color: #263f49; font-size: 12px; font-weight: 700; }
-.flow-node__detail { display: block; max-width: 190px; overflow: hidden; color: #8a989c; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
-.node-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 9px; }
-.confinement-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 6px; color: #33745f; background: #edf6f2; border-radius: 10px; font-size: 8px; font-weight: 700; }
-.confinement-badge--write_only { color: #93681f; background: #faf3e4; }
-.confinement-badge--unconfined { color: #a14d43; background: #fbefed; }
-.confinement-badge__dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
-.confinement-reason { width: 100%; overflow: hidden; color: #89979a; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
-.capability-warning { max-width: 100%; padding: 3px 5px; overflow: hidden; color: #8a672f; background: #faf5e9; border-radius: 3px; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
-.flow-handle { width: 9px; height: 9px; background: #fbffff; border: 2px solid #6b9b98; }
-.canvas-hint { position: absolute; bottom: 24px; left: 50%; padding: 9px 13px; color: #819196; background: #f9fbfbdd; border: 1px solid #dce5e7; border-radius: 20px; font-size: 11px; pointer-events: none; transform: translateX(-50%); }
+/*
+ * Canvas: the "graffiti workshop" theme ported from the previous Zeko canvas. Ink surface,
+ * panels raised by luminance and spray accents. Tokens are scoped to the canvas so the
+ * rest of the light app keeps its own palette.
+ */
+.zeko-canvas {
+  --color-ink-950: #0a0b0d;
+  --color-ink-900: #111317;
+  --color-ink-850: #15181e;
+  --color-ink-800: #191c22;
+  --color-ink-700: #242832;
+  --color-ink-600: #333947;
+  --color-ink-500: #4a5263;
+  --color-chalk-50: #f4f6f8;
+  --color-chalk-200: #c7cdd6;
+  --color-chalk-400: #8b94a3;
+  --color-chalk-600: #5c6476;
+  --color-spray-lime: #b6ff3b;
+  --color-spray-magenta: #ff3d87;
+  --color-spray-cyan: #3be8ff;
+  --color-spray-violet: #9b6bff;
+  --color-state-pending: #7c879b;
+  --color-state-running: #3be8ff;
+  --color-state-waiting: #ffb224;
+  --color-state-completed: #b6ff3b;
+  --color-state-failed: #ff5a5f;
+  --color-state-cancelled: #5c6476;
+  --color-state-blocked: #ff8a3d;
+  --canvas-font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --canvas-font-mono: ui-monospace, "JetBrains Mono", "Fira Code", "SF Mono", Menlo, Consolas, monospace;
+  --radius-node: 12px;
+  --radius-panel: 10px;
+  --radius-control: 8px;
+  --shadow-panel: 0 1px 2px rgb(0 0 0 / .4), 0 8px 24px rgb(0 0 0 / .28);
+  --shadow-node: 0 1px 2px rgb(0 0 0 / .5), 0 6px 16px rgb(0 0 0 / .35);
+  background: var(--color-ink-950);
+}
+/* The node dock also sits in this section and keeps the app's light typography. */
+.zeko-canvas .react-flow, .zeko-canvas .canvas-hint, .zeko-canvas .diagnostics-overlay { color: var(--color-chalk-200); font-family: var(--canvas-font-sans); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.zeko-canvas .react-flow svg { display: block; vertical-align: middle; }
+.zeko-canvas .react-flow :focus-visible, .zeko-canvas .diagnostics-overlay :focus-visible { outline: 2px solid var(--color-spray-lime); outline-offset: 2px; }
+
+/* Dot grid and XYFlow chrome aligned to the theme. */
+.zeko-canvas .react-flow {
+  --xy-background-color: var(--color-ink-950);
+  --xy-edge-stroke: var(--color-ink-600);
+  --xy-edge-stroke-width: 1.5;
+  --xy-edge-stroke-selected: var(--color-spray-lime);
+  --xy-connectionline-stroke: var(--color-spray-lime);
+  --xy-handle-background-color: var(--color-ink-600);
+  --xy-handle-border-color: var(--color-ink-900);
+  --xy-selection-background-color: color-mix(in oklab, var(--color-spray-lime) 12%, transparent);
+  --xy-selection-border: 1px dashed var(--color-spray-lime);
+  --xy-minimap-background-color: var(--color-ink-900);
+  --xy-minimap-mask-background-color: rgb(10 11 13 / .72);
+  --xy-attribution-background-color: transparent;
+}
+.zeko-canvas .react-flow__background-pattern.dots { color: var(--color-ink-700); }
+.zeko-canvas .react-flow__attribution { color: var(--color-chalk-600); font-size: 10px; }
+.zeko-canvas .react-flow__attribution a { color: var(--color-chalk-600); }
+/* Custom nodes draw their own box; the wrapper contributes no background or border. */
+.zeko-canvas .react-flow__node { font-family: var(--canvas-font-sans); font-size: 12px; }
+.zeko-canvas .react-flow__edge-text { fill: var(--color-chalk-400); font-size: 10px; }
+.zeko-canvas .react-flow__edge-textbg { fill: var(--color-ink-900); }
+.zeko-canvas__toolbar { position: absolute; z-index: 10; top: 12px; left: 12px; }
+.zeko-canvas__minimap.react-flow__minimap { right: 12px !important; bottom: 12px !important; margin: 0 !important; overflow: hidden; border: 1px solid var(--color-ink-700) !important; border-radius: var(--radius-panel) !important; }
+.zeko-canvas--docked .zeko-canvas__minimap.react-flow__minimap { right: calc(var(--dock-width) + 28px) !important; }
+
+/* Floating toolbar. */
+.canvas-controls { display: flex; align-items: center; gap: 4px; padding: 4px; background: color-mix(in oklab, var(--color-ink-900) 90%, transparent); border: 1px solid var(--color-ink-700); border-radius: var(--radius-control); box-shadow: var(--shadow-panel); backdrop-filter: blur(8px); }
+.canvas-controls__separator { flex-shrink: 0; width: 1px; height: 20px; margin: 0 2px; background: var(--color-ink-700); }
+.canvas-controls__count { padding: 0 6px; color: var(--color-chalk-400); font-size: 11px; }
+.canvas-icon-button { display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center; padding: 0; color: var(--color-chalk-400); background: transparent; border: 0; border-radius: var(--radius-control); transition: color .15s, background-color .15s; }
+.canvas-icon-button:hover { color: var(--color-chalk-50); background: var(--color-ink-800); }
+.canvas-icon-button--active, .canvas-icon-button--active:hover { color: var(--color-spray-lime); background: color-mix(in oklab, var(--color-spray-lime) 15%, transparent); }
+
+/* Node card: accent icon tile on the left, kind, title, mono subtitle and badges. */
+.node-shell { position: relative; display: flex; width: 248px; align-items: stretch; overflow: hidden; background: var(--color-ink-800); border: 1px solid var(--color-ink-700); border-radius: var(--radius-node); box-shadow: var(--shadow-node); transition: border-color .15s; }
+.node-shell:hover { border-color: var(--color-ink-600); }
+.node-shell--warning, .node-shell--warning:hover { border-color: color-mix(in oklab, var(--color-state-waiting) 60%, transparent); }
+.node-shell--error, .node-shell--error:hover { border-color: color-mix(in oklab, var(--color-state-failed) 70%, transparent); }
+.node-shell--selected, .node-shell--selected:hover { border-color: var(--color-spray-lime); box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-spray-lime) 30%, transparent), var(--shadow-node); }
+.node-shell__tile { display: flex; width: 44px; flex-shrink: 0; align-items: center; justify-content: center; border-right: 1px solid; }
+.node-shell__tile--lime { color: var(--color-spray-lime); background: color-mix(in oklab, var(--color-spray-lime) 15%, transparent); border-color: color-mix(in oklab, var(--color-spray-lime) 30%, transparent); }
+.node-shell__tile--cyan { color: var(--color-spray-cyan); background: color-mix(in oklab, var(--color-spray-cyan) 15%, transparent); border-color: color-mix(in oklab, var(--color-spray-cyan) 30%, transparent); }
+.node-shell__tile--violet { color: var(--color-spray-violet); background: color-mix(in oklab, var(--color-spray-violet) 15%, transparent); border-color: color-mix(in oklab, var(--color-spray-violet) 30%, transparent); }
+.node-shell__tile--magenta { color: var(--color-spray-magenta); background: color-mix(in oklab, var(--color-spray-magenta) 15%, transparent); border-color: color-mix(in oklab, var(--color-spray-magenta) 30%, transparent); }
+.node-shell__tile--slate { color: var(--color-chalk-400); background: var(--color-ink-700); border-color: var(--color-ink-600); }
+.node-shell__body { display: flex; min-width: 0; flex: 1; flex-direction: column; justify-content: center; gap: 2px; padding: 8px 10px; }
+.node-shell__kind { color: var(--color-chalk-600); font-size: 10px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+.node-shell__title { overflow: hidden; color: var(--color-chalk-50); font-size: 13px; font-weight: 500; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
+.node-shell__subtitle { overflow: hidden; color: var(--color-chalk-400); font-family: var(--canvas-font-mono); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.node-shell__badges { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: 4px; }
+.node-shell__note { width: 100%; overflow: hidden; color: var(--color-chalk-400); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.node-shell__reason { width: 100%; margin: 2px 0 0; padding: 6px 7px; color: var(--color-chalk-400); background: var(--color-ink-850); border: 1px solid var(--color-ink-700); border-radius: var(--radius-control); font-size: 10px; line-height: 1.5; }
+.node-shell__led { position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; border-radius: 50%; }
+.node-shell__handle.react-flow__handle { width: 8px !important; height: 8px !important; background: var(--color-ink-500) !important; border: 2px solid var(--color-ink-900) !important; border-radius: 50% !important; }
+.config-edge__label { position: absolute; padding: 2px 6px; color: var(--color-chalk-400); background: var(--color-ink-900); border: 1px solid var(--color-ink-700); border-radius: 999px; font-size: 10px; pointer-events: none; }
+
+/* Badge and state pill tones. */
+.canvas-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border: 1px solid; border-radius: 999px; font-size: 11px; line-height: 16px; }
+.canvas-badge--clip { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.canvas-badge__dot { width: 6px; height: 6px; flex-shrink: 0; border-radius: 50%; background: currentColor; }
+.canvas-badge--accent { color: var(--color-spray-lime); background: color-mix(in oklab, var(--color-spray-lime) 10%, transparent); border-color: color-mix(in oklab, var(--color-spray-lime) 40%, transparent); }
+.canvas-badge--warn { color: var(--color-state-waiting); background: color-mix(in oklab, var(--color-state-waiting) 10%, transparent); border-color: color-mix(in oklab, var(--color-state-waiting) 40%, transparent); }
+.canvas-badge--danger { color: var(--color-state-failed); background: color-mix(in oklab, var(--color-state-failed) 10%, transparent); border-color: color-mix(in oklab, var(--color-state-failed) 40%, transparent); }
+.state-pill { --tone: var(--color-state-pending); display: inline-flex; align-items: center; gap: 6px; padding: 0 6px; color: var(--tone); background: color-mix(in oklab, var(--tone) 10%, transparent); border: 1px solid color-mix(in oklab, var(--tone) 50%, transparent); border-radius: 999px; font: 500 10px/16px var(--canvas-font-sans); cursor: pointer; }
+.state-pill--pending, .state-pill--cancelled { border-color: color-mix(in oklab, var(--tone) 40%, transparent); }
+.state-pill__dot { width: 6px; height: 6px; flex-shrink: 0; border-radius: 50%; background: var(--tone); }
+.state-pill__chevron { opacity: .7; }
+.state-pill--running .state-pill__dot, .node-shell__led--running { animation: canvas-pulse 2s cubic-bezier(.4, 0, .6, 1) infinite; }
+.state-pill--pending, .node-shell__led--pending { --tone: var(--color-state-pending); }
+.state-pill--running, .node-shell__led--running { --tone: var(--color-state-running); }
+.state-pill--waiting, .node-shell__led--waiting { --tone: var(--color-state-waiting); }
+.state-pill--completed, .node-shell__led--completed { --tone: var(--color-state-completed); }
+.state-pill--failed, .node-shell__led--failed { --tone: var(--color-state-failed); }
+.state-pill--cancelled, .node-shell__led--cancelled { --tone: var(--color-state-cancelled); }
+.state-pill--blocked, .node-shell__led--blocked { --tone: var(--color-state-blocked); }
+.node-shell__led { background: var(--tone); }
+@keyframes canvas-pulse { 50% { opacity: .5; } }
+@media (prefers-reduced-motion: reduce) { .zeko-canvas *, .zeko-canvas *::before, .zeko-canvas *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
+
+/* Overlays on the canvas surface. */
+.canvas-hint { position: absolute; bottom: 24px; left: 50%; padding: 6px 12px; color: var(--color-chalk-400); background: color-mix(in oklab, var(--color-ink-900) 90%, transparent); border: 1px solid var(--color-ink-700); border-radius: 999px; box-shadow: var(--shadow-panel); font-size: 11px; pointer-events: none; transform: translateX(-50%); }
+.diagnostics-overlay { position: absolute; z-index: 10; top: 12px; right: 12px; width: min(360px, calc(100% - 24px)); max-height: 240px; padding: 12px 14px; overflow: auto; color: var(--color-state-waiting); background: color-mix(in oklab, var(--color-ink-900) 94%, transparent); border: 1px solid color-mix(in oklab, var(--color-state-waiting) 40%, transparent); border-radius: var(--radius-panel); box-shadow: var(--shadow-panel); backdrop-filter: blur(8px); }
+.diagnostics-overlay--error { color: var(--color-state-failed); border-color: color-mix(in oklab, var(--color-state-failed) 40%, transparent); }
+.diagnostics-overlay--shifted { right: calc(var(--dock-width) + 28px); }
+.diagnostics-overlay__heading { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 11px; }
+.diagnostics-overlay__mark { display: grid; width: 18px; height: 18px; place-items: center; color: inherit; background: color-mix(in oklab, currentColor 15%, transparent); border-radius: 50%; font-size: 11px; font-weight: 800; }
+.diagnostics-overlay ul { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.diagnostics-overlay li { display: grid; grid-template-columns: auto 1fr auto; align-items: baseline; gap: 8px; color: var(--color-chalk-200); font-size: 10px; line-height: 1.4; }
+.diagnostics-overlay li button { max-width: 92px; padding: 0; overflow: hidden; color: var(--color-chalk-400); background: none; border: 0; font: inherit; text-align: left; text-decoration: underline; text-overflow: ellipsis; cursor: pointer; }
+.diagnostics-overlay li small { color: var(--color-chalk-600); font-size: 9px; }
 .canvas-message { position: absolute; z-index: 5; top: 94px; left: 50%; display: flex; align-items: center; gap: 15px; max-width: min(540px, calc(100vw - 40px)); padding: 11px 13px; color: #8e4837; background: #fff8ee; border: 1px solid #efd5a8; border-radius: 7px; box-shadow: 0 6px 22px #19354213; font-size: 12px; transform: translateX(-50%); }
 .canvas-message button { padding: 0 3px; color: #90644a; background: transparent; border: 0; cursor: pointer; font-size: 18px; }
 .agent-inspector { position: absolute; z-index: 4; top: 14px; right: 14px; bottom: 14px; display: flex; flex-direction: column; width: 322px; background: #fbfcfc; border: 1px solid #dce5e7; border-radius: 9px; box-shadow: 0 9px 34px #19354219; }
@@ -153,22 +260,6 @@ h1, h2, h3, p { margin-top: 0; }
 .not-applicable { margin-top: 18px; padding: 12px; color: #886d49; background: #faf4e9; border: 1px solid #eee1c8; border-radius: 6px; }
 .not-applicable h3 { margin: 0 0 7px; font-size: 10px; }
 .not-applicable ul { margin: 0; padding-left: 16px; font-size: 10px; line-height: 1.65; }
-.flow-node--invalid { border-color: #c46c5d; }
-.flow-node--warning { border-color: #d4a452; }
-.flow-node__diagnostics { display: flex; align-items: center; gap: 5px; margin-top: 9px; color: #a44f43; font-size: 9px; font-weight: 700; }
-.flow-node--warning .flow-node__diagnostics { color: #9a6a27; }
-.flow-node__diagnostics > span { display: grid; width: 14px; height: 14px; place-items: center; background: #fff0ed; border-radius: 50%; }
-.flow-node--warning .flow-node__diagnostics > span { background: #fbf2e1; }
-.diagnostics-overlay { position: absolute; z-index: 3; right: 14px; bottom: 14px; width: min(360px, calc(100% - 28px)); max-height: 240px; padding: 12px 14px; overflow: auto; color: #79572a; background: #fffaf1; border: 1px solid #ecdfc6; border-radius: 8px; box-shadow: 0 5px 19px #19354212; }
-.diagnostics-overlay--error { color: #8a453b; background: #fff8f6; border-color: #efd4ce; }
-.diagnostics-overlay--shifted { right: calc(var(--dock-width) + 28px); }
-.diagnostics-overlay__heading { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 11px; }
-.diagnostics-overlay__mark { display: grid; width: 18px; height: 18px; place-items: center; color: inherit; background: #f4e8d1; border-radius: 50%; font-size: 11px; font-weight: 800; }
-.diagnostics-overlay--error .diagnostics-overlay__mark { background: #f6e1dc; }
-.diagnostics-overlay ul { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
-.diagnostics-overlay li { display: grid; grid-template-columns: auto 1fr auto; align-items: baseline; gap: 8px; font-size: 10px; line-height: 1.4; }
-.diagnostics-overlay li button { max-width: 92px; padding: 0; overflow: hidden; color: #537079; background: none; border: 0; font: inherit; text-align: left; text-decoration: underline; text-overflow: ellipsis; cursor: pointer; }
-.diagnostics-overlay li small { color: #97886f; font-size: 9px; }
 .dialog-backdrop { position: fixed; z-index: 20; inset: 0; display: grid; place-items: center; padding: 20px; background: #122b35a8; backdrop-filter: blur(3px); }
 .confirm-dialog { width: min(470px, 100%); padding: 27px; background: #fbfcfc; border: 1px solid #dce5e7; border-radius: 11px; box-shadow: 0 18px 55px #10232c40; }
 .dialog-symbol { display: grid; width: 38px; height: 38px; margin-bottom: 20px; place-items: center; color: #9a6a27; background: #faf1df; border-radius: 11px; font-size: 20px; }
@@ -213,17 +304,6 @@ h1, h2, h3, p { margin-top: 0; }
 .approval-files strong, .approval-scope strong { color: #60777d; font: 700 9px "DM Sans", "Segoe UI Variable", sans-serif; }
 .approval-scope { color: #a04f43; }
 .approval-empty { margin: 0; color: #879598; font-size: 11px; }
-.live-node-status { margin-top: 8px; }
-.live-node-status__button { display: inline-flex; align-items: center; gap: 5px; padding: 0; color: #687e83; background: transparent; border: 0; cursor: pointer; font-size: 9px; font-weight: 700; }
-.live-node-status__dot { width: 6px; height: 6px; border-radius: 50%; background: #9aa9aa; }
-.live-node-status--running .live-node-status__dot { background: #248f82; box-shadow: 0 0 0 3px #248f8224; animation: status-pulse 1.4s ease-in-out infinite; }
-.live-node-status--waiting_approval .live-node-status__dot, .live-node-status--blocked .live-node-status__dot { background: #bf862e; }
-.live-node-status--failed .live-node-status__dot, .live-node-status--rejected .live-node-status__dot { background: #b75b4c; }
-.live-node-status--completed .live-node-status__dot, .live-node-status--approved .live-node-status__dot { background: #418b68; }
-.live-node-status__hold { padding: 2px 4px; color: #89652f; background: #faf2e2; border-radius: 3px; font-size: 8px; }
-.live-node-status__chevron { color: #91a0a2; }
-.live-node-status__reason { margin: 6px 0 0; padding: 6px 7px; color: #77888b; background: #f4f7f7; border-radius: 4px; font-size: 9px; line-height: 1.5; }
-@keyframes status-pulse { 50% { box-shadow: 0 0 0 5px #248f8210; } }
 .result-panel { position: relative; z-index: 1; display: flex; flex: 0 0 205px; flex-direction: column; min-height: 130px; max-height: 30vh; background: #fbfcfc; border-top: 1px solid #d5e0e1; }
 .result-panel__header { display: flex; align-items: center; justify-content: space-between; min-height: 43px; padding: 6px 17px; background: #f8fafa; border-bottom: 1px solid #e3ebeb; }
 .result-panel__header .eyebrow { margin: 0 0 2px; font-size: 8px; }

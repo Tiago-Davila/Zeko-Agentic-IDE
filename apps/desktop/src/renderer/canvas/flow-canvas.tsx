@@ -3,11 +3,13 @@ import {
   applyNodeChanges,
   Background,
   BackgroundVariant,
-  Controls,
+  MiniMap,
   ReactFlow,
+  ReactFlowProvider,
   type Connection,
   type Edge as CanvasEdge,
   type EdgeChange,
+  type EdgeTypes,
   type Node as CanvasNode,
   type NodeChange,
 } from "@xyflow/react";
@@ -15,7 +17,11 @@ import "@xyflow/react/dist/style.css";
 import { DEFAULT_MODELS, type AgentNode, type Diagnostic, type Edge, type FlowFile, type FlowNode, type ProjectConfig } from "@zeko/contracts";
 import { ipc, type NodeView } from "../ipc/client.js";
 import { useT } from "../i18n/use-t.js";
-import { AgentCanvasNode, ApprovalCanvasNode, InputCanvasNode, type FlowNodeData } from "./node-types.js";
+import { FlowCanvasNode, type FlowNodeData } from "./node-types.js";
+import { ConfigEdge } from "./config-edge.js";
+import { CanvasToolbar } from "./canvas-toolbar.js";
+import { layoutColumns, layoutPositions } from "./layout.js";
+import { toneOf } from "./state-tone.js";
 import { NodeDock } from "../panels/node-dock.js";
 import { DiagnosticsOverlay } from "./diagnostics-overlay.js";
 import { useRunState } from "../run/run-state-store.js";
@@ -37,7 +43,8 @@ interface FlowCanvasProps {
   onOpenSettings: () => void;
 }
 
-const nodeTypes = { input: InputCanvasNode, agent: AgentCanvasNode, approval: ApprovalCanvasNode };
+const nodeTypes = { input: FlowCanvasNode, agent: FlowCanvasNode, approval: FlowCanvasNode };
+const edgeTypes: EdgeTypes = { config: ConfigEdge };
 
 export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, onStartRun, onOpenHistory, onOpenSettings, dirty, saving, runId, runStatus }: FlowCanvasProps) {
   const t = useT();
@@ -49,19 +56,21 @@ export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, onStartR
   const [diagnostics, setDiagnostics] = useState<Diagnostic[]>([]);
   const [validationReady, setValidationReady] = useState(false);
   const [nodeViews, setNodeViews] = useState<NodeView[]>([]);
+  const [minimapVisible, setMinimapVisible] = useState(true);
   const validationRequestId = useRef(0);
   const selectedNode = flow.nodes.find((node) => node.id === selectedNodeId);
   const nodes = useMemo<CanvasNode<FlowNodeData>[]>(() => flow.nodes.map((node) => ({
     id: node.id,
     type: node.type,
     position: node.position,
+    selected: node.id === selectedNodeId,
     data: { flowNode: node, diagnostics: diagnostics.filter((item) => item.nodeId === node.id), nodeView: nodeViews.find((view) => view.nodeId === node.id) ?? null, liveState: liveStates[node.id] ?? null },
-  })), [diagnostics, flow.nodes, liveStates, nodeViews]);
+  })), [diagnostics, flow.nodes, liveStates, nodeViews, selectedNodeId]);
   const edges = useMemo<CanvasEdge[]>(() => flow.edges.map((edge) => ({
     id: `${edge.from}->${edge.to}`,
     source: edge.from,
     target: edge.to,
-    type: "smoothstep",
+    type: "config",
   })), [flow.edges]);
   const hasErrors = diagnostics.some((diagnostic) => diagnostic.severity === "error");
 
@@ -132,6 +141,13 @@ export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, onStartR
     onChange({ ...flow, edges: flow.edges.filter((edge) => !removed.has(`${edge.from}->${edge.to}`)) });
   }, [flow, onChange]);
 
+  // Lays nodes out in dependency columns; the new positions are saved with the flow.
+  function resetLayout(): void {
+    const columns = layoutColumns(flow.nodes.map((node) => node.id), flow.edges);
+    const positions = layoutPositions(flow.nodes.map((node) => ({ id: node.id, column: columns.get(node.id) ?? 0 })));
+    onChange({ ...flow, nodes: flow.nodes.map((node) => ({ ...node, position: positions[node.id] ?? node.position })) });
+  }
+
   function addNode(type: FlowNode["type"]): void {
     const id = `${type}-${crypto.randomUUID().replaceAll("-", "").slice(0, 16)}`;
     const position = { x: 220 + (flow.nodes.length % 3) * 60, y: 150 + flow.nodes.length * 30 };
@@ -164,13 +180,20 @@ export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, onStartR
       </div>
     </header>
     {message && <div className="canvas-message" role="alert">{message}<button type="button" aria-label={t("common.dismiss")} onClick={() => setMessage(undefined)}>{"×"}</button></div>}
-    <section className="canvas-body" aria-label={t("canvas.flowCanvas")}>
-      <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes} onNodesChange={updateNodes} onEdgesChange={removeEdges} onConnect={(connection) => void connect(connection)}
-        onNodeClick={(_event, node) => setSelectedNodeId(node.id)} onPaneClick={() => setSelectedNodeId(undefined)}
-        fitView minZoom={0.25} maxZoom={1.5} deleteKeyCode={["Backspace", "Delete"]} defaultEdgeOptions={{ type: "smoothstep", animated: false }}>
-        <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="#cbd8d9" />
-        <Controls showInteractive={false} />
-      </ReactFlow>
+    <section className={`canvas-body zeko-canvas${selectedNode?.type === "agent" ? " zeko-canvas--docked" : ""}`} aria-label={t("canvas.flowCanvas")}>
+      <ReactFlowProvider>
+        <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes} edgeTypes={edgeTypes} onNodesChange={updateNodes} onEdgesChange={removeEdges} onConnect={(connection) => void connect(connection)}
+          onNodeClick={(_event, node) => setSelectedNodeId(node.id)} onPaneClick={() => setSelectedNodeId(undefined)}
+          fitView fitViewOptions={{ padding: 0.24 }} minZoom={0.25} maxZoom={2} snapToGrid snapGrid={[16, 16]} panOnScroll selectionOnDrag
+          nodesDraggable nodesConnectable elementsSelectable deleteKeyCode={["Backspace", "Delete"]} defaultEdgeOptions={{ type: "config" }} proOptions={{ hideAttribution: false }}>
+          <Background variant={BackgroundVariant.Dots} gap={20} size={1.5} />
+          {minimapVisible && <MiniMap pannable zoomable ariaLabel={t("canvas.minimap")} maskColor="var(--xy-minimap-mask-background-color)" style={{ width: 168, height: 112 }}
+            nodeColor={(node) => `var(--color-state-${toneOf((node.data as FlowNodeData).liveState?.status)})`} className="zeko-canvas__minimap" />}
+          <div className="zeko-canvas__toolbar">
+            <CanvasToolbar nodeCount={nodes.length} onResetLayout={resetLayout} minimapVisible={minimapVisible} onToggleMinimap={() => setMinimapVisible((visible) => !visible)} />
+          </div>
+        </ReactFlow>
+      </ReactFlowProvider>
       {flow.edges.length === 0 && <div className="canvas-hint">{t("canvas.connectHint")}</div>}
       <DiagnosticsOverlay diagnostics={diagnostics} onFocusNode={setSelectedNodeId} hasInspector={selectedNode?.type === "agent"} />
       {selectedNode?.type === "agent" && <NodeDock projectRoot={projectId} node={selectedNode} defaults={defaults} notApplicable={notApplicable}
