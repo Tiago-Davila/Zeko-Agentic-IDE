@@ -79,7 +79,7 @@ export class PtyManager {
     try { session.process.resize(cols, rows); } catch { /* the process may exit between the check and the resize */ }
   }
 
-  killAll(): void {
+  closeAll(): void {
     for (const [key, session] of this.#byKey) this.#dispose(key, session);
   }
 

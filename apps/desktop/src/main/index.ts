@@ -47,7 +47,7 @@ ipcMain.on("terminal.write", (_event, id: unknown, data: unknown) => {
 ipcMain.on("terminal.resize", (_event, id: unknown, cols: unknown, rows: unknown) => {
   if (typeof id === "string") terminals.resize(id, dimension(cols, 80), dimension(rows, 24));
 });
-app.on("will-quit", () => terminals.killAll());
+app.on("will-quit", () => terminals.closeAll());
 
 ipcMain.handle("dialog.openFolder", async () => {
   const result = await dialog.showOpenDialog({ properties: ["openDirectory"] });

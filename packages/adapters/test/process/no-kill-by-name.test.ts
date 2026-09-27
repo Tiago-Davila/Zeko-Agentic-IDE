@@ -13,6 +13,16 @@ const forbiddenImages = [
   new RegExp(`${["Get", "-", "CimInstance"].join("")}[^\\r\\n]*(?:\\bName\\b|\\bCommandLine\\b)[^\\r\\n]*(?:taskkill|Stop-Process)`, "i"),
 ];
 
+/*
+ * The PTY manager owns interactive terminals through node-pty: IPty.kill() closes the pseudoconsole,
+ * which ends every process attached to it, so it is a session close rather than a per-PID kill
+ * (same exception as eslint.config.js).
+ */
+const allowedTerminationModules = new Set([
+  "packages/adapters/src/process/supervisor.ts",
+  "apps/desktop/src/main/pty-manager.ts",
+]);
+
 describe("process termination safety", () => {
   it("never terminates processes by image name, process name, or command-line pattern", async () => {
     const files = [
@@ -46,7 +56,7 @@ describe("process termination safety", () => {
         || /\bStop-Process\b/i.test(contents)
         || /\b(?:pkill|killall)\b/i.test(contents)
         || /\.kill\s*\(/.test(contents);
-      if (usesTerminationPrimitive && relative(root, file).replaceAll("\\", "/") !== "packages/adapters/src/process/supervisor.ts") {
+      if (usesTerminationPrimitive && !allowedTerminationModules.has(relative(root, file).replaceAll("\\", "/"))) {
         outsideSupervisor.push(relative(root, file));
       }
     }
@@ -59,7 +69,7 @@ async function collectFiles(directory: string): Promise<string[]> {
   const groups = await Promise.all(entries.map(async (entry) => {
     const path = join(directory, entry.name);
     if (entry.isDirectory()) {
-      if (["node_modules", "dist", "coverage"].includes(entry.name)) return [];
+      if (["node_modules", "dist", "out", "coverage"].includes(entry.name)) return [];
       return collectFiles(path);
     }
     return sourceExtensions.has(entry.name.slice(entry.name.lastIndexOf("."))) ? [path] : [];
