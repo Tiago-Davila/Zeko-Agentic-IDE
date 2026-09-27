@@ -16,10 +16,9 @@ import { DEFAULT_MODELS, type AgentNode, type Diagnostic, type Edge, type FlowFi
 import { ipc, type NodeView } from "../ipc/client.js";
 import { useT } from "../i18n/use-t.js";
 import { AgentCanvasNode, ApprovalCanvasNode, InputCanvasNode, type FlowNodeData } from "./node-types.js";
-import { AgentNodePanel } from "../panels/agent-node-panel.js";
+import { NodeDock } from "../panels/node-dock.js";
 import { DiagnosticsOverlay } from "./diagnostics-overlay.js";
 import { useRunState } from "../run/run-state-store.js";
-import { OutputPanel } from "../run/output-panel.js";
 import { NodeResultPanel } from "../run/node-result-panel.js";
 import type { RunStatus } from "@zeko/contracts";
 
@@ -174,11 +173,10 @@ export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, onStartR
       </ReactFlow>
       {flow.edges.length === 0 && <div className="canvas-hint">{t("canvas.connectHint")}</div>}
       <DiagnosticsOverlay diagnostics={diagnostics} onFocusNode={setSelectedNodeId} hasInspector={selectedNode?.type === "agent"} />
-      {selectedNode?.type === "agent" && <AgentNodePanel node={selectedNode} defaults={defaults} notApplicable={notApplicable}
+      {selectedNode?.type === "agent" && <NodeDock projectRoot={projectId} node={selectedNode} defaults={defaults} notApplicable={notApplicable}
         onChange={(node: AgentNode) => onChange({ ...flow, nodes: flow.nodes.map((item) => item.id === node.id ? node : item) })}
         onClose={() => setSelectedNodeId(undefined)} />}
     </section>
     {runId && selectedNodeId && <NodeResultPanel projectId={projectId} runId={runId} nodeId={selectedNodeId} runStatus={runStatus} nodeStatus={liveStates[selectedNodeId]?.status} />}
-    {runId && selectedNodeId && <OutputPanel runId={runId} nodeId={selectedNodeId} />}
   </main>;
 }

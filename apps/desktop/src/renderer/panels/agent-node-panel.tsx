@@ -8,9 +8,11 @@ interface AgentNodePanelProps {
   notApplicable: string[];
   onChange: (node: AgentNode) => void;
   onClose: () => void;
+  /** Rendered inside the node dock, which already provides the title and close button. */
+  embedded?: boolean;
 }
 
-export function AgentNodePanel({ node, defaults, notApplicable, onChange, onClose }: AgentNodePanelProps) {
+export function AgentNodePanel({ node, defaults, notApplicable, onChange, onClose, embedded = false }: AgentNodePanelProps) {
   const t = useT();
   const update = <K extends keyof AgentNode>(key: K, value: AgentNode[K]) => onChange({ ...node, [key]: value });
 
@@ -23,10 +25,10 @@ export function AgentNodePanel({ node, defaults, notApplicable, onChange, onClos
     onChange({ ...node, agent, models });
   }
 
-  return <aside className="agent-inspector" aria-label={t("node.agentSettings")}>
-    <header className="inspector-header"><div><p className="eyebrow">{t("node.inspectorEyebrow")}</p><h2>{node.label || t("canvas.agentNode")}</h2></div>
+  return <aside className={`agent-inspector${embedded ? " agent-inspector--embedded" : ""}`} aria-label={t("node.agentSettings")}>
+    {!embedded && <header className="inspector-header"><div><p className="eyebrow">{t("node.inspectorEyebrow")}</p><h2>{node.label || t("canvas.agentNode")}</h2></div>
       <button className="icon-button" type="button" aria-label={t("common.dismiss")} onClick={onClose}>{"×"}</button>
-    </header>
+    </header>}
     <div className="inspector-scroll">
       <div className="inspector-field">
         <label htmlFor="node-label">{t("node.name")}</label>
