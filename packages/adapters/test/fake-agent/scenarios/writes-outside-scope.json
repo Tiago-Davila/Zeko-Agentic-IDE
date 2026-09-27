@@ -1,0 +1,4 @@
+{
+  "files": [{ "path": "docs/private.md", "content": "outside configured write scope" }],
+  "events": [{ "type": "assistant_text", "ts": "2026-09-25T00:00:00.000Z", "attemptId": "018f0000-0000-7000-8000-000000000108", "text": "Wrote a file that the test flow does not allow." }]
+}

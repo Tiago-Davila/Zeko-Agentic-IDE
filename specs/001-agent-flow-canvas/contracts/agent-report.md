@@ -3,8 +3,8 @@
 **Cubre**: FR-033, FR-034, FR-035, FR-037, FR-038, FR-042, Principio VII (`WorkReport`).
 **Fuente de tipos**: el schema zod `AgentReport` en `packages/contracts`. `WorkReport` es un alias
 exportado (research T-11). El JSON Schema de abajo **se genera** desde zod y es exactamente lo que
-reciben los agentes: `--json-schema` en Claude `[001 §5]`, `[001b §A]`, y el mecanismo de schema
-estricto de Codex `[001c-resumen]`, cuyo flag concreto es P-05.
+reciben los agentes: `--json-schema` en Claude `[001 §5]`, `[001b §A]`, y `--output-schema` en
+Codex, en modo strict `[001c §6]`.
 
 ## JSON Schema entregado al agente
 
@@ -61,8 +61,8 @@ estricto de Codex `[001c-resumen]`, cuyo flag concreto es P-05.
 | Regla | Por qué | Evidencia |
 |---|---|---|
 | `status` admite siempre `BLOCKED` y `FAILED` | Con `enum: ["DONE"]` el modelo reportó DONE sin poder hacer nada. | `[001b §A3]` `enum-only-done` |
-| Listas sin `minItems`/`maxItems`, strings sin `minLength`/`maxLength` | Con cardinalidad mínima el modelo rellenó con `""` y duplicados, y zod lo aceptó. | `[001b §A3]` `impossible-constraints` |
-| Todas las propiedades `required` y `additionalProperties: false` en todos los niveles | Es compatible con el modo estricto de Codex `[001c-resumen]` y con `--json-schema` de Claude `[001 §5]`. Lo opcional se expresa como lista o string vacíos. | |
+| Listas sin `minItems`/`maxItems`, strings sin `minLength`/`maxLength` | Con cardinalidad mínima el modelo rellenó con `""` y duplicados, y zod lo aceptó. En Codex es peor: la decodificación restringida corta o rellena sin error (`summary: "Cre"`). | `[001b §A3]`, `[001c §6]` `impossible-constraints` |
+| Todas las propiedades `required` y `additionalProperties: false` en todos los niveles | Codex lo **exige**: sin esto, la API rechaza el schema y el nodo termina en `turn.failed`, exit 1 `[001c §6]`. También funciona con `--json-schema` de Claude `[001 §5]`. Lo opcional se expresa como lista o string vacíos. | `[001c §6]` `schema-not-strict` |
 | Palabras clave permitidas: `type`, `enum`, `properties`, `required`, `items`, `additionalProperties`, `description` | Es el subconjunto común más chico. Se evitan `oneOf`, `$ref`, `pattern`, `format` y `const`. Un test valida el JSON generado (U-10). | research R-06 |
 | `findings` | Es un campo del Principio VII ("hallazgos"). Puede estar vacío. | research T-11 |
 | Estados en inglés y mayúsculas | Van al agente y a la base. La UI los traduce con el catálogo (NFR-013). | |
@@ -71,7 +71,8 @@ estricto de Codex `[001c-resumen]`, cuyo flag concreto es P-05.
 
 1. El adaptador obtiene el candidato:
    - Claude: `result.structured_output` `[001 §5]`;
-   - Codex: fuente P-05.
+   - Codex: el último `agent_message` del turno (fase final), que con `turn.completed` siempre
+     cumple el schema; los mensajes intermedios son texto libre y no se parsean `[001c §6]`.
 2. Lo valida con zod `AgentReport.strict()`. El resultado es `valid`, `invalid` (con errores) o
    `absent`.
 3. **No hay fallback silencioso**: nunca se extrae `{…}` del texto libre del `result`. `[001b §A2]`

@@ -1,1 +1,22 @@
 .claude
+# Node / pnpm
+node_modules/
+dist/
+build/
+apps/desktop/out/
+coverage/
+*.log
+.env*
+.pnpm-store/
+
+# Tooling
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/
+
+orca/
+
+.gitignore

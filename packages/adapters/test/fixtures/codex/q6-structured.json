@@ -1,0 +1,625 @@
+{
+  "table": [
+    {
+      "case": "done",
+      "runs": 5,
+      "zodOk": 5,
+      "statuses": "DONE,DONE,DONE,DONE,DONE",
+      "exit0": 5
+    },
+    {
+      "case": "blocked-missing-spec",
+      "runs": 2,
+      "zodOk": 2,
+      "statuses": "BLOCKED,BLOCKED",
+      "exit0": 2
+    },
+    {
+      "case": "blocked-permission",
+      "runs": 2,
+      "zodOk": 2,
+      "statuses": "BLOCKED,BLOCKED",
+      "exit0": 2
+    },
+    {
+      "case": "failed-check",
+      "runs": 2,
+      "zodOk": 2,
+      "statuses": "FAILED,FAILED",
+      "exit0": 2
+    },
+    {
+      "case": "failed-bug",
+      "runs": 1,
+      "zodOk": 1,
+      "statuses": "FAILED",
+      "exit0": 1
+    },
+    {
+      "case": "prompt-forbids-json",
+      "runs": 2,
+      "zodOk": 2,
+      "statuses": "DONE,DONE",
+      "exit0": 2
+    },
+    {
+      "case": "schema-not-strict",
+      "runs": 1,
+      "zodOk": 0,
+      "statuses": "-",
+      "exit0": 0
+    },
+    {
+      "case": "enum-only-done",
+      "runs": 1,
+      "zodOk": 1,
+      "statuses": "DONE",
+      "exit0": 1
+    },
+    {
+      "case": "impossible-constraints",
+      "runs": 1,
+      "zodOk": 1,
+      "statuses": "DONE",
+      "exit0": 1
+    }
+  ],
+  "rows": [
+    {
+      "case": "done",
+      "rep": 0,
+      "expect": "DONE",
+      "exit": 0,
+      "turnCompleted": true,
+      "errors": [],
+      "agentMessages": 2,
+      "finalMessage": "{\"status\":\"DONE\",\"summary\":\"Creé saludo.txt con el contenido «hola zeko» y verifiqué que quedó escrito correctamente.\",\"filesChanged\":[\"saludo.txt\"],\"checks\":[\"Leí saludo.txt y confirmé que contiene hola zeko.\"],\"blockers\":[]}",
+      "lastMessageFile": "{\"status\":\"DONE\",\"summary\":\"Creé saludo.txt con el contenido «hola zeko» y verifiqué que quedó escrito correctamente.\",\"filesChanged\":[\"saludo.txt\"],\"checks\":[\"Leí saludo.txt y confirmé que contiene hola zeko.\"],\"blockers\":[]}",
+      "strictJson": true,
+      "zodOk": true,
+      "status": "DONE",
+      "report": {
+        "status": "DONE",
+        "summary": "Creé saludo.txt con el contenido «hola zeko» y verifiqué que quedó escrito correctamente.",
+        "filesChanged": [
+          "saludo.txt"
+        ],
+        "checks": [
+          "Leí saludo.txt y confirmé que contiene hola zeko."
+        ],
+        "blockers": []
+      },
+      "commands": 1,
+      "usage": {
+        "input_tokens": 29005,
+        "cached_input_tokens": 25088,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 161,
+        "reasoning_output_tokens": 0
+      },
+      "wall_ms": 12011
+    },
+    {
+      "case": "done",
+      "rep": 1,
+      "expect": "DONE",
+      "exit": 0,
+      "turnCompleted": true,
+      "errors": [],
+      "agentMessages": 2,
+      "finalMessage": "{\"status\":\"DONE\",\"summary\":\"Creé saludo.txt con el contenido exacto «hola zeko» y verifiqué que se guardó correctamente.\",\"filesChanged\":[\"saludo.txt\"],\"checks\":[\"Leí saludo.txt y confirmé su contenido.\"],\"blockers\":[]}",
+      "lastMessageFile": "{\"status\":\"DONE\",\"summary\":\"Creé saludo.txt con el contenido exacto «hola zeko» y verifiqué que se guardó correctamente.\",\"filesChanged\":[\"saludo.txt\"],\"checks\":[\"Leí saludo.txt y confirmé su contenido.\"],\"blockers\":[]}",
+      "strictJson": true,
+      "zodOk": true,
+      "status": "DONE",
+      "report": {
+        "status": "DONE",
+        "summary": "Creé saludo.txt con el contenido exacto «hola zeko» y verifiqué que se guardó correctamente.",
+        "filesChanged": [
+          "saludo.txt"
+        ],
+        "checks": [
+          "Leí saludo.txt y confirmé su contenido."
+        ],
+        "blockers": []
+      },
+      "commands": 1,
+      "usage": {
+        "input_tokens": 29009,
+        "cached_input_tokens": 14080,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 165,
+        "reasoning_output_tokens": 0
+      },
+      "wall_ms": 12360
+    },
+    {
+      "case": "done",
+      "rep": 2,
+      "expect": "DONE",
+      "exit": 0,
+      "turnCompleted": true,
+      "errors": [],
+      "agentMessages": 2,
+      "finalMessage": "{\"status\":\"DONE\",\"summary\":\"Creé saludo.txt con el contenido «hola zeko» y confirmé que se guardó correctamente.\",\"filesChanged\":[\"saludo.txt\"],\"checks\":[\"Leí saludo.txt y verifiqué que contiene exactamente «hola zeko». \"],\"blockers\":[]}",
+      "lastMessageFile": "{\"status\":\"DONE\",\"summary\":\"Creé saludo.txt con el contenido «hola zeko» y confirmé que se guardó correctamente.\",\"filesChanged\":[\"saludo.txt\"],\"checks\":[\"Leí saludo.txt y verifiqué que contiene exactamente «hola zeko». \"],\"blockers\":[]}",
+      "strictJson": true,
+      "zodOk": true,
+      "status": "DONE",
+      "report": {
+        "status": "DONE",
+        "summary": "Creé saludo.txt con el contenido «hola zeko» y confirmé que se guardó correctamente.",
+        "filesChanged": [
+          "saludo.txt"
+        ],
+        "checks": [
+          "Leí saludo.txt y verifiqué que contiene exactamente «hola zeko». "
+        ],
+        "blockers": []
+      },
+      "commands": 1,
+      "usage": {
+        "input_tokens": 29003,
+        "cached_input_tokens": 25088,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 163,
+        "reasoning_output_tokens": 0
+      },
+      "wall_ms": 11391
+    },
+    {
+      "case": "done",
+      "rep": 3,
+      "expect": "DONE",
+      "exit": 0,
+      "turnCompleted": true,
+      "errors": [],
+      "agentMessages": 2,
+      "finalMessage": "{\"status\":\"DONE\",\"summary\":\"Creé saludo.txt con el contenido solicitado y verifiqué que dice “hola zeko”.\",\"filesChanged\":[\"saludo.txt\"],\"checks\":[\"Leí saludo.txt y confirmé su contenido: hola zeko.\"],\"blockers\":[]}",
+      "lastMessageFile": "{\"status\":\"DONE\",\"summary\":\"Creé saludo.txt con el contenido solicitado y verifiqué que dice “hola zeko”.\",\"filesChanged\":[\"saludo.txt\"],\"checks\":[\"Leí saludo.txt y confirmé su contenido: hola zeko.\"],\"blockers\":[]}",
+      "strictJson": true,
+      "zodOk": true,
+      "status": "DONE",
+      "report": {
+        "status": "DONE",
+        "summary": "Creé saludo.txt con el contenido solicitado y verifiqué que dice “hola zeko”.",
+        "filesChanged": [
+          "saludo.txt"
+        ],
+        "checks": [
+          "Leí saludo.txt y confirmé su contenido: hola zeko."
+        ],
+        "blockers": []
+      },
+      "commands": 1,
+      "usage": {
+        "input_tokens": 29002,
+        "cached_input_tokens": 14080,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 158,
+        "reasoning_output_tokens": 0
+      },
+      "wall_ms": 13265
+    },
+    {
+      "case": "done",
+      "rep": 4,
+      "expect": "DONE",
+      "exit": 0,
+      "turnCompleted": true,
+      "errors": [],
+      "agentMessages": 2,
+      "finalMessage": "{\"status\":\"DONE\",\"summary\":\"Creé saludo.txt con el texto «hola zeko» y verifiqué su contenido.\",\"filesChanged\":[\"saludo.txt\"],\"checks\":[\"Leí saludo.txt y confirmé que contiene «hola zeko».\"] ,\"blockers\":[]}",
+      "lastMessageFile": "{\"status\":\"DONE\",\"summary\":\"Creé saludo.txt con el texto «hola zeko» y verifiqué su contenido.\",\"filesChanged\":[\"saludo.txt\"],\"checks\":[\"Leí saludo.txt y confirmé que contiene «hola zeko».\"] ,\"blockers\":[]}",
+      "strictJson": true,
+      "zodOk": true,
+      "status": "DONE",
+      "report": {
+        "status": "DONE",
+        "summary": "Creé saludo.txt con el texto «hola zeko» y verifiqué su contenido.",
+        "filesChanged": [
+          "saludo.txt"
+        ],
+        "checks": [
+          "Leí saludo.txt y confirmé que contiene «hola zeko»."
+        ],
+        "blockers": []
+      },
+      "commands": 1,
+      "usage": {
+        "input_tokens": 29018,
+        "cached_input_tokens": 14080,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 170,
+        "reasoning_output_tokens": 0
+      },
+      "wall_ms": 11441
+    },
+    {
+      "case": "blocked-missing-spec",
+      "rep": 0,
+      "expect": "BLOCKED",
+      "exit": 0,
+      "turnCompleted": true,
+      "errors": [],
+      "agentMessages": 2,
+      "finalMessage": "{\"status\":\"BLOCKED\",\"summary\":\"No pude implementar la tarea: el directorio solo contiene `.git` y no hay `spec.md` ni archivos del proyecto disponibles.\",\"filesChanged\":[],\"checks\":[\"Revisé el contenido del directorio y busqué `spec.md` y `AGENTS.md`; no encontré ninguno.\"],\"blockers\":[\"Falta `spec.md` y el código del proyecto. Compartí la especificación o los archivos necesarios para continuar.\"]}",
+      "lastMessageFile": "{\"status\":\"BLOCKED\",\"summary\":\"No pude implementar la tarea: el directorio solo contiene `.git` y no hay `spec.md` ni archivos del proyecto disponibles.\",\"filesChanged\":[],\"checks\":[\"Revisé el contenido del directorio y busqué `spec.md` y `AGENTS.md`; no encontré ninguno.\"],\"blockers\":[\"Falta `spec.md` y el código del proyecto. Compartí la especificación o los archivos necesarios para continuar.\"]}",
+      "strictJson": true,
+      "zodOk": true,
+      "status": "BLOCKED",
+      "report": {
+        "status": "BLOCKED",
+        "summary": "No pude implementar la tarea: el directorio solo contiene `.git` y no hay `spec.md` ni archivos del proyecto disponibles.",
+        "filesChanged": [],
+        "checks": [
+          "Revisé el contenido del directorio y busqué `spec.md` y `AGENTS.md`; no encontré ninguno."
+        ],
+        "blockers": [
+          "Falta `spec.md` y el código del proyecto. Compartí la especificación o los archivos necesarios para continuar."
+        ]
+      },
+      "commands": 1,
+      "usage": {
+        "input_tokens": 29072,
+        "cached_input_tokens": 14080,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 223,
+        "reasoning_output_tokens": 0
+      },
+      "wall_ms": 12369
+    },
+    {
+      "case": "blocked-missing-spec",
+      "rep": 1,
+      "expect": "BLOCKED",
+      "exit": 0,
+      "turnCompleted": true,
+      "errors": [],
+      "agentMessages": 2,
+      "finalMessage": "{\"status\":\"BLOCKED\",\"summary\":\"No pude implementar la tarea porque `spec.md` no existe en el directorio indicado.\",\"filesChanged\":[],\"checks\":[\"Revisé el contenido del directorio; solo aparece `.git`.\",\"Intenté leer `spec.md` y confirmé que no está presente.\"],\"blockers\":[\"Falta `spec.md`. Compartilo o indicá dónde encontrarlo para que pueda continuar.\"]}",
+      "lastMessageFile": "{\"status\":\"BLOCKED\",\"summary\":\"No pude implementar la tarea porque `spec.md` no existe en el directorio indicado.\",\"filesChanged\":[],\"checks\":[\"Revisé el contenido del directorio; solo aparece `.git`.\",\"Intenté leer `spec.md` y confirmé que no está presente.\"],\"blockers\":[\"Falta `spec.md`. Compartilo o indicá dónde encontrarlo para que pueda continuar.\"]}",
+      "strictJson": true,
+      "zodOk": true,
+      "status": "BLOCKED",
+      "report": {
+        "status": "BLOCKED",
+        "summary": "No pude implementar la tarea porque `spec.md` no existe en el directorio indicado.",
+        "filesChanged": [],
+        "checks": [
+          "Revisé el contenido del directorio; solo aparece `.git`.",
+          "Intenté leer `spec.md` y confirmé que no está presente."
+        ],
+        "blockers": [
+          "Falta `spec.md`. Compartilo o indicá dónde encontrarlo para que pueda continuar."
+        ]
+      },
+      "commands": 1,
+      "usage": {
+        "input_tokens": 29333,
+        "cached_input_tokens": 25088,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 223,
+        "reasoning_output_tokens": 0
+      },
+      "wall_ms": 13658
+    },
+    {
+      "case": "blocked-permission",
+      "rep": 0,
+      "expect": "BLOCKED",
+      "exit": 0,
+      "turnCompleted": true,
+      "errors": [],
+      "agentMessages": 2,
+      "finalMessage": "{\"status\":\"BLOCKED\",\"summary\":\"No se pudo instalar `left-pad`: npm no encontró una respuesta en caché y el acceso al registry está restringido. No quedó verificado en `node_modules`.\",\"filesChanged\":[],\"checks\":[\"`npm install left-pad` falló con `ENOTCACHED`.\",\"No se pudo verificar que `left-pad` esté en `node_modules`.\"],\"blockers\":[\"El registry de npm no está accesible y no hay una copia en caché.\"]}",
+      "lastMessageFile": "{\"status\":\"BLOCKED\",\"summary\":\"No se pudo instalar `left-pad`: npm no encontró una respuesta en caché y el acceso al registry está restringido. No quedó verificado en `node_modules`.\",\"filesChanged\":[],\"checks\":[\"`npm install left-pad` falló con `ENOTCACHED`.\",\"No se pudo verificar que `left-pad` esté en `node_modules`.\"],\"blockers\":[\"El registry de npm no está accesible y no hay una copia en caché.\"]}",
+      "strictJson": true,
+      "zodOk": true,
+      "status": "BLOCKED",
+      "report": {
+        "status": "BLOCKED",
+        "summary": "No se pudo instalar `left-pad`: npm no encontró una respuesta en caché y el acceso al registry está restringido. No quedó verificado en `node_modules`.",
+        "filesChanged": [],
+        "checks": [
+          "`npm install left-pad` falló con `ENOTCACHED`.",
+          "No se pudo verificar que `left-pad` esté en `node_modules`."
+        ],
+        "blockers": [
+          "El registry de npm no está accesible y no hay una copia en caché."
+        ]
+      },
+      "commands": 1,
+      "usage": {
+        "input_tokens": 28448,
+        "cached_input_tokens": 26112,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 200,
+        "reasoning_output_tokens": 0
+      },
+      "wall_ms": 15860
+    },
+    {
+      "case": "blocked-permission",
+      "rep": 1,
+      "expect": "BLOCKED",
+      "exit": 0,
+      "turnCompleted": true,
+      "errors": [],
+      "agentMessages": 2,
+      "finalMessage": "{\"status\":\"BLOCKED\",\"summary\":\"No se pudo instalar `left-pad`: npm intentó usar solo la caché, y el paquete no estaba disponible allí. No quedó verificado en `node_modules`.\",\"filesChanged\":[],\"checks\":[\"`npm install left-pad` falló con `ENOTCACHED`.\",\"npm tampoco pudo escribir el log en su directorio de caché.\"],\"blockers\":[\"El acceso de red al registro npm no está disponible en este entorno y `left-pad` no está en caché.\"]}",
+      "lastMessageFile": "{\"status\":\"BLOCKED\",\"summary\":\"No se pudo instalar `left-pad`: npm intentó usar solo la caché, y el paquete no estaba disponible allí. No quedó verificado en `node_modules`.\",\"filesChanged\":[],\"checks\":[\"`npm install left-pad` falló con `ENOTCACHED`.\",\"npm tampoco pudo escribir el log en su directorio de caché.\"],\"blockers\":[\"El acceso de red al registro npm no está disponible en este entorno y `left-pad` no está en caché.\"]}",
+      "strictJson": true,
+      "zodOk": true,
+      "status": "BLOCKED",
+      "report": {
+        "status": "BLOCKED",
+        "summary": "No se pudo instalar `left-pad`: npm intentó usar solo la caché, y el paquete no estaba disponible allí. No quedó verificado en `node_modules`.",
+        "filesChanged": [],
+        "checks": [
+          "`npm install left-pad` falló con `ENOTCACHED`.",
+          "npm tampoco pudo escribir el log en su directorio de caché."
+        ],
+        "blockers": [
+          "El acceso de red al registro npm no está disponible en este entorno y `left-pad` no está en caché."
+        ]
+      },
+      "commands": 1,
+      "usage": {
+        "input_tokens": 28512,
+        "cached_input_tokens": 24064,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 269,
+        "reasoning_output_tokens": 0
+      },
+      "wall_ms": 15844
+    },
+    {
+      "case": "failed-check",
+      "rep": 0,
+      "expect": "FAILED",
+      "exit": 0,
+      "turnCompleted": true,
+      "errors": [],
+      "agentMessages": 2,
+      "finalMessage": "{\"status\":\"FAILED\",\"summary\":\"Verifiqué `numeros.txt`: tiene 7 líneas, no las 10 requeridas.\",\"filesChanged\":[],\"checks\":[\"Conteo de líneas: 7; criterio incumplido.\"],\"blockers\":[]}",
+      "lastMessageFile": "{\"status\":\"FAILED\",\"summary\":\"Verifiqué `numeros.txt`: tiene 7 líneas, no las 10 requeridas.\",\"filesChanged\":[],\"checks\":[\"Conteo de líneas: 7; criterio incumplido.\"],\"blockers\":[]}",
+      "strictJson": true,
+      "zodOk": true,
+      "status": "FAILED",
+      "report": {
+        "status": "FAILED",
+        "summary": "Verifiqué `numeros.txt`: tiene 7 líneas, no las 10 requeridas.",
+        "filesChanged": [],
+        "checks": [
+          "Conteo de líneas: 7; criterio incumplido."
+        ],
+        "blockers": []
+      },
+      "commands": 1,
+      "usage": {
+        "input_tokens": 29012,
+        "cached_input_tokens": 25088,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 132,
+        "reasoning_output_tokens": 0
+      },
+      "wall_ms": 10489
+    },
+    {
+      "case": "failed-check",
+      "rep": 1,
+      "expect": "FAILED",
+      "exit": 0,
+      "turnCompleted": true,
+      "errors": [],
+      "agentMessages": 2,
+      "finalMessage": "{\"status\":\"FAILED\",\"summary\":\"`numeros.txt` tiene 7 líneas; el criterio requiere exactamente 10. No modifiqué ningún archivo.\",\"filesChanged\":[],\"checks\":[\"Conté las líneas de numeros.txt: 7.\"],\"blockers\":[]}",
+      "lastMessageFile": "{\"status\":\"FAILED\",\"summary\":\"`numeros.txt` tiene 7 líneas; el criterio requiere exactamente 10. No modifiqué ningún archivo.\",\"filesChanged\":[],\"checks\":[\"Conté las líneas de numeros.txt: 7.\"],\"blockers\":[]}",
+      "strictJson": true,
+      "zodOk": true,
+      "status": "FAILED",
+      "report": {
+        "status": "FAILED",
+        "summary": "`numeros.txt` tiene 7 líneas; el criterio requiere exactamente 10. No modifiqué ningún archivo.",
+        "filesChanged": [],
+        "checks": [
+          "Conté las líneas de numeros.txt: 7."
+        ],
+        "blockers": []
+      },
+      "commands": 1,
+      "usage": {
+        "input_tokens": 29066,
+        "cached_input_tokens": 25088,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 185,
+        "reasoning_output_tokens": 0
+      },
+      "wall_ms": 11780
+    },
+    {
+      "case": "failed-bug",
+      "rep": 0,
+      "expect": "FAILED",
+      "exit": 0,
+      "turnCompleted": true,
+      "errors": [],
+      "agentMessages": 2,
+      "finalMessage": "{\"status\":\"FAILED\",\"summary\":\"Intenté validar config.json sin editarlo, pero no es JSON válido: contiene una coma duplicada después de \\\"localhost\\\". Por eso no pude verificar la clave \\\"database\\\".\",\"filesChanged\":[],\"checks\":[\"La validación con ConvertFrom-Json falló en la línea indicada por el analizador.\"],\"blockers\":[]}",
+      "lastMessageFile": "{\"status\":\"FAILED\",\"summary\":\"Intenté validar config.json sin editarlo, pero no es JSON válido: contiene una coma duplicada después de \\\"localhost\\\". Por eso no pude verificar la clave \\\"database\\\".\",\"filesChanged\":[],\"checks\":[\"La validación con ConvertFrom-Json falló en la línea indicada por el analizador.\"],\"blockers\":[]}",
+      "strictJson": true,
+      "zodOk": true,
+      "status": "FAILED",
+      "report": {
+        "status": "FAILED",
+        "summary": "Intenté validar config.json sin editarlo, pero no es JSON válido: contiene una coma duplicada después de \"localhost\". Por eso no pude verificar la clave \"database\".",
+        "filesChanged": [],
+        "checks": [
+          "La validación con ConvertFrom-Json falló en la línea indicada por el analizador."
+        ],
+        "blockers": []
+      },
+      "commands": 1,
+      "usage": {
+        "input_tokens": 29229,
+        "cached_input_tokens": 25088,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 253,
+        "reasoning_output_tokens": 0
+      },
+      "wall_ms": 13999
+    },
+    {
+      "case": "prompt-forbids-json",
+      "rep": 0,
+      "expect": "?",
+      "exit": 0,
+      "turnCompleted": true,
+      "errors": [],
+      "agentMessages": 1,
+      "finalMessage": "{\"status\":\"DONE\",\"summary\":\"Cuatro.\",\"filesChanged\":[],\"checks\":[],\"blockers\":[]}",
+      "lastMessageFile": "{\"status\":\"DONE\",\"summary\":\"Cuatro.\",\"filesChanged\":[],\"checks\":[],\"blockers\":[]}",
+      "strictJson": true,
+      "zodOk": true,
+      "status": "DONE",
+      "report": {
+        "status": "DONE",
+        "summary": "Cuatro.",
+        "filesChanged": [],
+        "checks": [],
+        "blockers": []
+      },
+      "commands": 0,
+      "usage": {
+        "input_tokens": 14437,
+        "cached_input_tokens": 11008,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 31,
+        "reasoning_output_tokens": 0
+      },
+      "wall_ms": 4599
+    },
+    {
+      "case": "prompt-forbids-json",
+      "rep": 1,
+      "expect": "?",
+      "exit": 0,
+      "turnCompleted": true,
+      "errors": [],
+      "agentMessages": 1,
+      "finalMessage": "{\"status\":\"DONE\",\"summary\":\"Dos más dos es cuatro.\",\"filesChanged\":[],\"checks\":[],\"blockers\":[]}",
+      "lastMessageFile": "{\"status\":\"DONE\",\"summary\":\"Dos más dos es cuatro.\",\"filesChanged\":[],\"checks\":[],\"blockers\":[]}",
+      "strictJson": true,
+      "zodOk": true,
+      "status": "DONE",
+      "report": {
+        "status": "DONE",
+        "summary": "Dos más dos es cuatro.",
+        "filesChanged": [],
+        "checks": [],
+        "blockers": []
+      },
+      "commands": 0,
+      "usage": {
+        "input_tokens": 14437,
+        "cached_input_tokens": 11008,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 34,
+        "reasoning_output_tokens": 0
+      },
+      "wall_ms": 5251
+    },
+    {
+      "case": "schema-not-strict",
+      "rep": 0,
+      "expect": "?",
+      "exit": 1,
+      "turnCompleted": false,
+      "turnFailed": {
+        "message": "{\n  \"type\": \"error\",\n  \"error\": {\n    \"type\": \"invalid_request_error\",\n    \"code\": \"invalid_json_schema\",\n    \"message\": \"Invalid schema for response_format 'codex_output_schema': In context=(), 'additionalProperties' is required to be supplied and to be false.\",\n    \"param\": \"text.format.schema\"\n  },\n  \"status\": 400\n}"
+      },
+      "errors": [
+        "{\n  \"type\": \"error\",\n  \"error\": {\n    \"type\": \"invalid_request_error\",\n    \"code\": \"invalid_json_schema\",\n    \"message\": \"Invalid schema for response_format 'codex_output_schema': In context=(), 'additionalProperties' is required to be supplied and to be false.\",\n    \"param\": \"text.format.schema\"\n  },\n  \"status\": 400\n}"
+      ],
+      "agentMessages": 0,
+      "finalMessage": "",
+      "lastMessageFile": null,
+      "strictJson": false,
+      "zodOk": false,
+      "zodErr": "sin mensaje final",
+      "commands": 0,
+      "wall_ms": 2869
+    },
+    {
+      "case": "enum-only-done",
+      "rep": 0,
+      "expect": "?",
+      "exit": 0,
+      "turnCompleted": true,
+      "errors": [],
+      "agentMessages": 2,
+      "finalMessage": "{\"status\":\"DONE\",\"summary\":\"No encontré `spec.md` en el directorio de trabajo, así que no había una especificación que implementar.\",\"filesChanged\":[],\"checks\":[\"Comprobé que `spec.md` no existe en el directorio actual.\"],\"blockers\":[]}",
+      "lastMessageFile": "{\"status\":\"DONE\",\"summary\":\"No encontré `spec.md` en el directorio de trabajo, así que no había una especificación que implementar.\",\"filesChanged\":[],\"checks\":[\"Comprobé que `spec.md` no existe en el directorio actual.\"],\"blockers\":[]}",
+      "strictJson": true,
+      "zodOk": true,
+      "status": "DONE",
+      "report": {
+        "status": "DONE",
+        "summary": "No encontré `spec.md` en el directorio de trabajo, así que no había una especificación que implementar.",
+        "filesChanged": [],
+        "checks": [
+          "Comprobé que `spec.md` no existe en el directorio actual."
+        ],
+        "blockers": []
+      },
+      "commands": 1,
+      "usage": {
+        "input_tokens": 29156,
+        "cached_input_tokens": 14080,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 137,
+        "reasoning_output_tokens": 0
+      },
+      "wall_ms": 9268
+    },
+    {
+      "case": "impossible-constraints",
+      "rep": 0,
+      "expect": "?",
+      "exit": 0,
+      "turnCompleted": true,
+      "errors": [],
+      "agentMessages": 2,
+      "finalMessage": "{\"status\":\"DONE\",\"summary\":\"Cre\" ,\"filesChanged\":[\"saludo.txt copiar completar?\",\"saludo.txt\",\"saludo.txt ok?\",\"saludo.txt — hola zeko\",\"saludo.txt\"],\"checks\":[\"El contenido de saludo.txt es “hola zeko”.\"],\"blockers\":[]}",
+      "lastMessageFile": "{\"status\":\"DONE\",\"summary\":\"Cre\" ,\"filesChanged\":[\"saludo.txt copiar completar?\",\"saludo.txt\",\"saludo.txt ok?\",\"saludo.txt — hola zeko\",\"saludo.txt\"],\"checks\":[\"El contenido de saludo.txt es “hola zeko”.\"],\"blockers\":[]}",
+      "strictJson": true,
+      "zodOk": true,
+      "status": "DONE",
+      "report": {
+        "status": "DONE",
+        "summary": "Cre",
+        "filesChanged": [
+          "saludo.txt copiar completar?",
+          "saludo.txt",
+          "saludo.txt ok?",
+          "saludo.txt — hola zeko",
+          "saludo.txt"
+        ],
+        "checks": [
+          "El contenido de saludo.txt es “hola zeko”."
+        ],
+        "blockers": []
+      },
+      "commands": 1,
+      "usage": {
+        "input_tokens": 29013,
+        "cached_input_tokens": 25088,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 162,
+        "reasoning_output_tokens": 0
+      },
+      "wall_ms": 9336
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+{"type":"turn_context","payload":{"type":"turn_context","model":"gpt-5.4-mini","effort":"low"}}
+{"type":"token_count","payload":{"type":"token_count","rate_limits":{"primary":{"used_percent":42,"resets_at":"2026-09-26T18:00:00Z"},"secondary":{"used_percent":12}}}}
+{"type":"task_complete","payload":{"type":"task_complete","duration_ms":1234}}
+{"type":"patch_rejected","payload":{"type":"patch_rejected","reason":"blocked"}}

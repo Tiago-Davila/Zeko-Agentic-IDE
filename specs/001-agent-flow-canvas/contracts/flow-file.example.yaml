@@ -1,6 +1,7 @@
 # .zeko/flows/implement-and-review.flow.yaml
 # Flujo de ejemplo del contrato. Es válido: un solo nodo de entrada, sin ciclos, y cada nodo de
-# agente tiene como máximo una fuente de código (research R-22).
+# agente tiene como máximo una fuente de código (research R-22). "review" parte de los cambios de
+# "implement" porque el linaje pasa a través de la aprobación "gate".
 schemaVersion: 1
 id: implement-and-review
 name: Implement and review
@@ -17,6 +18,8 @@ nodes:
     label: Implement validation
     position: { x: 280, y: 60 }
     agent: claude-code
+    models:                     # explícito; el motor nunca hereda el default del agente (R-27)
+      claude-code: { model: sonnet }
     instructions: |
       Implement the objective. Keep changes inside the signup module.
       Run no commands; the terminal is disabled for this node.
@@ -39,6 +42,8 @@ nodes:
     label: Update docs
     position: { x: 280, y: 220 }
     agent: claude-code
+    models:
+      claude-code: { model: sonnet }
     instructions: |
       Document the new validation rule in the user guide.
     acceptanceCriteria:
@@ -63,6 +68,9 @@ nodes:
     label: Independent review
     position: { x: 820, y: 60 }
     agent: codex
+    models:
+      claude-code: { model: sonnet }  # se conserva si el nodo usó Claude antes (FR-015)
+      codex: { model: gpt-6-luna, reasoningEffort: low }
     instructions: |
       Review the changes made by the implementation node. Report problems as blockers
       if acceptance criteria are not met. Do not modify files.

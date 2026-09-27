@@ -11,14 +11,13 @@ requisitos que cubre. Usa estas etiquetas de evidencia:
 | `[001b §X]` | Verificado en `spikes/001b-claude-edges/FINDINGS.md`, sección X. |
 | `[sample: ruta]` | Evidencia cruda en `spikes/*/samples/`. |
 | `[spec-clar]` | Aclaración registrada en `spec.md` (sesión 2026-09-23, revisión tras el spike de Codex). |
-| `[001c-resumen]` | Decisión de diseño 5 del pedido de planificación, que resume el spike 001c. **El archivo `spikes/001c-*/FINDINGS.md` no está en el repositorio ni en ninguna rama** (verificado el 2026-09-23 con `git log --all`). El comportamiento se toma como decidido, pero ningún flag, ruta, variable ni patrón concreto de Codex se puede citar. Esos datos quedan como `[PENDIENTE-001c]`. |
+| `[001c §N]` | Verificado en `spikes/001c-codex/FINDINGS.md`, sección N (Windows 11, `codex-cli 0.155.1`, cuenta de ChatGPT; dos pasadas completas, 2026-09-23 y 2026-09-24). |
 | `[NO VERIFICADO]` | Supuesto que ningún spike verificó. Está listado en la §U con cómo verificarlo. |
 | `[git]` | Comportamiento documentado y estándar de la CLI de git. No es comportamiento de un agente. |
 
-> **Bloqueante para `/speckit-tasks`**: hay que incorporar al repositorio
-> `spikes/001c-codex/FINDINGS.md` y sus `samples/`, o el nombre real que tenga ese spike. Sin ellos,
-> el adaptador de Codex no se puede especificar a nivel de flags ni probar contra eventos reales,
-> como exige el Principio XVI. Ver §P.
+> El spike 001c está incorporado al repositorio (`spikes/001c-codex/`, con `samples/`). Los datos
+> que antes figuraban como pendientes (§P) quedan resueltos con citas `[001c §N]`. Lo que 001c
+> dejó abierto está en §U.
 
 ---
 
@@ -52,6 +51,8 @@ requisitos que cubre. Usa estas etiquetas de evidencia:
 | R-24 | Textos visibles desde un catálogo único | NFR-013 |
 | R-25 | IPC y performance de la UI | NFR-002, NFR-003, FR-028, FR-029 |
 | R-26 | Estrategia de tests con agentes simulados | Principio XVI, SC-003, SC-005, SC-006 |
+| R-27 | Modelo fijado de forma explícita en cada nodo, nunca heredado del agente | FR-011, FR-011a, FR-015, FR-016, SC-007 |
+| R-28 | Redacción de claves de API y datos personales antes de persistir | NFR-007, FR-063, FR-065 |
 
 ---
 
@@ -206,7 +207,12 @@ cumple FR-016: un agente nuevo no cambia las reglas.
 - `[001b §A]` proponía "FAILED (inconsistent)" para `DONE` con bloqueos. FR-036.6 dice
   **"bloqueado"** mostrando la inconsistencia.
 - `[001b §A]` proponía fallar si `filesChanged ⊄ git`. FR-037 dice **mostrar la discrepancia**, sin
-  cambiar el estado.
+  cambiar el estado. La excepción son los archivos observados **fuera del alcance de rutas**: por
+  la clarificación del 2026-09-24 dejan el nodo "bloqueado" (FR-036.4, FR-037), con cualquier
+  agente. Es una observación de git, no una declaración del agente, así que no depende de
+  `reportsDenials`.
+- Las **denegaciones inferidas** (agentes que no informan denegaciones, como Codex) se muestran
+  marcadas como "inferidas" y **no** activan la regla 4 (FR-023).
 - `[001b §A]` proponía nunca parsear `result` como fallback. Se adopta: un reporte ausente o
   inválido dispara el pedido adicional (FR-038) y **nunca** se extrae JSON de texto libre.
 
@@ -231,9 +237,13 @@ la UI ("not available").
   - Solo se usan `type`, `enum`, `properties`, `required`, `items` y `additionalProperties`; no hay
     `minLength`, `maxItems`, `pattern`, `format`, `oneOf` ni `$ref`.
   - `[001 §5]`, `[001b §A]` verificaron `--json-schema` de Claude con un schema de esta forma.
-  - Que Codex acepte exactamente este subconjunto viene de `[001c-resumen]`. Las restricciones
-    precisas de su modo estricto son `[PENDIENTE-001c]`: se mantiene el subconjunto mínimo para no
-    depender de ellas.
+  - Codex lo recibe con `--output-schema <archivo>` y exige el modo "strict" de OpenAI: sin
+    `additionalProperties: false` y todas las propiedades en `required`, la API lo rechaza
+    (`invalid_json_schema`) y el nodo termina en `turn.failed`, exit 1 `[001c §6]`. Un test del
+    build verifica esa forma antes de que llegue a un agente.
+  - En Codex es decodificación restringida: `minLength`, `maxLength` o `minItems` no dan error,
+    **cortan o rellenan** para cumplirse (`summary: "Cre"`, nombres de campo usados como archivos)
+    `[001c §6]`. Es un motivo más para no usarlos.
 - **Campo `findings`**: no está en FR-033, pero sí en el Principio VII ("hallazgos"). Se agrega
   como lista que puede estar vacía. Así se cumple la constitución sin contradecir la spec, que fija
   mínimos y no prohíbe campos extra, y sin inducir relleno.
@@ -268,9 +278,9 @@ cambió el modo de un archivo o solo sus finales de línea, figura como cambiado
 **Decisión**: el adaptador lanza `claude` como binario nativo, sin shell. El `cwd` es el worktree
 del nodo. Siempre pasa:
 
-`-p --output-format stream-json --verbose --input-format stream-json --strict-mcp-config --restricted --json-schema <schema> --max-turns <n>`
+`-p --output-format stream-json --verbose --input-format stream-json --strict-mcp-config --restricted --model <modelo del nodo> --json-schema <schema> --max-turns <n>`
 
-y agrega los flags de permisos de R-10.
+y agrega los flags de permisos de R-10. `--model` va siempre (R-27).
 
 | Elemento | Evidencia |
 |---|---|
@@ -281,6 +291,7 @@ y agrega los flags de permisos de R-10.
 | `--restricted`: confina las herramientas de archivos, ignora la config del usuario y del proyecto, rechaza bypass | `[001b §B1]` |
 | `--json-schema`: salida estructurada validada por el CLI | `[001 §5]`, `[001b §A]` |
 | `--max-turns` | `[001b §A2]` |
+| `--model`: sin él se hereda el modelo por defecto del usuario | `[001 §1]`, R-27 |
 | 15 procesos concurrentes sin problemas (relevante para el límite de 8) | `[001 §5]` |
 
 **Qué no se usa**:
@@ -289,8 +300,6 @@ y agrega los flags de permisos de R-10.
   cualquier evento, porque todos lo traen `[001 §2]`.
 - `--include-partial-messages`: la salida en vivo por mensaje `assistant` alcanza para FR-029, y los
   deltas triplican el volumen de eventos (NFR-002).
-- `--model`: FR-011 no incluye selección de modelo, así que no se pasa y se hereda el modelo por
-  defecto del usuario `[001 §1]`. Queda en backlog (Principio I).
 - `--max-budget-usd`: `[001 §3]` muestra que se controla **después** de gastar, así que no es un
   límite duro. Además la spec no define límite de gasto.
 
@@ -372,8 +381,10 @@ configuración del nodo y de la plataforma:
      - (b) para un alcance parcial, genera las reglas con especificador **solo si U-02 las
        confirma**;
      - (c) en todos los casos, el motor **detecta después** las escrituras fuera de alcance
-       comparando `observedFiles` con `writeScope`, y lo registra como `scopeViolations`. Eso es
-       detección, no prevención (ver §T-04).
+       comparando `observedFiles` con `writeScope`, y las registra como `scopeViolations`. Si hay
+       alguna, el nodo queda `blocked` con `WRITE_OUTSIDE_SCOPE` y la lista visible (FR-036.4,
+       FR-037). Es detección, no prevención: el nodo muestra `SCOPE_ENFORCEMENT_DETECTION_ONLY`
+       (ver §T-04). Lo mismo aplica a Codex, que no tiene alcance parcial nativo.
 3. **El modelo a veces se niega solo, sin llamar a la herramienta** `[001b §B1]`. Por eso los tests
    de confinamiento verifican el filesystem y nunca la respuesta del agente (R-26).
 
@@ -383,11 +394,14 @@ configuración del nodo y de la plataforma:
   la llamada a `StructuredOutput` `[001b §A2]`, que recomienda reservar 1 o 2. Al superarlo, el
   resultado es `error_max_turns` y el nodo queda `turn_limit` → "fallido" (FR-036.2). La UI muestra
   el límite configurado y aclara que incluye la reserva para el reporte. Codex no admite límite de
-  turnos `[spec-clar]`, así que el campo se muestra como no aplicable (FR-011, FR-032).
+  turnos `[spec-clar]`: `exec` no tiene `--max-turns` (exit 2) y la feature `rollout_budget` se
+  ignora `[001c §4]`. El campo se muestra como no aplicable (FR-011, FR-032).
 - **Tiempo (FR-032, NFR-008)**: lo aplica el motor, igual para todos los agentes. Es un
   temporizador por intento; al vencer, `adapter.cancel('timeout')`. Si el `ProcessOutcome` es
   `killed{by:'timeout'}`, el nodo queda "fallido" (FR-036.2), no "cancelado". El schema del archivo
   de flujo exige un valor finito entre 1 y 1440 minutos, así que no existe "sin límite".
+  Codex no tiene `--timeout` `[001c §4]`. Su latencia varió de 10–13 s a 37–52 s por nodo trivial
+  entre dos pasadas `[001c §12]`, así que los tiempos por defecto dejan margen amplio.
 - **Presupuesto**: no se usa `--max-budget-usd` (R-08). La spec no define límite de gasto.
 
 ## R-12 · Cancelación de Claude Code en dos fases
@@ -395,7 +409,8 @@ configuración del nodo y de la plataforma:
 **Decisión**:
 
 1. Fase 1: `control_request {subtype:"interrupt"}` por stdin. Se espera el `result` hasta 5 s.
-2. Fase 2: si no llega, se mata el árbol completo con `taskkill /PID <pid-raíz> /T /F` en Windows.
+2. Fase 2: si no llega, se mata el árbol completo con el supervisor (R-14), que usa
+   `taskkill /PID <pid-raíz> /T /F` en Windows solo si la raíz sigue viva con su `creationTime`.
    Después se verifica con el supervisor (R-14) que no quede ningún proceso del árbol registrado.
 
 **Evidencia** `[001 §7]`, `[sample: 001/q7-cancel.json]`:
@@ -419,35 +434,61 @@ una recomendación de `[001 §7]`, pero **no se verificó en Linux** (U-06).
 
 ## R-13 · Adaptador de Codex
 
-> Todo lo de esta sección viene de `[001c-resumen]` y `[spec-clar]`. **Ningún flag, clave de
-> configuración, variable de entorno, ruta ni patrón de stderr está verificado en un documento del
-> repositorio.** Los valores concretos quedan como `[PENDIENTE-001c]` y **no se inventan**.
+**Decisión**: el adaptador lanza el binario nativo `codex.exe`, sin shell, con `cwd` en el worktree
+del nodo:
 
-| Aspecto | Decisión | Respaldo | Concreto pendiente |
-|---|---|---|---|
-| Qué binario se lanza | El **binario real** de Codex, nunca el shim de npm. El adaptador resuelve la ruta del ejecutable nativo; si solo encuentra el shim, falla la verificación previa. | `[001c-resumen]`: matar el shim no cancela la tarea. | P-01: cómo resolver la ruta del binario real en Windows y Linux. |
-| Terminal | Siempre habilitada; no hay modo sin terminal. | `[spec-clar]` (FR-017) | — |
-| Confinamiento | `write_only`: no escribe fuera del worktree y puede leer fuera. | `[spec-clar]` (FR-019, FR-020) | P-02: flags o config del sandbox de Windows que se fijan de forma explícita. |
-| Rechazos del sandbox | Se detectan en **stderr**, porque terminan con exit 0. Se emiten como evento `sandbox_rejection` (se persisten y se muestran; FR-063). **No** activan la regla 4: Codex no informa denegaciones `[spec-clar]` y la detección es heurística. Ver §T-06. | `[001c-resumen]` | P-03: patrón de stderr. |
-| Config del usuario | Se ignora la config del usuario y se **deshabilitan explícitamente los conectores de la cuenta**. | `[001c-resumen]` | P-04: flags o claves para ignorar la config y deshabilitar los conectores. |
-| Red en Windows | Sin red; se muestra antes, durante y después (FR-066). | `[spec-clar]` | Viene de P-02. |
-| Lista de comandos | No aplica. | `[spec-clar]` (FR-018) | — |
-| Denegaciones | No se informan: `denials: undefined` y el nodo muestra "Denied-action check not available". | `[spec-clar]` (FR-023) | — |
-| Límite de turnos | No aplica; solo tiempo y reintentos. | `[spec-clar]` (FR-032) | — |
-| Cancelación | Sin interrupt ordenado: **se mata el árbol completo de forma forzada** con el supervisor (R-14) y el nodo queda "cancelado" sin esperar reporte. | `[spec-clar]` (FR-030) | — |
-| Salida estructurada | El schema de R-06 se pasa por el mecanismo de schema estricto de Codex, y se valida igual con zod. | `[001c-resumen]` | P-05: flag del schema de salida y dónde llega el resultado (evento o archivo). |
-| Eventos | Se normalizan a los mismos `NormalizedEvent`. | `[001c-resumen]` | P-06: mapeo de eventos JSON de Codex (se necesitan samples). |
-| Autenticación | Se detecta la forma **real**, teniendo en cuenta las variables de entorno y no solo el estado de login. Cuenta ChatGPT = `subscription`; clave de API = `api_key` marcada "unverified" (FR-065). La verificación previa informa la forma efectiva por nodo. | `[001c-resumen]`, `[spec-clar]` | P-07: variables de entorno y precedencia frente al login. |
-| Uso de la suscripción | Se lee de la **fuente donde el spike lo encontró, no de los eventos**. Se actualiza al terminar cada nodo de Codex y antes de lanzar uno; la UI lo marca como "not live" (FR-052). | `[001c-resumen]`, `[spec-clar]` | P-08: fuente y formato. |
-| Costo y consumo | Consumo (tokens) sí; costo en dinero **ausente** con cualquier forma de autenticación (FR-050). | `[spec-clar]` | P-06 (campos de uso en los eventos). |
-| Fallos del lanzador del sandbox | Se clasifican como `infra_failure`. Tienen su propia política de reintento (R-18) y **no consumen** los reintentos del nodo. | `[001c-resumen]` | P-09: firma del fallo (código, stderr). |
-| Reanudar para pedir el reporte | Si falta el reporte, se reanuda la sesión (fork) para pedirlo una vez (FR-038). | Decisión 8 del pedido | P-10: si Codex permite reanudar o hacer fork, y cómo. Si no lo permite, FR-038 se cumple con un **segundo lanzamiento** en el mismo worktree con un prompt que solo pide el reporte (ver U-08). |
+`codex.exe exec --json --ignore-user-config --ignore-rules -m <modelo> -c model_reasoning_effort="<esfuerzo>" -c windows.sandbox="<elevated|unelevated>" -s workspace-write -c sandbox_workspace_write.exclude_tmpdir_env_var=true -c sandbox_workspace_write.exclude_slash_tmp=true --output-schema <schema.json> --disable apps --disable plugins --disable image_generation --disable multi_agent --disable goals --disable browser_use --disable computer_use -c web_search="disabled" -`
+
+El prompt va por stdin y stdin se cierra después de escribirlo. El entorno del proceso **no hereda**
+`CODEX_API_KEY`, `OPENAI_API_KEY` ni `CODEX_HOME` `[001c §2, §10]`.
+
+| Aspecto | Decisión | Evidencia |
+|---|---|---|
+| Qué binario se lanza | `codex.exe` nativo, que npm instala en `…/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/bin/`. Nunca el shim `codex.cmd`: matar el shim deja vivos a `node` y `codex.exe`, que **completan la tarea** y emiten `turn.completed`. Si solo se encuentra el shim, falla la verificación previa. La ruta en Linux no está verificada (U-06). | `[001c §9]` |
+| Terminal | Siempre habilitada; no hay modo sin terminal. Sin shell, Codex no tiene herramienta para leer archivos. | `[spec-clar]` (FR-017), `[001c §7]` |
+| Confinamiento | `write_only` con `-s workspace-write` y `windows.sandbox` fijado. El SO deniega la escritura fuera del worktree **incluida la shell**: rutas absolutas, `..`, junctions, un script del proyecto que escribe fuera y `apply_patch`. La lectura **no** está confinada (todo el disco). `%TEMP%` es escribible por defecto, por eso van los dos `exclude_*`. `danger-full-access` nunca se usa (FR-019). | `[001c §8]` |
+| `windows.sandbox` | **Obligatorio.** Con `--ignore-user-config` y sin él, Codex rechaza toda la shell y el turno termina con exit 0 y `turn.completed`, sin ningún ítem en el stream. Se usa `elevated` si `detect()` encuentra el setup hecho (servicio `codex-windows-sandbox-service`, usuario `CodexSandboxOffline`); si no, `unelevated`. Los dos confinan la escritura igual. | `[001c §4]` trampa 1, `[001c §8]` |
+| Red en Windows | Bloqueada. `sandbox_workspace_write.network_access=true` no tiene efecto, así que no se puede habilitar sin `danger-full-access`. El nodo lo muestra antes, durante y después (FR-066). | `[001c §8]` |
+| Config del usuario | `--ignore-user-config` (sin hooks, MCP, plugins ni modelo del usuario) y `--ignore-rules`. `--ignore-user-config` **no** quita los conectores de la cuenta de ChatGPT (`mcp__codex_apps__*`: deploy de sitios, variables de entorno de la cuenta) ni la web: por eso van los `--disable` y `web_search="disabled"`. Las skills del sistema se inyectan igual (unos 14k tokens de base) y no se pueden quitar. | `[001c §1, §7, §10]` |
+| `AGENTS.md` | Codex carga los `AGENTS.md` desde la raíz git hasta el `cwd`. En un worktree fuera del repo solo ve los versionados dentro del propio worktree; `.codex/config.toml` del proyecto no se carga. Se mantiene: es política del proyecto (Principio X), igual que `CLAUDE.md` mientras U-07 siga abierto. | `[001c §10]` |
+| Commits del agente | Imposibles en el worktree: el gitdir queda fuera de las raíces escribibles. Es coherente con R-15 (commitea el motor); el `TaskAssignment` no pide commits. | `[001c §10]` |
+| Rechazos del sandbox | Tres formas, ninguna tipada: (a) `command_execution` con `status: failed` y "Acceso denegado"/"Access is denied" en `aggregated_output`; (b) **sin ítem en el stream**, solo stderr `ERROR codex_core::tools::router: … Rejected(…)` / `blocked by policy`; (c) `patch rejected: writing outside of the project`. Se emiten como `inferred_denial` (FR-063), se muestran en el nodo marcadas como "inferidas" y **no** activan la regla 4 (FR-023, T-06). Antes se descarta el error 267, que Codex también informa como `Rejected(…)` (R-18). | `[001c §3, §8]` |
+| Lista de comandos | No aplica. En `exec` la approval es siempre `never` (`on-request` se ignora); execpolicy no se probó. | `[spec-clar]` (FR-018), `[001c §8]` |
+| Denegaciones | `denials: undefined`; el nodo muestra "Denied-action check not available" y, aparte, la lista de `inferredDenials`. | `[spec-clar]`, clarificación 2026-09-24 (FR-023) |
+| Límite de turnos | No aplica; solo tiempo y reintentos (R-11). | `[spec-clar]`, `[001c §4]` |
+| Cancelación | `taskkill /PID <codex.exe> /T /F`. Termina en menos de 1 s y no deja huérfanos, incluidos los procesos del usuario `CodexSandboxOffline`. No hay interrupt en `exec`, cerrar stdin no cancela y matar el proceso no produce evento final: el motor registra "cancelado" por su cuenta. | `[spec-clar]` (FR-030), `[001c §9]` |
+| Salida estructurada | `--output-schema` con el schema strict de R-06. Es decodificación restringida: si el turno termina con `turn.completed`, el **último** `agent_message` cumple el schema, aunque el prompt lo prohíba. Los mensajes intermedios ("commentary") son texto libre y no se parsean. Igual se valida con zod. | `[001c §6]` |
+| Eventos | Mapeo en la tabla de abajo. | `[001c §3]`, `samples/events/` |
+| Autenticación | `codex --version` (exit 0) y `codex login status` (exit 0 = ChatGPT, exit 1 = sin login; el texto va por stderr). `codex doctor --json` da el detalle sin consumir modelo. **Trampa**: con `CODEX_API_KEY` en el entorno, `login status` sigue diciendo ChatGPT pero `exec` usa la clave; `OPENAI_API_KEY` se ignora si hay login. Por eso el motor limpia las dos del entorno heredado y, si el nodo usa clave de API, inyecta `CODEX_API_KEY` solo en ese proceso (nunca se persiste, R-28). Sin credenciales, `exec` reintenta 15–20 s y termina en `turn.failed`, exit 1: la verificación previa es necesaria. | `[001c §2]` |
+| Modelo | `-m <modelo> -c model_reasoning_effort="<esfuerzo>"` siempre (R-27). Los eventos no dicen qué modelo se usó: el adaptador lee `turn_context.model` del rollout al terminar. El catálogo depende de la forma de autenticación: un modelo no disponible termina en `turn.failed`, exit 1. | `[001c §1, §2]` |
+| Uso de la suscripción | No está en el stream. Al terminar cada nodo se lee `rate_limits` del último `token_count` del rollout (`$CODEX_HOME/sessions/AAAA/MM/DD/rollout-<ts>-<thread_id>.jsonl`): ventanas de 300 y 10080 minutos con `used_percent` y `resets_at`. Antes de lanzar, `readUsage()` devuelve la última lectura conocida, marcada "not live" (FR-052). La consulta previa sin gastar turno (`account/rateLimits/read` del app-server) es experimental (U-11). | `[001c §11]` |
+| Costo y consumo | Consumo: `turn.completed.usage` (tokens de entrada, cacheados, de escritura en caché, de salida y de razonamiento). Costo en dinero **ausente** (FR-050). | `[spec-clar]`, `[001c §11]` |
+| Fallos de infraestructura | Error de Windows 267 al crear procesos, **en cualquier modo de sandbox** (incluido sin sandbox), y conflicto de writer de sesión. Se clasifican como `infra_failure` en **todo** lanzamiento de Codex, aunque el turno termine con exit 0 (R-18). | `[001c §4, §12]` |
+| Pedido de reporte (FR-038) | `codex exec fork <thread_id>` con el **mismo `cwd`** (el worktree del intento). `exec fork` **no acepta `-s` ni `--add-dir`**: el sandbox se fija con `-c sandbox_mode="workspace-write"` (o `"read-only"`, igual que el intento). Van también `-m`, `-c model_reasoning_effort`, `-c windows.sandbox` y los `--disable`, que sí funcionan en fork. `--json`, `--output-schema`, `--ignore-user-config` e `--ignore-rules` en fork son `[NO VERIFICADO]` (U-14). Nunca `exec resume`, que muta la sesión original y toma un lock de escritura. Nunca desde otro directorio (R-16). Como con `turn.completed` el reporte siempre llega, el pedido solo ocurre si zod lo rechaza. | `[001c §5, §6, §12]` |
+
+**Mapeo de eventos** (`codex exec --json` → `NormalizedEvent`):
+
+| Codex | `NormalizedEvent` | Nota |
+|---|---|---|
+| `thread.started` | `session_started` (`sessionId = thread_id`) | Solo trae `thread_id`. `model` se completa con el rollout al terminar. |
+| `item.completed` / `agent_message` | `assistant_text` | Texto completo, sin deltas. |
+| `item.started` / `command_execution`, `file_change`, `mcp_tool_call`, `web_search` | `tool_call` (`toolUseId = item.id`, `name = item.type`) | `file_change` no trae contenido ni diff. |
+| `item.completed` del mismo `item.id` | `tool_result` (`ok = status == completed`) | `exit_code` y `aggregated_output` van en `content`. |
+| `item.completed` / `reasoning`, ítem `error`, evento `error` (reintentos de conexión) | `raw` | Diagnóstico; no se muestra en la salida en vivo. |
+| `turn.completed` | `usage` (`consumption`) | Evento final si el proceso sale con exit 0. |
+| `turn.failed` | — | Alimenta `ProcessOutcome` = `agent_error` con `error.message`. |
+
+**`ProcessOutcome` de Codex**: `exited` = exit 0 + `turn.completed` + ninguna firma de
+infraestructura; `agent_error` = `turn.failed`, o exit ≠ 0 sin eventos (flag o configuración
+inválidos, exit 2 o 1); `infra_failure` = firma de R-18; `killed` = lo mató el motor; `crashed` =
+`close` sin evento final y sin kill; `spawn_failed` = binario no encontrado `[001c §4]`.
 
 ## R-14 · Seguimiento y terminación del árbol de procesos
 
 **Decisión** (decisión 7): el motor **solo** termina procesos que pertenecen al árbol de un agente
 que él lanzó. Los identifica siguiendo el árbol desde el lanzamiento. **Está prohibido terminar
-procesos por nombre, fecha o patrón**: `[001c-resumen]` lo hizo y mató procesos ajenos.
+procesos por nombre, fecha o patrón**: en 001c, el filtro por nombre y fecha de creación que usaba
+001 mató al propio runner del spike y matcheaba terminales ajenas `[001c §9]`.
 
 **Diseño del supervisor** (`packages/adapters/src/process/`):
 
@@ -464,11 +505,21 @@ procesos por nombre, fecha o patrón**: `[001c-resumen]` lo hizo y mató proceso
    - No se usa la línea de comandos para identificar: la herramienta PowerShell no pasa el comando
      por argv `[001 §7]`.
 3. **Terminación**:
-   - Primero, `taskkill /PID <raíz> /T /F`, verificado en `[001 §7]`.
+   - Primero, una instantánea confirma que la raíz sigue viva **con el mismo `creationTime`
+     registrado**. Solo entonces se ejecuta `taskkill /PID <raíz> /T /F`, verificado en `[001 §7]`.
+     Si la raíz ya terminó, su PID pudo reutilizarse: `/T` mataría un árbol ajeno, así que se
+     omite y se pasa directo al paso siguiente.
    - Después, cada PID registrado que siga vivo **y cuyo `creationTime` coincida** se termina de a
      uno con `taskkill /PID <pid> /F`.
    - Por último, una instantánea confirma que no queda ninguno.
 4. **Nunca** `child.kill()` solo `[001 §7]`, ni `taskkill /IM`, ni filtros por nombre o fecha.
+
+**Árbol de Codex** `[001c §9]`: `codex.exe → conhost.exe, codex-code-mode-host.exe, powershell.exe`
+con `unelevated`. Con `elevated`, el comando corre bajo
+`codex-command-runner-*.exe → powershell.exe` como usuario `CodexSandboxOffline`. Matar
+`codex.exe` (kill simple o `taskkill /T`) terminó todo el árbol en los dos modos, probablemente por
+un job object de Codex. El supervisor igual registra y verifica esos descendientes: la instantánea
+incluye los procesos de otro usuario que descienden del PID lanzado.
 
 **Cómo se toma la instantánea en Windows**: consultando `Win32_Process` (PID, PPID,
 `CreationDate`). El mecanismo concreto es `[NO VERIFICADO]` en rendimiento (U-05): lanzar
@@ -493,6 +544,10 @@ Requiere un addon nativo, lo que va en contra de R-03, y nunca se probó (§D-05
     Claude busca subiendo por los directorios.
   - Los ids se acortan para no pasar `MAX_PATH`, y los comandos de worktree usan
     `-c core.longpaths=true` `[git]`.
+  - Nunca bajo `%TEMP%`: el sandbox de Codex deja `%TEMP%` escribible por defecto, y un worktree
+    ahí sería escribible por cualquier nodo `[001c §8]`.
+  - En Codex, el aislamiento del repositorio principal se verificó igual que en 001, y el agente no
+    puede commitear dentro del worktree (el gitdir queda fuera del sandbox) `[001c §10]`.
 - **Una por nodo de agente y por intento**. Todo nodo de agente tiene su copia, aunque su alcance
   sea vacío: así ningún nodo lee el repositorio del usuario mientras se edita (FR-043, FR-044).
 - **Rama**: `zeko/<runId8>/<nodeId>`. Las ramas y los metadatos de worktree en `.git/worktrees/`
@@ -517,7 +572,8 @@ Requiere un addon nativo, lo que va en contra de R-03, y nunca se probó (§D-05
 - **Reintento**: el intento nuevo usa un worktree nuevo desde la misma base. El worktree del
   intento anterior, que terminó con error y no fue cancelado, se descarta
   (`git worktree remove --force` y borrado de la rama del intento), como dice el supuesto de la
-  spec. Su diff resumido queda en los eventos.
+  spec. Su diff resumido queda en los eventos. El reintento es un lanzamiento nuevo y **nunca**
+  reanuda ni hace fork de la sesión anterior, porque su worktree es otro directorio (R-16).
 - **Borrado (FR-048)**: `git worktree remove --force` y `git branch -D` de las ramas del run, solo
   después de la confirmación explícita en la UI o de `--yes` en la CLI.
 - **Cambios sin confirmar en el repo del usuario**: al iniciar se consulta `git status --porcelain`.
@@ -549,22 +605,38 @@ Requiere un addon nativo, lo que va en contra de R-03, y nunca se probó (§D-05
   cualquier agente (FR-014, FR-035).
 - **Reanudar una sesión con fork** se usa **solo** para pedirle el reporte faltante al mismo agente
   (FR-038). Se hace una sola vez, con el mismo toolset y el mismo `cwd`:
-  `--resume <sessionId> --fork-session` más los mismos flags de R-08 y R-10.
+  - Claude: `--resume <sessionId> --fork-session` más los mismos flags de R-08 y R-10.
+  - Codex: `exec fork <thread_id>` con los flags de R-13 que fork acepta; el sandbox va con
+    `-c sandbox_mode=…` porque fork no acepta `-s` `[001c §5]` (R-13, U-14).
+- **El fork solo se usa desde el mismo directorio de trabajo** en que corrió la sesión original, con
+  cualquier agente. Fork desde otro directorio no es confiable, así que nunca se hace: un reintento
+  (worktree nuevo, R-15) o un nodo siguiente siempre arrancan una sesión nueva con inyección.
+- Nunca se reanuda sin fork (`--resume` solo en Claude, `exec resume` en Codex): muta la sesión
+  original.
 
-**Evidencia** `[001 §4]`:
+**Evidencia**:
 
-- Inyectar es el único modo que respeta la persona y las herramientas del nodo nuevo.
+- Inyectar es el único modo que respeta la persona y las herramientas del nodo nuevo `[001 §4]`,
+  `[001c §5]`.
 - Al reanudar, un system prompt distinto **se ignora en silencio**, y cambiar el set de
-  herramientas lo rompe (respuestas vacías, `samples/q4-chain-run2-tools-empty.json`).
-- `--fork-session` no muta la sesión original.
-- Reanudar desde otro `cwd` desorienta al agente.
+  herramientas lo rompe (respuestas vacías, `samples/q4-chain-run2-tools-empty.json`) `[001 §4]`.
+  En Codex, las `developer_instructions` nuevas también se ignoran al hacer fork, sin opción para
+  cambiarlas: la persona va siempre en el prompt `[001c §5]`.
+- `--fork-session` y `exec fork` no mutan la sesión original; `exec resume` sí (el rollout pasa de
+  20 a 31 líneas) y dos `resume` simultáneos chocan con un lock de escritura `[001 §4]`,
+  `[001c §5, §12]`.
+- **Fork desde otro `cwd`**: la sesión se encuentra por id, pero el thread nuevo usa el `cwd` nuevo
+  y el historial conserva rutas del viejo. En Claude desorienta al agente `[001 §4]`. En Codex, el
+  mismo caso dio resultados distintos entre dos pasadas: en una respondió desde el historial y en
+  la otra intentó releer el archivo en el `cwd` nuevo, falló y no dio el dato `[001c §5]`.
 
 **Relación con el código**: el "resultado completo" en texto no transporta el código. El código
 viaja por la base de git (R-15), y el agente puede releerlo `[001 §4]`, hallazgo 5.
 
 **Pedido del reporte faltante**: en el mismo worktree y sin commit intermedio. El proceso reanudado
 es un segundo intento de reporte, no un reintento del nodo: no consume `maxRetries`. Sus eventos y
-su costo se suman al nodo. Codex: ver R-13, P-10.
+su costo se suman al nodo. En Codex casi no ocurre: con `turn.completed` el reporte siempre cumple
+el schema, así que solo se pide si zod lo rechaza (R-13).
 
 ## R-17 · Costo, consumo, uso de la suscripción y retención
 
@@ -584,8 +656,15 @@ su costo se suman al nodo. Codex: ver R-13, P-10.
 - **Tras un interrupt**, el `result` trae el costo hasta ese momento `[001 §7]`. Tras un kill
   forzado no hay `result`, así que el costo del nodo queda "not available" y el total, parcial.
 
-**Codex**: consumo sí; costo ausente; uso de la suscripción desde la fuente de P-08, no en vivo
-(R-13).
+**Codex** `[001c §11]`:
+
+- **Costo**: ausente en toda fuente con cuenta de ChatGPT; con clave de API no está verificado
+  (U-12). El total del run queda "parcial".
+- **Consumo**: `turn.completed.usage`.
+- **Uso de la suscripción**: `rate_limits` del último `token_count` del rollout, leído al terminar
+  cada nodo. Ventana `primary` (300 min) y `secondary` (10080 min), con `used_percent` (0..100) y
+  `resets_at`; el nivel efectivo es el máximo entre las dos, igual que en Claude. No es un valor en
+  vivo (FR-052). La lectura previa al lanzamiento es la última conocida hasta cerrar U-11.
 
 **Totales del run (FR-050, FR-051)**:
 
@@ -599,7 +678,9 @@ su costo se suman al nodo. Codex: ver R-13, P-10.
 - Antes de lanzar un nodo, el scheduler consulta `usageGate(agentId)`. Si la última lectura válida
   es mayor o igual al umbral (0,9 por defecto, configurable en `.zeko/config.yaml`), el nodo queda
   `pending` con `hold = USAGE_NEAR_LIMIT` y no toma slot. Los nodos de otros agentes siguen.
-- Para Codex, la consulta previa al lanzamiento refresca la lectura (FR-052).
+- Para Codex, la consulta previa al lanzamiento usa `readUsage()` (FR-052). Hasta cerrar U-11
+  devuelve la última lectura del rollout, que puede estar desactualizada si el usuario usó Codex por
+  fuera de Zeko.
 - Sin lectura (agente que no informa, o Claude antes de su primer request), no hay retención. Es el
   supuesto de la spec: la retención solo aplica a agentes que informan uso.
 - Si todos los nodos listos están retenidos y no hay nada corriendo, el run muestra
@@ -624,11 +705,27 @@ su costo se suman al nodo. Codex: ver R-13, P-10.
     ejecución `[001b §A1]`;
   - cuando falta el reporte: tiene su propio mecanismo (FR-038);
   - cuando hay cancelación: el nodo queda "cancelado" y no hay más reintentos (caso límite).
-- **Reintentos de infraestructura**: solo para `infra_failure` (el lanzador del sandbox de Codex,
-  `[001c-resumen]`). Hasta 2 relanzamientos con espera de 2 y 5 s, en un worktree nuevo desde la
-  misma base, **sin consumir `maxRetries`**. Si se agotan, `failed` con motivo
-  `INFRA_FAILURE_EXHAUSTED`. Los valores 2, 2 s y 5 s son de diseño `[NO VERIFICADO]`; se
-  calibrarán con P-09.
+- **Reintentos de infraestructura** (FR-032, clarificación 2026-09-24): solo para `infra_failure`.
+  Hasta 2 relanzamientos con espera de 2 y 5 s, en un worktree nuevo desde la misma base, **sin
+  consumir `maxRetries`**, cada uno visible en el nodo. Si se agotan, `failed` con motivo
+  `INFRA_FAILURE_EXHAUSTED`. Las esperas son de diseño `[NO VERIFICADO]`.
+- **Qué es `infra_failure` en Codex** `[001c §4, §8, §12]`. La política se aplica a **todo**
+  lanzamiento de Codex, con cualquier modo de sandbox:
+  - **Error de Windows 267 al crear un proceso** ("El nombre del directorio no es válido"). Es un
+    fallo de creación de proceso, **no del sandbox**: apareció con `elevated`
+    (`CreateProcessWithLogonW failed: 267`), con `unelevated` (`CreateProcessAsUserW failed: 267`)
+    y también con `danger-full-access` (`Failed to create unified exec process: … (os error 267)`).
+    Frecuencia: unas 3 veces cada 200 lanzamientos, con hasta 6 en paralelo.
+  - **El turno puede terminar con exit 0 y `turn.completed`**: el modelo recibe el error, se rinde
+    y reporta. Por eso el adaptador busca la firma en stderr y en el rollout (`failed: 267`,
+    `os error 267`) **antes** de mirar el exit code, y si la encuentra el `ProcessOutcome` es
+    `infra_failure{cause: 'process_create'}`, aunque haya reporte. Se revisa antes que los
+    patrones de rechazo del sandbox, porque Codex a veces lo informa como `Rejected(…)`.
+  - **Conflicto de escritura de sesión** (`thread-store conflict: … already has an active writer`,
+    exit 1, sin eventos): `infra_failure{cause: 'session_lock'}`. Con fork y sin sesiones
+    compartidas (R-16) no debería ocurrir; si ocurre, se reintenta igual.
+- Un intento descartado por `infra_failure` pudo haber escrito en su worktree antes de fallar. Por
+  eso el relanzamiento usa un worktree nuevo y nunca un fork del intento fallido (R-16).
 - `spawn_failed`, por ejemplo un agente desinstalado durante el run (caso límite), no se reintenta:
   el nodo queda `failed` con `AGENT_UNAVAILABLE`.
 
@@ -648,8 +745,17 @@ los agentes que usa el flujo (FR-025).
   - si el primer evento es un error de autenticación, el nodo queda "fallido" con
     `AGENT_NOT_AUTHENTICATED`, como el caso límite "se desautentica durante un run".
   - Esto relaja FR-025 hasta cerrar U-03 (ver §T-07).
-- **Codex**: binario real (P-01) y forma de autenticación efectiva considerando las variables de
-  entorno (P-07). Una clave de API se marca `verified: false` (FR-065).
+- **Codex** `[001c §2, §8, §9]`:
+  - instalación: resolver `codex.exe` nativo (no el shim) y ejecutar `codex --version`;
+  - autenticación: `codex login status` con el **mismo entorno** que usará el lanzamiento (sin
+    `CODEX_API_KEY`, `OPENAI_API_KEY` ni `CODEX_HOME` heredados). Exit 0 = cuenta de ChatGPT
+    (`subscription`, verificada); exit 1 = sin login. Si el nodo usa clave de API, el modo efectivo
+    es `api_key` con `verified: false` (FR-065), porque `CODEX_API_KEY` tiene prioridad sobre el
+    login;
+  - sandbox: si el setup `elevated` existe, se usa; si no, `unelevated`. Se informa en
+    `problems[]` como dato, no como error;
+  - `AgentAvailability` **no** guarda el email de la cuenta ni otro dato personal: solo el modo
+    (R-28).
 
 ## R-20 · Recuperación tras cierre y estado "interrumpido"
 
@@ -691,28 +797,32 @@ los agentes que usa el flujo (FR-025).
 
 ## R-22 · Linaje de código y regla de un solo predecesor
 
-**Decisión**: se define `codeSource(n)`, calculado en `core` sobre el grafo:
+**Decisión** (FR-008 tal como está escrita, confirmada en la clarificación del 2026-09-23): el
+linaje de código **solo** pasa a través de nodos de aprobación. `core` calcula dos conjuntos:
 
-- nodo de entrada: `null` (base del run);
-- nodo de agente con `writeScope` no vacío: `n` mismo (modifica código);
-- nodo de aprobación, o nodo de agente con `writeScope` vacío: el conjunto de `codeSource` de sus
-  predecesores (**transporta** el linaje).
+- `codeSource(n)`, lo que `n` transmite a sus dependientes:
+  - nodo de entrada: `∅` (base del run);
+  - nodo de agente con `writeScope` no vacío: `{n}` (modifica código);
+  - nodo de agente con `writeScope` vacío (solo lectura): `∅`, **no** transporta linaje;
+  - nodo de aprobación: la unión de `codeSource` de sus predecesores (transporta el linaje).
+- `inputSources(n)` = la unión de `codeSource` de los predecesores de `n`: de dónde parte su código.
 
 **Validación (FR-008)**:
 
-- Un nodo de agente cuyos predecesores aportan **más de una** fuente de código distinta es un
-  error, explicado en el nodo.
+- Un nodo de agente con `|inputSources| > 1` es un error (`MULTIPLE_CODE_SOURCES`), explicado en el
+  nodo. Aplica también a los nodos de solo lectura, porque su copia tiene que partir de una sola
+  base.
 - Un nodo de aprobación con más de una fuente distinta es un error si tiene algún dependiente de
   agente.
 
-**Base del nodo (FR-041)**: el `resultCommit` de su única fuente de código, o `baseCommit` del run
-si no tiene.
+**Base del nodo (FR-041)**: el `resultCommit` de la única fuente de `inputSources(n)`, o
+`baseCommit` del run si está vacío.
 
-**Interpretación**: FR-008 solo nombra la herencia "a través de un nodo de aprobación". Si un nodo
-de agente de solo lectura (una revisión) no transportara linaje, en `A (escribe) → B (revisa) →
-C (corrige)` el nodo C arrancaría sin los cambios de A, lo cual contradice la intención de US4. La
-regla extendida es más conservadora: solo agrega errores, nunca los quita. Queda registrada como
-tensión §T-02 para confirmar en `/speckit-clarify`.
+**Consecuencia visible**: en `A (escribe) → B (revisa, solo lectura) → C (corrige)`, B parte de los
+cambios de A, pero C parte de la base del run, sin los cambios de A. Recibe igual el resultado
+completo de B como datos (FR-040). Para que C parta de los cambios de A, el flujo tiene que
+conectar A → C, o pasar por una aprobación. El editor muestra la base de cada nodo para que esto no
+sorprenda.
 
 ## R-23 · Salida de agentes como datos
 
@@ -730,9 +840,9 @@ tensión §T-02 para confirmar en `/speckit-clarify`.
 - **Secretos**:
   - El archivo de flujo no tiene ningún campo para credenciales (schema estricto, FR-058).
   - Nunca se persisten variables de entorno ni argumentos con credenciales.
-  - Los eventos persistidos pasan por un redactor de patrones de credenciales conocidos antes de
-    guardarse. Es una mitigación heurística: lo que un agente lee del repositorio puede contener
-    secretos (NFR-007, §T-08).
+  - Todo lo que se persiste pasa antes por el redactor de R-28 (claves de API y datos personales).
+    Es una mitigación heurística: lo que un agente lee del repositorio puede contener secretos
+    (NFR-007, §T-08).
 
 ## R-24 · Textos visibles desde un catálogo único
 
@@ -768,12 +878,14 @@ tensión §T-02 para confirmar en `/speckit-clarify`.
 
 - **Unit (core)**:
   - validación de flujos, con un caso por regla: ciclo, sin entrada, desconectado, más de un
-    predecesor de código directo, a través de aprobación y a través de solo lectura, límites
-    infinitos, alcance inexistente como advertencia;
+    predecesor de código directo, a través de aprobación, un nodo de solo lectura que **no**
+    transporta linaje, límites infinitos, alcance inexistente como advertencia, nodo sin modelo
+    como advertencia (`MODEL_DEFAULTED`);
   - scheduler: paralelismo, límite global, omisión en cascada, rechazo de rama, retención por uso,
     cancelación durante aprobación y durante un reintento;
   - `resolveNodeResult`: **un caso por regla de FR-036 y por cada combinación de precedencia**, más
-    FR-037 y la diferencia `denials` ausente o vacío;
+    FR-037, la diferencia `denials` ausente o vacío, escrituras fuera de alcance → `blocked` con
+    cualquier agente, y denegaciones inferidas que no cambian el estado;
   - confinamiento, linaje, totales de costo.
 - **Adaptadores**:
   - un **agente simulado** (`packages/adapters/test/fake-agent`) es un ejecutable Node que
@@ -781,7 +893,9 @@ tensión §T-02 para confirmar en `/speckit-clarify`.
     interrupt como en `q7-cancel.json`, puede terminar sin `result`, y puede lanzar
     `cmd.exe → powershell.exe` hijos para reproducir el árbol de `[001 §7]`;
   - los tests nunca invocan `claude` ni `codex` reales (Principio XVI);
-  - para Codex, los guiones dependen de P-06 (samples de 001c).
+  - para Codex, los guiones reproducen `spikes/001c-codex/samples/` (con `samples/events/`): fin
+    normal, `turn.failed`, exit 0 con error 267 en stderr, rechazo sin ítem en el stream, kill sin
+    evento final y proceso hijo de otro usuario (`elevated`) `[001c §3, §4, §9]`.
 - **Integración Windows** (`pnpm test:win`, solo en CI Windows):
   - cancelación: el fake lanza un nieto que escribe una línea por segundo. Después de cancelar, el
     archivo deja de crecer y ningún `(pid, creationTime)` registrado sigue vivo, en menos de 10 s
@@ -794,6 +908,98 @@ tensión §T-02 para confirmar en `/speckit-clarify`.
     agente** `[001b §B]`.
 - **Confinamiento real con Claude (SC-006)**: se valida manualmente con el quickstart. Un test
   automatizado necesitaría el proveedor real.
+- **Redactor (R-28)**: fixtures con claves de API de cada formato, emails, JWT y el valor exacto de
+  una clave inyectada, en eventos, stderr, salida cruda y mensajes de error. El test verifica lo
+  que quedó escrito en SQLite y en los logs, no la salida del redactor.
+
+## R-27 · Modelo fijado de forma explícita en cada nodo
+
+**Decisión**:
+
+- **El motor siempre pasa el modelo en cada lanzamiento** y nunca hereda el default del agente ni
+  la configuración del usuario: Claude `--model <modelo>`; Codex `-m <modelo>` y
+  `-c model_reasoning_effort="<esfuerzo>"`. Lo mismo vale para el pedido de reporte (fork) y para
+  los reintentos.
+- **El modelo es parte del archivo de flujo**, no de la configuración de la máquina
+  ([contracts/flow-file.md](./contracts/flow-file.md)). Cada nodo de agente tiene `models`, con una
+  entrada por agente:
+  - `claude-code: {model}`;
+  - `codex: {model, reasoningEffort}`, con los dos campos obligatorios dentro de la entrada (sin
+    `reasoningEffort` es `SCHEMA_ERROR`; nunca se completa con el del proyecto).
+  Las entradas de otros agentes se conservan al cambiar de agente y se recuperan al volver
+  (FR-015).
+- **Default del proyecto**: `defaultModels` en `.zeko/config.yaml`, versionado con el proyecto. Si
+  el archivo no lo define, rige el default de ese campo que trae Zeko, igual que con los demás
+  campos de la configuración. Es un valor de Zeko, nunca el default del agente.
+- **Al crear un nodo**, o al cambiarlo a un agente sin entrada, el editor copia al archivo el
+  default del proyecto para ese agente (FR-011).
+- **Último recurso (FR-011a)**: si al iniciar un run un nodo no tiene entrada para su agente (por
+  ejemplo, un archivo editado a mano), el run **no** se bloquea. El nodo recibe la advertencia
+  `MODEL_DEFAULTED` desde la validación (severidad warning), y el motor resuelve el modelo con el
+  default del proyecto al crear el NodeRun. El modelo resuelto y su origen (`node` \|
+  `project_default`) quedan en el NodeRun y en la instantánea del run, así que el historial dice
+  qué modelo corrió aunque el archivo no lo tenga.
+- **Verificación del modelo efectivo**: Claude informa el modelo en `system/init` `[001 §2]`. Codex
+  no lo informa en eventos; el adaptador lo lee de `turn_context.model` en el rollout al terminar
+  `[001c §1]`. Si difiere del pedido, el nodo muestra la advertencia `MODEL_MISMATCH`, sin cambiar su
+  estado.
+- Un modelo que el agente no acepta termina en error del agente (`agent_error`): Claude con
+  `is_error: true` `[001 §3]`; Codex con `turn.failed`, exit 1, y el catálogo depende de la forma de
+  autenticación `[001c §2, §4]`.
+
+**Por qué**:
+
+- `[001c §1]`: con la misma `config.toml`, el modelo por defecto de Codex fue `gpt-5.6-luna` un día
+  y `gpt-6-sol` al siguiente. Sin `-m` y con `--ignore-user-config`, el default tampoco es el de la
+  configuración. **El default cambia sin que cambie la configuración**, así que heredarlo hace que
+  el mismo flujo corra con modelos distintos en días distintos, sin rastro en el archivo (Principio
+  V, SC-007).
+- La configuración del usuario de 001c traía effort `max`: heredarla multiplica el consumo de la
+  suscripción sin que el usuario lo vea en el flujo.
+- `[001 §1]`: en Claude, sin `--model` se hereda el modelo del usuario; un "di hola" con opus
+  costó US$ 0,063.
+- FR-016: la regla es la misma para todos los agentes.
+- Clarificación del 2026-09-24: FR-011, FR-011a y FR-015 (cierra §T-14).
+
+## R-28 · Redacción de claves de API y datos personales antes de persistir
+
+**Decisión (NFR-007, FR-063, FR-065)**. Desde la clarificación del 2026-09-24, NFR-007 incluye los
+datos personales de la cuenta del agente y pide que se oculten dejando visible que había un dato:
+
+- **Todo lo que Zeko escribe a disco pasa por el redactor antes de escribirse**: eventos y su
+  `payload` en SQLite, la salida cruda del agente (JSONL), líneas de stderr, logs de diagnóstico,
+  mensajes de error de `ProcessOutcome` y `AgentAvailability`. No se redacta después: lo que llega a
+  disco ya está redactado.
+- **Qué se redacta**:
+  - **Claves de API y tokens**: prefijos conocidos de proveedores (por ejemplo `sk-…`,
+    `sk-ant-…`), encabezados `Authorization: Bearer …`, JWT (`eyJ…`) y tokens de `auth.json`
+    (`id_token`, `access_token`, `refresh_token`).
+  - **El valor exacto de toda credencial que Zeko inyectó** en un proceso (por ejemplo
+    `CODEX_API_KEY`). Se redacta por coincidencia literal, aunque no tenga un formato conocido. El
+    adaptador declara esos valores en `AgentExecution.sensitiveValues` y el `runtime` los registra
+    en el redactor de `storage`: ningún adaptador importa `storage`.
+  - Los patrones viven en `packages/contracts` (datos puros), porque los usan `storage` y los tests
+    de fixtures de `adapters`, que no pueden importar `core`.
+  - **Datos personales**: direcciones de email (incluido el email de la cuenta del agente) e
+    identificadores de cuenta (`account_id`).
+- **Reemplazo**: marcadores tipados (`[REDACTED:api_key]`, `[REDACTED:email]`), para que el
+  historial muestre que había un dato sin mostrarlo.
+- **Qué se muestra en su lugar**: la verificación previa y el nodo muestran la **forma** de
+  autenticación (`subscription` / `api_key`, verificada o no), nunca el email ni la cuenta
+  (FR-065). `detect()` no lee `account/read` del app-server ni guarda el email de
+  `doctor --json`.
+- **Commits del motor**: usan `zeko@localhost` como autor (R-15), nunca el email del usuario ni el
+  de la cuenta del agente.
+
+**Evidencia**:
+
+- `[001c §2]`: con clave de API, la credencial viaja en el entorno del proceso (`CODEX_API_KEY`), y
+  `auth.json` guarda los tokens de la cuenta de ChatGPT.
+- `[001c §11]`: `account/read` devuelve `{type, email, planType}`; el harness del spike tuvo que
+  redactar el email en los samples. `codex doctor --json` y `auth.json` exponen el modo y los
+  tokens.
+
+**Límite**: sigue siendo heurístico para lo que el agente lee del repositorio (§T-08).
 
 ---
 
@@ -802,18 +1008,19 @@ tensión §T-02 para confirmar en `/speckit-clarify`.
 | ID | Tensión | Resolución en este plan |
 |---|---|---|
 | T-01 | **Plataformas**. FR-064 y NFR-001 hacen obligatorio Linux además de Windows. El pedido de planificación dice "Plataforma obligatoria: Windows nativo", y los spikes solo se corrieron en Windows. | El diseño cubre ambos: reglas de shell por plataforma y kill por grupo en Linux. La validación y la CI de integración empiezan por Windows. Todo lo de Linux es `[NO VERIFICADO]` (U-06) hasta un spike o una ejecución del quickstart en Linux. Si Linux sale del alcance, hay que enmendar la spec. |
-| T-02 | **FR-008** solo nombra la herencia de código a través de aprobación. | R-22 extiende el linaje a nodos de agente de solo lectura. Es más conservador. Confirmar con `/speckit-clarify`. |
+| T-02 | **FR-008** solo nombra la herencia de código a través de aprobación. | **Resuelta** (clarificación 2026-09-23): el linaje solo pasa por aprobación; un nodo de solo lectura no lo transporta (R-22). |
 | T-03 | **Estados**. FR-028 no incluye "rechazado" ni "interrumpido", pero FR-031, US8-2 y FR-049 los usan. El Principio XIII usa `idle/running/waiting approval/failed/done`. | Se agregan `rejected` (solo nodos de aprobación) e `interrupted` (solo historial) como estados terminales. En [data-model.md](./data-model.md#estados-de-nodo) está el mapeo a los estados del Principio XIII. |
-| T-04 | **Alcance de rutas dentro del worktree** (FR-017, US5-3: "la acción se deniega"). La prevención de un alcance parcial depende de U-02. | Mientras U-02 esté abierto, solo hay prevención para alcance vacío y total, más detección posterior (`scopeViolations`), que se muestra en el nodo pero no altera FR-036. Si U-02 falla, habrá que decidir en clarify si una escritura fuera de alcance detectada cuenta como denegación (regla 4). |
-| T-05 | **FR-018** ("los demás comandos se deniegan") frente a la auto-aprobación de comandos de solo lectura `[001 §6]`. | Se muestra la advertencia `READONLY_COMMANDS_AUTO_APPROVED` en el nodo. No hay forma verificada de evitarlo. |
-| T-06 | Los **rechazos del sandbox de Codex** en stderr parecen denegaciones, pero la spec dice que Codex no las informa (FR-023). | Se registran y se muestran como eventos `sandbox_rejection` (FR-063) sin aplicar la regla 4. Si la spec quiere que cuenten, se habilita con una capacidad `reportsDenials: 'heuristic'`, sin cambiar `resolveNodeResult`. |
-| T-07 | **FR-025** pide verificar la autenticación de Claude antes del run, y no hay un mecanismo verificado (U-03). | `auth.state = 'unknown'` permitido hasta cerrar U-03. El fallo de autenticación se detecta en el nodo. |
-| T-08 | **NFR-007** ("ningún evento contiene secretos") no se puede garantizar si un agente imprime un secreto que leyó del repositorio. | Hay un redactor heurístico. Se documenta como riesgo residual. |
+| T-04 | **Alcance de rutas dentro del worktree** (FR-017, US5-3: "la acción se deniega"). La prevención de un alcance parcial depende de U-02. | **Resuelta** (clarificaciones 2026-09-23 y 2026-09-24): mientras U-02 esté abierto, solo hay prevención para alcance vacío y total, más detección posterior (`scopeViolations`). Una escritura fuera de alcance detectada deja el nodo `blocked` con `WRITE_OUTSIDE_SCOPE`, con cualquier agente (FR-036.4, FR-037, US5-3). |
+| T-05 | **FR-018** ("los demás comandos se deniegan") frente a la auto-aprobación de comandos de solo lectura `[001 §6]`. | **Resuelta** (clarificación 2026-09-24, post-analyze): FR-018 admite la excepción de los comandos de solo lectura. El nodo muestra la advertencia `READONLY_COMMANDS_AUTO_APPROVED` antes, durante y después. |
+| T-06 | Los **rechazos del sandbox de Codex** parecen denegaciones, pero la spec dice que Codex no las informa (FR-023). `[001c §3, §8]` confirma que no hay evento tipado: hay tres formas y una solo se ve en stderr y en el rollout. | **Resuelta** (clarificación 2026-09-24): se registran como eventos `inferred_denial` (FR-063) y se muestran en el nodo marcadas como "inferidas", **sin** aplicar la regla 4 (FR-023, FR-036.4). |
+| T-07 | **FR-025** pide verificar la autenticación de Claude antes del run, y no hay un mecanismo verificado (U-03). Para Codex sí lo hay (`codex login status`, `[001c §2]`). | **Resuelta** (clarificación 2026-09-24, post-analyze): FR-025 verifica la autenticación solo cuando el agente ofrece un chequeo sin costo. Para Claude, mientras U-03 no encuentre uno, la verificación previa muestra la autenticación como "no verificada" (`auth.verified = false`) y permite el run; un fallo de autenticación deja el nodo `failed` con `AGENT_NOT_AUTHENTICATED`. |
+| T-08 | **NFR-007** ("ningún evento contiene secretos") no se puede garantizar si un agente imprime un secreto que leyó del repositorio. | El redactor de R-28 cubre claves de API, tokens, el valor exacto de credenciales inyectadas y datos personales. Para contenido arbitrario del repositorio sigue siendo heurístico: riesgo residual documentado. |
 | T-09 | **Principio VI**: la comunicación agente ↔ Zeko MUST usar MCP. El plan usa stdout JSON + schema de salida, que es lo verificado en `[001]`/`[001b]`. | Justificado en Complexity Tracking. El servidor MCP de Zeko está diferido (D-01). |
-| T-10 | **Principio IX**: acciones fuera de alcance MUST requerir aprobación humana. En modo print no hay superficie de aprobación: se **deniegan** `[001 §6]`. | Denegar es más estricto que pedir aprobación. La aprobación interactiva (`--permission-prompts host`) no está verificada y queda diferida (D-04). |
+| T-10 | **Principio IX**: acciones fuera de alcance MUST requerir aprobación humana. En modo print no hay superficie de aprobación: se **deniegan** `[001 §6]`. | Donde hay mecanismo verificado, denegar es más estricto que pedir aprobación. Hay tres casos sin denegación ni aprobación previa: la shell de Claude con terminal (`[001b §B2]`), la escritura fuera de un alcance parcial (solo detección, T-04) y la lectura de Codex fuera de su copia (`[001c §8]`). La spec los acepta con advertencia visible (FR-020–022), y se justifican en Complexity Tracking del plan. La aprobación interactiva (`--permission-prompts host`, app-server de Codex) no está verificada y queda diferida (D-04, U-11). |
 | T-11 | **Principio VII**: nombres `TaskAssignment`/`WorkReport` y campo "hallazgos". | `TaskAssignment` se usa tal cual. `AgentReport` es el `WorkReport` de la constitución (alias en `contracts`). Se agrega `findings` (R-06). |
 | T-12 | **Principio V**: la base de datos guarda solo runs, eventos y aprobaciones. El run guarda una **instantánea** del flujo ejecutado. | Es estado de ejecución (qué se ejecutó), no un almacén editable paralelo. El canvas nunca lee flujos de la base. |
 | T-13 | **Stack**: `node-pty` está en la constitución y no se usa; `yaml` y el posible `better-sqlite3` no están. | No usar una dependencia del stack no es una violación. `yaml` se justifica en Complexity Tracking. |
+| T-14 | **FR-011** no incluye el modelo entre los campos del nodo de agente, y el Principio I dice que lo que no está en la spec no se construye. R-27 agrega `models` al nodo porque el default del agente cambia sin cambiar la configuración `[001c §1]`. | **Resuelta** (clarificación 2026-09-24): FR-011, FR-011a y FR-015. Si falta el modelo, se usa el default del proyecto con advertencia, sin bloquear el run. |
 
 ## §U · Supuestos no verificados
 
@@ -829,36 +1036,40 @@ antes de implementar la parte afectada.
 | U-05 | Una instantánea de procesos en Windows (`Win32_Process`) cada 2 s tiene costo aceptable con 8 árboles activos. | R-14, NFR-002 | Medición en el test de integración de Windows. |
 | U-06 | En Linux: reglas `Bash(...)`, kill por grupo (`detached` + `-pgid`), `--restricted` equivalente. | R-10, R-12, T-01 | Repetir `[001 §6-7]` y `[001b §B]` en Linux. |
 | U-07 | `--restricted` ignora `CLAUDE.md` del proyecto, o no lo hace. `[001b §B1]` solo dice "configuración" según `--help`. | Contexto del agente | 001d: comprobar si el agente ve instrucciones de un `CLAUDE.md` en el worktree. |
-| U-08 | Codex permite reanudar o hacer fork de una sesión para pedir el reporte (P-10). Si no, el segundo pedido es un lanzamiento nuevo en el mismo worktree. | R-13, FR-038 | Leer los FINDINGS de 001c. |
+| U-08 | ~~Codex permite reanudar o hacer fork.~~ **Cerrado** por `[001c §5]`: `exec fork <id>`, desde el mismo `cwd` (R-16). | R-13, FR-038 | — |
 | U-09 | La API `Document` de `yaml` conserva los comentarios al reescribir un archivo editado a mano. | R-04 | Test de ida y vuelta con fixtures. |
 | U-10 | `z.toJSONSchema` (zod 4) genera el schema del `AgentReport` usando solo las palabras clave del subconjunto de R-06. | R-06 | Test de snapshot, y ajustar el generador si no. |
+| U-11 | El app-server de Codex (`account/rateLimits/read`) sirve para leer el uso antes de lanzar sin gastar un turno, lanzado sin cargar la configuración del usuario. Es experimental: `[001c §9, §11]` lo usó, pero sin flags carga la config del usuario. | R-13, R-17, FR-052, FR-053 | Spike corto: lanzar el app-server aislado y comparar con `rate_limits` del rollout. |
+| U-12 | Con clave de API, Codex no informa costo y no tiene ventanas de uso. | R-13, R-17, FR-050, FR-065 | Repetir `[001c §2, §11]` con una clave real. |
+| U-13 | Las reglas de Codex en Linux: ruta del binario nativo, sandbox y kill por grupo. | R-13, R-14, T-01 | Repetir `[001c §7–9]` en Linux. |
+| U-14 | `codex exec fork` acepta `--json`, `--output-schema`, `--ignore-user-config` e `--ignore-rules`. `[001c §5]` solo verificó `-c`, `--disable` y `-m` en fork, y que **no** acepta `-s` ni `--add-dir`. | R-13, R-16, FR-038 | Ejecutar un fork con esos flags y validar el reporte con zod (T131). Si alguno no se acepta, FR-038 se cumple con un lanzamiento nuevo en el mismo worktree que solo pide el reporte. |
 
-## §P · Datos pendientes de 001c (no inventados)
+## §P · Datos de 001c (resueltos)
 
-`spikes/001c-*/FINDINGS.md` y sus samples deben incorporarse al repositorio. Hasta entonces, el
-contrato del adaptador de Codex define **el comportamiento**, y estos valores quedan abiertos:
+Se conservan los IDs porque otros documentos los citan. Todos quedan resueltos por
+`spikes/001c-codex/FINDINGS.md` en Windows; Linux sigue abierto (U-13).
 
-| ID | Dato |
-|---|---|
-| P-01 | Resolución de la ruta del binario real de Codex (no el shim de npm) en Windows y Linux. |
-| P-02 | Configuración explícita del sandbox de Windows (confinamiento de escritura, sin red). |
-| P-03 | Patrón de stderr de los rechazos de comandos del sandbox (terminan con exit 0). |
-| P-04 | Cómo ignorar la configuración del usuario y deshabilitar los conectores de la cuenta. |
-| P-05 | Mecanismo de schema de salida estricto y dónde se recibe la salida estructurada. |
-| P-06 | Tipos de eventos JSON, correlación de herramientas y campos de consumo. Samples reales para los tests. |
-| P-07 | Variables de entorno de autenticación y su precedencia frente al login de ChatGPT. |
-| P-08 | Fuente y formato de la lectura del uso de la suscripción. |
-| P-09 | Firma del fallo esporádico del lanzador del sandbox. |
-| P-10 | Reanudación y fork de sesión. |
+| ID | Dato | Resolución |
+|---|---|---|
+| P-01 | Ruta del binario real de Codex | `codex.exe` nativo bajo `@openai/codex-win32-x64/vendor/…/bin/`; nunca el shim `codex.cmd` `[001c §9]`. R-13. |
+| P-02 | Sandbox de Windows explícito | `-s workspace-write -c windows.sandbox="elevated\|unelevated"` + `exclude_tmpdir_env_var` + `exclude_slash_tmp`. Escritura confinada, lectura no, red siempre bloqueada `[001c §8]`. R-13. |
+| P-03 | Patrón de los rechazos | `command_execution` `failed` con "Acceso denegado"; stderr `Rejected(…)` / `blocked by policy` sin ítem; `patch rejected` `[001c §3, §8]`. R-13. |
+| P-04 | Ignorar la config y los conectores | `--ignore-user-config --ignore-rules` + `--disable apps/plugins/…` + `web_search="disabled"` `[001c §7, §10]`. R-13. |
+| P-05 | Schema de salida | `--output-schema <archivo>`, strict; el reporte es el último `agent_message` `[001c §6]`. R-06, R-13. |
+| P-06 | Eventos y consumo | Tabla de mapeo en R-13; `turn.completed.usage`; samples en `samples/events/` `[001c §3]`. |
+| P-07 | Variables de autenticación | `CODEX_API_KEY` tiene prioridad sobre el login; `OPENAI_API_KEY` se ignora con login; el motor limpia las dos `[001c §2]`. R-19. |
+| P-08 | Uso de la suscripción | `token_count.rate_limits` del rollout, al terminar cada nodo `[001c §11]`. La lectura previa sin gastar turno queda en U-11. R-17. |
+| P-09 | Fallo esporádico | Error de Windows 267 al **crear procesos**, en cualquier modo de sandbox; no es del lanzador del sandbox `[001c §4]`. R-18. |
+| P-10 | Reanudar y fork | `exec fork <id>`, desde el mismo `cwd`; nunca `exec resume` `[001c §5]`. R-16. |
 
 ## §D · Caminos diferidos (fuera de este plan)
 
 | ID | Camino | Por qué se difiere | Qué resolvería |
 |---|---|---|---|
-| D-01 | **Servidor MCP de archivos de Zeko** para confinar nodos de Codex sin terminal. | Decisión 10. Requiere diseñar e implementar un servidor MCP y verificar que Codex funcione sin shell. | Habilitaría nodos de Codex `confined` y el Principio VI (MCP como canal agente ↔ Zeko). |
+| D-01 | **Servidor MCP de archivos de Zeko** para confinar nodos de Codex sin terminal. | Decisión 10. `[001c §7]` lo probó de punta a punta (shell desactivada + `read-only` + MCP propio, 8/8 intentos de escape denegados), pero falta cerrar `apply_patch` en `read-only` y `view_image`. | Habilitaría nodos de Codex `confined` y el Principio VI (MCP como canal agente ↔ Zeko). |
 | D-02 | **Perfiles de permisos con deny** (Claude). | Decisión 10. `[001 §6]` mostró que `--disallowedTools` quita la herramienta, pero no probó perfiles. | Políticas de proyecto reutilizables (Principio IX). |
 | D-03 | **Reglas `execpolicy` de Codex**. | Decisión 10. | Una lista de comandos permitidos para Codex (hoy no aplica, FR-018). |
 | D-04 | Aprobaciones interactivas de herramientas (`--permission-prompts host` + protocolo de control) | `[001 §6]`: mencionado, no probado. | Aprobación humana de acciones fuera de alcance en lugar de denegarlas (Principio IX, T-10). |
 | D-05 | Windows Job Objects para los árboles de procesos | Requiere un módulo nativo (R-03) y no se probó. | Terminación garantizada por el SO aunque el motor se caiga. |
-| D-06 | Selección de modelo por nodo (`--model`) | No está en FR-011 (Principio I). | Control de costo `[001 §1]`: opus costó 0,063 USD por un "di hola". |
+| D-06 | ~~Selección de modelo por nodo~~ | **Ya no se difiere**: pasa a R-27 (modelo explícito por nodo, FR-011). | — |
 | D-07 | Confinamiento de nodos con terminal a nivel de SO (contenedor, usuario restringido) | Fuera de alcance según la spec. `[001b §B2]`: `--restricted` no confina la shell. | Nodos con terminal `confined`. |

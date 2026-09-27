@@ -35,7 +35,7 @@ Los errores y los motivos son **códigos**, que la UI traduce con `packages/i18n
 | `flow.list` | `{projectId}` | `FlowSummary[]` (`id, name, valid, errorCount`) | | FR-003 |
 | `flow.load` | `{projectId, flowId}` | `{flow?, fileHash, diagnostics: Diagnostic[]}`; `flow` ausente si no se pudo parsear | | FR-055–057 |
 | `flow.create` | `{projectId, name}` | `{flowId}` | `FLOW_EXISTS` | FR-004 |
-| `flow.save` | `{projectId, flow, expectedHash}` | `{fileHash, diagnostics}` | `FILE_CHANGED_ON_DISK`, `SCHEMA_ERROR` | FR-004, FR-054, casos límite |
+| `flow.save` | `{projectId, flow, expectedHash}` | `{fileHash, diagnostics}` | `FILE_CHANGED_ON_DISK{currentHash}` (la UI ofrece "Recargar" o "Conservar mi versión", que reintenta con `expectedHash = currentHash`; [flow-file.md](./flow-file.md#conflictos-de-edición-externa-casos-límite)), `SCHEMA_ERROR` | FR-004, FR-054, casos límite |
 | `flow.delete` | `{projectId, flowId, confirmed: true}` | `{}` | `CONFIRMATION_REQUIRED` | FR-004 |
 | `flow.validate` | `{projectId, flow}` | `{diagnostics: Diagnostic[], nodeViews: NodeView[]}` | | FR-008, FR-009, FR-021 |
 | `flow.validateEdge` | `{projectId, flow, edge}` | `{allowed: bool, diagnostic?}` (p. ej. `CYCLE`) | | FR-007 |
@@ -56,8 +56,9 @@ Los errores y los motivos son **códigos**, que la UI traduce con `packages/i18n
 
 - `confinement: {level, reason?}`;
 - `warnings: WarningCode[]`, por ejemplo `DENIAL_CHECK_NOT_AVAILABLE`, `TURN_LIMIT_NOT_APPLICABLE`,
-  `NO_NETWORK_ON_PLATFORM`, `COST_NOT_REPORTED`, `USAGE_NOT_LIVE`, `AUTH_API_KEY_UNVERIFIED` o
-  `READONLY_COMMANDS_AUTO_APPROVED`;
+  `NO_NETWORK_ON_PLATFORM`, `COST_NOT_REPORTED`, `USAGE_NOT_LIVE`, `AUTH_API_KEY_UNVERIFIED`,
+  `READONLY_COMMANDS_AUTO_APPROVED`, `SCOPE_ENFORCEMENT_DETECTION_ONLY` o `MODEL_DEFAULTED`;
+- `model: {model, reasoningEffort?, source: 'node' | 'project_default'}` (FR-011a);
 - `notApplicable: FieldPath[]` (FR-011, FR-015, FR-021–023, NFR-012).
 
 ## Events (motor → renderer)
@@ -67,7 +68,7 @@ Los errores y los motivos son **códigos**, que la UI traduce con `packages/i18n
 | `run.started` | `{runId, flowId, origin, warnings}` | inmediata | FR-024 |
 | `node.state` | `{runId, nodeId, status, reason?, hold?, attempt?}` | **inmediata**, sin agrupar | FR-028, NFR-003 |
 | `node.output` | `{runId, nodeId, events: NormalizedEvent[] (sin raw)}` | agrupada por nodo cada ≤ 50 ms | FR-029, NFR-002 |
-| `node.result` | `{runId, nodeId, NodeResult, observedFiles, discrepancies, cost?, consumption?}` | inmediata | FR-036–039, FR-050 |
+| `node.result` | `{runId, nodeId, NodeResult, observedFiles, discrepancies, inferredDenials?, model, cost?, consumption?}` | inmediata | FR-023, FR-036–039, FR-050, FR-011a |
 | `approval.requested` | `{runId, nodeId, summary: PredecessorResult[]}` | inmediata | FR-012 |
 | `agent.usage` | `AgentUsageReading` | al cambiar | FR-052 |
 | `run.held` / `run.resumed` | `{runId, reason}` | inmediata | FR-053 |
