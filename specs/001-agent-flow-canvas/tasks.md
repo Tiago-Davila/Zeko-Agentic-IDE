@@ -1216,7 +1216,7 @@ confinamiento y capacidades, costo y uso, e historial. La UI solo pinta lo que c
   **Archivos**: `apps/desktop/src/renderer/run/node-result-panel.tsx`,
   `apps/desktop/src/renderer/run/diff-viewer.tsx`. **Cubre**: FR-011a, FR-023, FR-036–039, FR-046,
   US2-7–10. **Base**: data-model §NodeRun. **Depende de**: T147
-- [ ] T149 [US2] Controles de cancelación de nodo y de run. **Archivos**:
+- [X] T149 [US2] Controles de cancelación de nodo y de run. **Archivos**:
   `apps/desktop/src/renderer/run/run-controls.tsx`. **Cubre**: FR-030, US2-5. **Base**: R-12,
   R-13. **Depende de**: T146
 - [ ] T150 [US3] Diálogo de aprobación con el resumen de los predecesores, y aprobar / rechazar.

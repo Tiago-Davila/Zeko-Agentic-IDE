@@ -208,6 +208,13 @@ h1, h2, h3, p { margin-top: 0; }
 .result-status { padding: 4px 7px; color: #5c747b; background: #edf2f2; border-radius: 10px; font-size: 9px; font-weight: 700; }
 .result-status--completed { color: #327458; background: #eaf4ee; }
 .result-status--failed, .result-status--blocked { color: #9b5147; background: #faeeeb; }
+.result-panel__actions { display: flex; align-items: center; gap: 8px; }
+.run-controls { display: flex; align-items: center; gap: 6px; }
+.button--cancel, .button--cancel-node { min-height: 28px; padding: 0 9px; color: #9b5046; background: #fff6f4; border-color: #efdad5; font-size: 9px; }
+.button--cancel:hover:not(:disabled), .button--cancel-node:hover:not(:disabled) { background: #ffede9; }
+.button--cancel-node { color: #8c6c3a; background: #fbf6e9; border-color: #eee2c7; }
+.run-controls__error { max-width: 155px; overflow: hidden; color: #a14c42; font-size: 8px; text-overflow: ellipsis; }
+.result-panel__empty { margin: auto 17px; color: #839296; font-size: 10px; }
 .result-panel__content { display: flex; align-items: flex-start; gap: 19px; padding: 11px 17px 14px; overflow: auto; }
 .result-block { min-width: 155px; max-width: 300px; color: #6e8085; font-size: 10px; }
 .result-block h3 { margin: 0 0 6px; color: #5e7379; font-size: 9px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }

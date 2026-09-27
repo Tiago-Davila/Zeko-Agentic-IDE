@@ -23,6 +23,7 @@ export function FlowEditor({ projectId, flowId, onBack }: FlowEditorProps) {
   const [preflight, setPreflight] = useState<PreflightResult>();
   const [starting, setStarting] = useState(false);
   const [runId, setRunId] = useState<string>();
+  const [runStatus, setRunStatus] = useState<"running" | "finished" | "cancelled" | "interrupted">("running");
   const [preflightError, setPreflightError] = useState<string>();
 
   async function reload(): Promise<void> {
@@ -51,6 +52,20 @@ export function FlowEditor({ projectId, flowId, onBack }: FlowEditorProps) {
     if (payload.fileHash === fileHash) return;
     setConflict({ currentHash: payload.fileHash });
   }), [fileHash, flowId, projectId]);
+
+  useEffect(() => {
+    if (!runId) return;
+    let active = true;
+    void ipc.request("run.get", { runId }).then((result) => {
+      if (active && result) setRunStatus(result.run.status);
+    }).catch(() => undefined);
+    const unsubscribe = ipc.onEvent((event) => {
+      if (event.runId !== runId || event.type !== "run.finished" || typeof event.payload !== "object" || event.payload === null) return;
+      const status = (event.payload as Record<string, unknown>)["status"];
+      if (status === "running" || status === "finished" || status === "cancelled" || status === "interrupted") setRunStatus(status);
+    });
+    return () => { active = false; unsubscribe(); };
+  }, [runId]);
 
   async function save(): Promise<void> {
     if (!flow || saving || !dirty) return;
@@ -93,6 +108,7 @@ export function FlowEditor({ projectId, flowId, onBack }: FlowEditorProps) {
     try {
       const result = await ipc.request("run.start", { projectId, flowId, fileHash });
       setRunId(result.runId);
+      setRunStatus("running");
       setPreflight(undefined);
     } catch (cause) {
       setPreflightError(cause instanceof IpcClientError ? t("error.generic", { code: cause.code }) : t("run.startFailed"));
@@ -118,7 +134,7 @@ export function FlowEditor({ projectId, flowId, onBack }: FlowEditorProps) {
   return <>
     {error && <div className="editor-error" role="alert">{error}</div>}
     <FlowCanvas projectId={projectId} flow={flow} onChange={(next) => { setFlow(next); setDirty(true); }} onBack={onBack}
-      onSave={() => void save()} onStartRun={() => void checkBeforeRun()} dirty={dirty} saving={saving} runId={runId} />
+      onSave={() => void save()} onStartRun={() => void checkBeforeRun()} dirty={dirty} saving={saving} runId={runId} runStatus={runStatus} />
     {runId && <div className="run-start-toast" role="status">{t("run.started")}</div>}
     {conflict && <FileConflictDialog onCancel={() => setConflict(undefined)} onKeep={keepMyVersion} onReload={() => void reload()} />}
     {preflight && <PreflightDialog result={preflight} running={starting} error={preflightError} onCancel={() => setPreflight(undefined)} onStart={() => void startRun()} />}

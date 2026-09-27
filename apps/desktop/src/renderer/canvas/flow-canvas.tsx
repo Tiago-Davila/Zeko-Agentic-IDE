@@ -21,6 +21,7 @@ import { DiagnosticsOverlay } from "./diagnostics-overlay.js";
 import { useRunState } from "../run/run-state-store.js";
 import { OutputPanel } from "../run/output-panel.js";
 import { NodeResultPanel } from "../run/node-result-panel.js";
+import type { RunStatus } from "@zeko/contracts";
 
 interface FlowCanvasProps {
   projectId: string;
@@ -32,11 +33,12 @@ interface FlowCanvasProps {
   dirty: boolean;
   saving: boolean;
   runId?: string | undefined;
+  runStatus: RunStatus;
 }
 
 const nodeTypes = { input: InputCanvasNode, agent: AgentCanvasNode, approval: ApprovalCanvasNode };
 
-export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, onStartRun, dirty, saving, runId }: FlowCanvasProps) {
+export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, onStartRun, dirty, saving, runId, runStatus }: FlowCanvasProps) {
   const t = useT();
   const [message, setMessage] = useState<string>();
   const [selectedNodeId, setSelectedNodeId] = useState<string>();
@@ -167,7 +169,7 @@ export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, onStartR
         onChange={(node: AgentNode) => onChange({ ...flow, nodes: flow.nodes.map((item) => item.id === node.id ? node : item) })}
         onClose={() => setSelectedNodeId(undefined)} />}
     </section>
-    {runId && selectedNodeId && <NodeResultPanel runId={runId} nodeId={selectedNodeId} />}
+    {runId && selectedNodeId && <NodeResultPanel runId={runId} nodeId={selectedNodeId} runStatus={runStatus} nodeStatus={liveStates[selectedNodeId]?.status} />}
     {runId && selectedNodeId && <OutputPanel runId={runId} nodeId={selectedNodeId} />}
   </main>;
 }

@@ -3,10 +3,12 @@ import type { RunDetail } from "../ipc/client.js";
 import { ipc } from "../ipc/client.js";
 import { useT } from "../i18n/use-t.js";
 import { DiffViewer } from "./diff-viewer.js";
+import { RunControls } from "./run-controls.js";
+import type { NodeStatus, RunStatus } from "@zeko/contracts";
 
-interface NodeResultPanelProps { runId: string; nodeId: string }
+interface NodeResultPanelProps { runId: string; nodeId: string; runStatus: RunStatus; nodeStatus: NodeStatus | undefined }
 
-export function NodeResultPanel({ runId, nodeId }: NodeResultPanelProps) {
+export function NodeResultPanel({ runId, nodeId, runStatus, nodeStatus }: NodeResultPanelProps) {
   const t = useT();
   const [detail, setDetail] = useState<RunDetail["nodeRuns"][number]>();
   const [diffPath, setDiffPath] = useState<string>();
@@ -32,13 +34,16 @@ export function NodeResultPanel({ runId, nodeId }: NodeResultPanelProps) {
     return () => { active = false; unsubscribe(); };
   }, [nodeId, runId]);
 
-  if (loading && !detail) return <section className="result-panel"><p className="eyebrow">{t("result.eyebrow")}</p><p>{t("result.loading")}</p></section>;
-  if (!detail) return <section className="result-panel"><p className="eyebrow">{t("result.eyebrow")}</p><p>{t("result.notAvailable")}</p></section>;
+  if (loading && !detail) return <section className="result-panel"><header className="result-panel__header"><div><p className="eyebrow">{t("result.eyebrow")}</p><strong>{nodeId}</strong></div>
+    <RunControls runId={runId} nodeId={nodeId} runStatus={runStatus} nodeStatus={nodeStatus} /></header><p className="result-panel__empty">{t("result.loading")}</p></section>;
+  if (!detail) return <section className="result-panel"><header className="result-panel__header"><div><p className="eyebrow">{t("result.eyebrow")}</p><strong>{nodeId}</strong></div>
+    <RunControls runId={runId} nodeId={nodeId} runStatus={runStatus} nodeStatus={nodeStatus} /></header><p className="result-panel__empty">{t("result.notAvailable")}</p></section>;
 
   return <>
     <section className="result-panel" aria-label={t("result.title")}>
       <header className="result-panel__header"><div><p className="eyebrow">{t("result.eyebrow")}</p><strong>{nodeId}</strong></div>
-        <span className={`result-status result-status--${detail.status}`}>{t(`status.${detail.status}`)}</span>
+        <div className="result-panel__actions"><RunControls runId={runId} nodeId={nodeId} runStatus={runStatus} nodeStatus={nodeStatus} />
+          <span className={`result-status result-status--${detail.status}`}>{t(`status.${nodeStatus ?? detail.status}`)}</span></div>
       </header>
       <div className="result-panel__content">
         {detail.reason && <section className="result-block"><h3>{t("result.reason")}</h3><p>{t(detail.reason.code, detail.reason.params as Record<string, string | number>)}</p></section>}
