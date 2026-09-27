@@ -1,3 +1,9 @@
 packages:
   - "apps/*"
   - "packages/*"
+allowBuilds:
+  electron: true
+  electron-winstaller: false
+  esbuild: true
+  # node-pty ships N-API prebuilds (win32-x64/arm64, darwin); no native compile needed.
+  node-pty: false
