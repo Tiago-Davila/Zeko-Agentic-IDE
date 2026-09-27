@@ -7,7 +7,7 @@ const infrastructure = ["node:fs", "node:child_process", "node:sqlite"];
 const packageInfrastructure = ["@zeko/adapters", "@zeko/git", "@zeko/storage", "@zeko/runtime"];
 
 export default tseslint.config(
-  { ignores: ["**/dist/**", "**/out/**", "**/node_modules/**", "**/coverage/**", "spikes/**", "specs/**"] },
+  { ignores: ["**/dist/**", "**/out/**", "**/node_modules/**", "**/coverage/**", "spikes/**", "specs/**", "orca/**"] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -41,6 +41,18 @@ export default tseslint.config(
         { selector: "TSAnyKeyword", message: "Avoid any." },
         { selector: "Identifier[name=/^(pkill|killall)$/]", message: "Terminate only registered process identities through the supervisor." },
         { selector: "CallExpression[callee.property.name='kill'][arguments.0.type!='UnaryExpression']", message: "Do not terminate an individual process handle or PID; use the process supervisor." },
+      ],
+    },
+  },
+  {
+    files: ["apps/desktop/src/main/pty-manager.ts"],
+    rules: {
+      // Interactive terminals are owned by node-pty, not the run supervisor: IPty.kill() closes the pseudoconsole,
+      // which ends every process attached to it, so it is a session close rather than a per-PID kill.
+      "no-restricted-syntax": ["error",
+        { selector: "TSAnyKeyword", message: "Avoid any." },
+        { selector: "Identifier[name=/^(pkill|killall)$/]", message: "Terminate only registered process identities through the supervisor." },
+        { selector: "CallExpression[callee.property.name='kill'][callee.object.property.name!='process'][arguments.0.type!='UnaryExpression']", message: "Only IPty sessions may be closed here." },
       ],
     },
   },
