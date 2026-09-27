@@ -9,6 +9,7 @@ import { FlowCanvas } from "../canvas/flow-canvas.js";
 import type { PreflightResult } from "../ipc/client.js";
 import { HistoryScreen } from "./history-screen.js";
 import { SettingsScreen } from "./settings-screen.js";
+import { ProjectExplorer } from "../explorer/project-explorer.js";
 
 interface FlowEditorProps { projectId: string; flowId: string; onBack: () => void }
 interface Conflict { currentHash: string }
@@ -171,14 +172,21 @@ export function FlowEditor({ projectId, flowId, onBack }: FlowEditorProps) {
     </div>
   </main>;
 
-  return <>
-    {error && <div className="editor-error" role="alert">{error}</div>}
-    <FlowCanvas projectId={projectId} flow={flow} onChange={(next) => { setFlow(next); setDirty(true); }} onBack={onBack}
-      onSave={() => void save()} onStartRun={() => void checkBeforeRun()} onOpenHistory={() => setHistoryOpen(true)} onOpenSettings={() => setSettingsOpen(true)} dirty={dirty} saving={saving} runId={runId} runStatus={runStatus} />
-    {runId && <div className="run-start-toast" role="status">{t("run.started")}</div>}
-    {conflict && <FileConflictDialog onCancel={() => setConflict(undefined)} onKeep={keepMyVersion} onReload={() => void reload()} />}
-    {preflight && <PreflightDialog result={preflight} running={starting} error={preflightError} onCancel={() => setPreflight(undefined)} onStart={() => void startRun()} />}
-    {approvals[0] && <ApprovalDialog nodeId={approvals[0].nodeId} summary={approvals[0].summary} pending={approvalPending} error={approvalError}
-      onDecide={(decision) => void decideApproval(approvals[0]?.nodeId ?? "", decision)} />}
-  </>;
+  // The runtime keys projects by their repository root, so projectId doubles as the explorer root.
+  return <div className="editor-shell">
+    <aside className="project-rail project-rail--editor">
+      <div className="brand-lockup"><span className="brand-symbol" aria-hidden="true">{"Z"}</span><span>{t("brand.name")}</span></div>
+      <ProjectExplorer projectId={projectId} root={projectId} />
+    </aside>
+    <div className="editor-main">
+      {error && <div className="editor-error" role="alert">{error}</div>}
+      <FlowCanvas projectId={projectId} flow={flow} onChange={(next) => { setFlow(next); setDirty(true); }} onBack={onBack}
+        onSave={() => void save()} onStartRun={() => void checkBeforeRun()} onOpenHistory={() => setHistoryOpen(true)} onOpenSettings={() => setSettingsOpen(true)} dirty={dirty} saving={saving} runId={runId} runStatus={runStatus} />
+      {runId && <div className="run-start-toast" role="status">{t("run.started")}</div>}
+      {conflict && <FileConflictDialog onCancel={() => setConflict(undefined)} onKeep={keepMyVersion} onReload={() => void reload()} />}
+      {preflight && <PreflightDialog result={preflight} running={starting} error={preflightError} onCancel={() => setPreflight(undefined)} onStart={() => void startRun()} />}
+      {approvals[0] && <ApprovalDialog nodeId={approvals[0].nodeId} summary={approvals[0].summary} pending={approvalPending} error={approvalError}
+        onDecide={(decision) => void decideApproval(approvals[0]?.nodeId ?? "", decision)} />}
+    </div>
+  </div>;
 }

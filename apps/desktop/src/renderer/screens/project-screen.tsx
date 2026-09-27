@@ -3,6 +3,7 @@ import type { FlowSummary } from "../ipc/client.js";
 import { IpcClientError, ipc } from "../ipc/client.js";
 import { useT } from "../i18n/use-t.js";
 import { FlowList } from "../components/flow-list.js";
+import { ProjectExplorer } from "../explorer/project-explorer.js";
 
 interface ProjectScreenProps {
   onOpenFlow: (projectId: string, flowId: string) => void;
@@ -44,6 +45,7 @@ export function ProjectScreen({ onOpenFlow }: ProjectScreenProps) {
             <span title={project.root}>{project.root.split(/[\\/]/).filter(Boolean).at(-1) ?? project.root}</span>
           </div>
         ) : <p className="rail-empty">{t("project.noProject")}</p>}
+        {project && <ProjectExplorer projectId={project.projectId} root={project.root} />}
         <div className="rail-bottom">{t("project.localOnly")}</div>
       </aside>
 
