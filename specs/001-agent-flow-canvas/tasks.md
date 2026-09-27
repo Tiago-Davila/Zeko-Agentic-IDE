@@ -1205,7 +1205,7 @@ confinamiento y capacidades, costo y uso, e historial. La UI solo pinta lo que c
   **Archivos**: `apps/desktop/src/renderer/run/output-panel.tsx`,
   `apps/desktop/src/renderer/run/ring-buffer.ts`. **Cubre**: FR-029, NFR-002, US2-4. **Base**:
   R-25. **Depende de**: T146
-- [ ] T148 [US2] Panel de resultado del nodo:
+- [X] T148 [US2] Panel de resultado del nodo:
   - estado final y motivo;
   - reporte, archivos observados con "line endings only", discrepancias y **archivos fuera de
     alcance**;

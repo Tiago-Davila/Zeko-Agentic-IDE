@@ -186,7 +186,7 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
     },
     async getRun(runId: string) {
       const run = await runs.get(runId); if (!run) return undefined;
-      const nodeRuns = db.prepare("SELECT n.id,n.node_id AS nodeId,n.node_type AS nodeType,n.agent_id AS agentId,n.model,n.report,n.report_state AS reportState,n.status,n.reason_code AS reasonCode,n.reason_params AS reasonParams,n.base_commit AS baseCommit,n.result_commit AS resultCommit,n.inferred_denials AS inferredDenials,n.cost_usd AS costUsd,n.cost_basis AS costBasis,(SELECT w.path FROM workspaces w WHERE w.node_run_id=n.id ORDER BY rowid DESC LIMIT 1) AS workspacePath FROM node_runs n WHERE n.run_id=? ORDER BY n.rowid").all(runId);
+      const nodeRuns = db.prepare("SELECT n.id,n.node_id AS nodeId,n.node_type AS nodeType,n.agent_id AS agentId,n.model,n.report,n.report_state AS reportState,n.status,n.reason_code AS reasonCode,n.reason_params AS reasonParams,n.hold,n.confinement_level AS confinementLevel,n.confinement_reason AS confinementReason,n.warnings,n.base_commit AS baseCommit,n.result_commit AS resultCommit,n.observed_files AS observedFiles,n.discrepancies,n.denials,n.denial_check AS denialCheck,n.inferred_denials AS inferredDenials,n.inconsistency,n.cost_usd AS costUsd,n.cost_basis AS costBasis,n.consumption,(SELECT w.path FROM workspaces w WHERE w.node_run_id=n.id ORDER BY rowid DESC LIMIT 1) AS workspacePath FROM node_runs n WHERE n.run_id=? ORDER BY n.rowid").all(runId);
       const processes = runs.processTree.forRun(runId, false);
       return { run, nodeRuns: nodeRuns.map((row) => {
         const value = row as Record<string, unknown>;
@@ -194,17 +194,36 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
           const record = attempt as Record<string, unknown>;
           return { ...attempt, ...(record["processOutcome"] ? { processOutcome: JSON.parse(String(record["processOutcome"])) } : {}) };
         });
-        return { ...row, model: value["model"] ? JSON.parse(String(value["model"])) : undefined, report: value["report"] ? JSON.parse(String(value["report"])) : undefined, reasonParams: JSON.parse(String(value["reasonParams"] ?? "{}")), inferredDenials: JSON.parse(String(value["inferredDenials"] ?? "[]")), attempts, ...(typeof value["costUsd"] === "number" ? { cost: { amountUsd: value["costUsd"], basis: value["costBasis"] } } : {}) };
+        const reasonParams = JSON.parse(String(value["reasonParams"] ?? "{}")) as Record<string, unknown>;
+        return {
+          ...row,
+          model: value["model"] ? JSON.parse(String(value["model"])) : undefined,
+          report: value["report"] ? JSON.parse(String(value["report"])) : undefined,
+          reasonParams,
+          ...(typeof value["reasonCode"] === "string" ? { reason: { code: value["reasonCode"], params: reasonParams } } : {}),
+          ...(value["hold"] ? { hold: value["hold"] } : {}),
+          confinement: { level: value["confinementLevel"], ...(value["confinementReason"] ? { reason: value["confinementReason"] } : {}) },
+          warnings: JSON.parse(String(value["warnings"] ?? "[]")),
+          ...(value["observedFiles"] ? { observedFiles: JSON.parse(String(value["observedFiles"])) } : {}),
+          ...(value["discrepancies"] ? { discrepancies: JSON.parse(String(value["discrepancies"])) } : {}),
+          ...(value["denials"] ? { denials: JSON.parse(String(value["denials"])) } : {}),
+          denialCheck: value["denialCheck"],
+          inferredDenials: JSON.parse(String(value["inferredDenials"] ?? "[]")),
+          ...(value["inconsistency"] ? { inconsistency: value["inconsistency"] } : {}),
+          ...(value["consumption"] ? { consumption: JSON.parse(String(value["consumption"])) } : {}),
+          attempts,
+          ...(typeof value["costUsd"] === "number" ? { cost: { amountUsd: value["costUsd"], basis: value["costBasis"] } } : {}),
+        };
       }), processes };
     },
     async nodeOutputPage(runId: string, nodeId: string, afterSeq = 0, limit = 500) { return runs.events.page(runId, nodeId, afterSeq, limit); },
-    async nodeDiff(runId: string, nodeId: string, path?: string) {
+    async nodeDiff(runId: string, nodeId: string, path?: string, offset = 0, limit = 256) {
       const run = await runs.get(runId); if (!run) throw new RuntimeError("RUN_NOT_FOUND", "Run was not found");
       const row = db.prepare("SELECT base_commit AS baseCommit,result_commit AS resultCommit FROM node_runs WHERE run_id=? AND node_id=?").get(runId, nodeId) as { baseCommit?: string; resultCommit?: string } | undefined;
       if (!row?.resultCommit) throw new RuntimeError("WORKSPACE_DELETED", "Node has no retained workspace changes");
       const files = await getObservedFiles({ cwd: run.projectRoot, baseCommit: row.baseCommit ?? run.baseCommit, resultCommit: row.resultCommit });
-      const patch = path ? await getFileDiff({ cwd: run.projectRoot, baseCommit: row.baseCommit ?? run.baseCommit, resultCommit: row.resultCommit, path }) : undefined;
-      return { files, ...(patch ? { patch: patch.patch } : {}) };
+      const patch = path ? await getFileDiff({ cwd: run.projectRoot, baseCommit: row.baseCommit ?? run.baseCommit, resultCommit: row.resultCommit, path, offset, limit }) : undefined;
+      return { files, ...(patch ? { patch: patch.patch, offset: patch.offset, ...(patch.nextOffset === undefined ? {} : { nextOffset: patch.nextOffset }), complete: patch.complete } : {}) };
     },
     async deleteWorkspaces(runId: string, confirmed: boolean) {
       if (!confirmed) throw new RuntimeError("CONFIRMATION_REQUIRED", "Workspace deletion requires confirmation");

@@ -40,8 +40,15 @@ export interface RunDetail {
     id: string; nodeId: string; nodeType: "input" | "agent" | "approval"; agentId?: AgentId;
     model?: { model: string; reasoningEffort?: string; source: "node" | "project_default"; effective?: string };
     report?: AgentReport; reportState: string; status: import("@zeko/contracts").NodeStatus;
-    reasonCode?: string; reasonParams: Record<string, unknown>; inferredDenials: NonNullable<NodeResult["inferredDenials"]>;
+    reason?: { code: import("@zeko/contracts").ReasonCode; params: Record<string, unknown> };
+    hold?: string; reasonParams: Record<string, unknown>; inferredDenials: NonNullable<NodeResult["inferredDenials"]>;
+    confinement: { level: "confined" | "write_only" | "unconfined"; reason?: string }; warnings: WarningCode[];
+    observedFiles?: Array<{ path: string; change: string; eolOnly: boolean }>;
+    discrepancies?: { undeclared: string[]; declaredNotObserved: string[]; scopeViolations: string[]; historyRewritten: boolean };
+    denials?: Array<{ tool: string; reason: string; input?: unknown }>;
+    denialCheck: "applied" | "not_available"; inconsistency?: string;
     attempts: import("@zeko/contracts").Attempt[]; workspacePath?: string; cost?: { amountUsd: number; basis: string };
+    consumption?: import("@zeko/contracts").CostTotals["consumption"];
   }>;
   processes: Array<{ pid: number; creationTime: number; startedAt: string; endedAt?: string }>;
 }
@@ -63,7 +70,7 @@ export interface IpcContract {
   "run.list": { params: { projectId: string; flowId?: string; limit: number; before?: string }; result: RunSummary[] };
   "run.get": { params: { runId: string }; result: RunDetail | undefined };
   "node.output.page": { params: { runId: string; nodeId: string; afterSeq?: number; limit: number }; result: { events: NormalizedEvent[]; nextSeq: number | null } };
-  "node.diff": { params: { runId: string; nodeId: string; path?: string }; result: { files: Array<{ path: string; change: string; eolOnly: boolean }>; patch?: string } };
+  "node.diff": { params: { runId: string; nodeId: string; path?: string; offset?: number; limit?: number }; result: { files: Array<{ path: string; change: string; eolOnly: boolean }>; patch?: string; offset?: number; nextOffset?: number; complete?: boolean } };
   "workspaces.delete": { params: { runId: string; confirmed: true }; result: { deleted: number } };
   "settings.get": { params: { projectId: string }; result: ProjectConfig };
   "settings.set": { params: { projectId: string; config: ProjectConfig }; result: ProjectConfig };

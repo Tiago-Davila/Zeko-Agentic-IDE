@@ -20,6 +20,7 @@ import { AgentNodePanel } from "../panels/agent-node-panel.js";
 import { DiagnosticsOverlay } from "./diagnostics-overlay.js";
 import { useRunState } from "../run/run-state-store.js";
 import { OutputPanel } from "../run/output-panel.js";
+import { NodeResultPanel } from "../run/node-result-panel.js";
 
 interface FlowCanvasProps {
   projectId: string;
@@ -166,6 +167,7 @@ export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, onStartR
         onChange={(node: AgentNode) => onChange({ ...flow, nodes: flow.nodes.map((item) => item.id === node.id ? node : item) })}
         onClose={() => setSelectedNodeId(undefined)} />}
     </section>
+    {runId && selectedNodeId && <NodeResultPanel runId={runId} nodeId={selectedNodeId} />}
     {runId && selectedNodeId && <OutputPanel runId={runId} nodeId={selectedNodeId} />}
   </main>;
 }

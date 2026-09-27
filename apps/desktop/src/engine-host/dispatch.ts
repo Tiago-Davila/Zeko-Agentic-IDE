@@ -11,7 +11,7 @@ const ARGUMENTS: Record<string, readonly string[]> = {
   "flow.validateEdge": ["projectId", "flow", "edge"], "agents.status": ["projectId", "agents"], "run.preflight": ["projectId", "flowId"],
   "run.start": ["projectId", "flowId", "fileHash"], "run.cancel": ["runId"], "node.cancel": ["runId", "nodeId"],
   "approval.decide": ["runId", "nodeId", "decision"], "run.list": ["projectId", "flowId", "limit"], "run.get": ["runId"],
-  "node.output.page": ["runId", "nodeId", "afterSeq", "limit"], "node.diff": ["runId", "nodeId", "path"],
+  "node.output.page": ["runId", "nodeId", "afterSeq", "limit"], "node.diff": ["runId", "nodeId", "path", "offset", "limit"],
   "workspaces.delete": ["runId", "confirmed"], "settings.get": ["projectId"], "settings.set": ["projectId", "config"],
 };
 
