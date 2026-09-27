@@ -41,7 +41,7 @@ describe.runIf(process.platform === "win32")("Windows supervised cancellation", 
       await waitUntil(async () => {
         try { return (await readFile(progressPath, "utf8")).trim().split(/\r?\n/).length >= 2; }
         catch { return false; }
-      }, 8_000);
+      }, 20_000); // setup only: a cold powershell.exe on CI runners can take seconds to write its first lines
       await supervisor.refresh();
       const recorded = supervisor.registeredProcesses(execution.rootPid);
       expect(recorded.length).toBeGreaterThanOrEqual(3);
@@ -64,7 +64,7 @@ describe.runIf(process.platform === "win32")("Windows supervised cancellation", 
       if (unrelated) await unrelatedSupervisor.terminate(unrelated.rootPid).catch(() => undefined);
       await Promise.all([adapter.dispose(), supervisor.dispose(), unrelatedSupervisor.dispose()]);
     }
-  }, 30_000);
+  }, 60_000);
 });
 
 function makeLaunchSpec(workspacePath: string): LaunchSpec {
