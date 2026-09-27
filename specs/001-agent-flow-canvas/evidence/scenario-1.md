@@ -1,6 +1,6 @@
 # Quickstart — escenario 1 (Windows, Claude Code real)
 
-- **Resultado:** PASS; ejecución secuencial completa.
+- **Resultado:** ejecución secuencial PASS; T155 permanece pendiente del indicador visual EOL-only.
 - **Fecha:** 2026-09-27 (America/Buenos_Aires).
 - **Aplicación:** build empaquetado de Windows, Zeko; Claude Code 2.1.283.
 - **Autenticación:** suscripción de Claude, autenticada y verificada en preflight.
@@ -12,5 +12,6 @@
 - **Costos de Claude:** `estimated` (precio de lista); `a` USD 0,0559546, `b` USD 0,0187484; total USD 0,074703.
 - **Consumo reportado:** 10 input, 1.445 output, 41.065 cache-read y 13.005 cache-creation tokens.
 - **Integridad:** el repositorio fuente del fixture permaneció en HEAD; no se modificaron sus archivos de código.
+- **EOL-only:** el run secuencial produjo `eolOnly: false`, correctamente distinguido de un cambio exclusivo de finales de línea. Una comprobación adicional con Claude fue cancelada cuando el agente alteró el contenido (`alpha/beta`); no se observó `eolOnly: true`, así que el requisito visual sigue pendiente.
 
-Nota de ejecución: un intento previo, antes de iniciar Claude, confirmó que el runtime rechaza worktrees bajo `%TEMP%`. Se trasladó el `LOCALAPPDATA` dedicado de la prueba a `C:\Users\Tiago\zeko-e2e-state`, fuera de `%TEMP%`; el run documentado arriba es el exitoso. El `run.start` respondió con un error de clonación IPC pese a iniciar el run; se verificó el resultado completo mediante `run.get` y los eventos persistidos.
+Nota de ejecución: un intento previo, antes de iniciar Claude, confirmó que el runtime rechaza worktrees bajo `%TEMP%`. Se trasladó el `LOCALAPPDATA` dedicado de la prueba a `C:\Users\Tiago\zeko-e2e-state`, fuera de `%TEMP%`; el run documentado arriba es el exitoso. En el build de prueba, `run.start` respondió con error de clonación IPC pese a iniciar el run. La respuesta IPC se corrigió para devolver solo `runId` y se añadió una regresión automatizada; la evidencia de ejecución descrita arriba corresponde al build anterior a esa corrección.

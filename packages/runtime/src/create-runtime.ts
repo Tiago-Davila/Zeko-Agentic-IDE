@@ -259,7 +259,12 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
   const ipcHandlers = {
     "project.open": api.openProject, "flow.list": api.listFlows, "flow.load": api.loadFlow, "flow.create": api.createFlow,
     "flow.save": api.saveFlow, "flow.delete": api.deleteFlow, "flow.validate": api.validateFlow, "flow.validateEdge": api.validateEdge,
-    "agents.status": api.agentsStatus, "run.preflight": api.preflight, "run.start": api.startRun, "run.cancel": api.cancelRun,
+    "agents.status": api.agentsStatus, "run.preflight": api.preflight,
+    "run.start": async (projectId: string, flowId: string, fileHash: string) => {
+      const started = await api.startRun(projectId, flowId, fileHash, "desktop");
+      return { runId: started.runId };
+    },
+    "run.cancel": api.cancelRun,
     "node.cancel": api.cancelNode, "approval.decide": api.decideApproval, "run.list": api.listRuns, "run.get": api.getRun,
     "node.output.page": api.nodeOutputPage, "node.diff": api.nodeDiff, "workspaces.delete": api.deleteWorkspaces,
     "settings.get": api.getSettings, "settings.set": api.setSettings,

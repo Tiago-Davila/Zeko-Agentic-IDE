@@ -44,6 +44,18 @@ describe("SC-008 CLI/desktop equivalence", () => {
       const desktop = await runtime.startRun(project.projectId, "equiv", loaded.fileHash, "desktop");
       await desktop.wait;
       unsubscribe();
+
+      let resolveIpcFinished!: (runId: string) => void;
+      const ipcFinished = new Promise<string>((resolve) => { resolveIpcFinished = resolve; });
+      const unsubscribeIpc = runtime.subscribe((event) => {
+        if (event.type === "run.finished" && event.runId) resolveIpcFinished(event.runId);
+      });
+      const runStart = runtime.ipcHandlers["run.start"] as unknown as (projectId: string, flowId: string, fileHash: string) => Promise<unknown>;
+      const ipcStarted = await runStart(project.projectId, "equiv", loaded.fileHash);
+      expect(structuredClone(ipcStarted)).toMatchObject({ runId: expect.any(String) });
+      expect(Object.keys(ipcStarted as object)).toEqual(["runId"]);
+      await expect(ipcFinished).resolves.toBe((ipcStarted as { runId: string }).runId);
+      unsubscribeIpc();
       expect(cliResult.run.origin).toBe("cli");
       expect(nodeResults["cli"]).toHaveLength(1); expect(nodeResults["desktop"]).toHaveLength(1);
       expect(nodeResults["desktop"]).toEqual(nodeResults["cli"]);
