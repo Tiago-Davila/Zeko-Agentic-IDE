@@ -307,11 +307,12 @@ export class RunEngine {
             options.projectConfig.usageNearLimitThreshold,
             options.clock.now(),
           );
-          if (gate.held) {
-            nodeRun.hold = "USAGE_NEAR_LIMIT";
-            heldForUsage = true;
-            await slots.release(nodeRun.id);
-            continue;
+        if (gate.held) {
+          nodeRun.hold = "USAGE_NEAR_LIMIT";
+          heldForUsage = true;
+          await slots.release(nodeRun.id);
+          await options.store.saveNodeRun?.(nodeRun);
+          continue;
           }
           delete nodeRun.hold;
           nodeRun.status = "running";
@@ -333,10 +334,13 @@ export class RunEngine {
       if (running.size > 0) await Promise.race(running.values());
       else if (heldForUsage) {
         run.hold = "USAGE_NEAR_LIMIT";
+        run.heartbeatAt = options.clock.now();
+        await options.store.updateRun?.(run);
         await this.#emit(runId, "run.held", { reason: "USAGE_NEAR_LIMIT" });
         if (options.waitForUsageUpdate) {
           await options.waitForUsageUpdate();
           delete run.hold;
+          await this.#emit(runId, "run.resumed", { reason: "USAGE_NEAR_LIMIT" });
           changed = true;
         } else break;
       }

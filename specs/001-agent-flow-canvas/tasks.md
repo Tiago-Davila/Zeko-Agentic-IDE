@@ -1300,7 +1300,7 @@ quickstart (repo original, rama actual, ramas `zeko/*` y procesos).
   eventos y no queda ningún proceso registrado. **Archivos**:
   `specs/001-agent-flow-canvas/evidence/scenario-7.md`. **Cubre**: FR-062, NFR-005. **Depende de**:
   T158
-- [ ] T162 [US6] Quickstart **Escenario 8**, retención por uso con el adaptador **simulado**
+- [x] T162 [US6] Quickstart **Escenario 8**, retención por uso con el adaptador **simulado**
   (`ZEKO_FAKE_USAGE=0.95`, solo en builds de desarrollo). No es `[REAL]`. **Archivos**:
   `specs/001-agent-flow-canvas/evidence/scenario-8.md`. **Cubre**: FR-053, SC-009. **Depende de**:
   T151

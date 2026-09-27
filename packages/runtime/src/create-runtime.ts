@@ -17,6 +17,8 @@ export interface CreateZekoRuntimeOptions {
   readonly dbPath?: string;
   readonly worktreeRoot?: string;
   readonly adapters?: Partial<Record<AgentId, AgentAdapter>>;
+  readonly development?: boolean;
+  readonly fakeUsage?: number;
   readonly platform?: NodeJS.Platform;
   readonly approval?: (input: { runId: string; nodeId: string; summary: unknown[] }) => Promise<boolean>;
   readonly driver?: SqlDriver;
@@ -71,12 +73,29 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
   const configuredAdapters = { ...options.adapters };
   if (!configuredAdapters["claude-code"]) configuredAdapters["claude-code"] = new ClaudeCodeAdapter();
   if (!configuredAdapters["codex"]) configuredAdapters["codex"] = new CodexAdapter({ ...(options.platform ? { platform: options.platform } : {}) });
+  const fakeUsage = options.development ? options.fakeUsage ?? parseFakeUsage(process.env["ZEKO_FAKE_USAGE"]) : undefined;
+  if (fakeUsage !== undefined && configuredAdapters["claude-code"]) {
+    const adapter = configuredAdapters["claude-code"];
+    configuredAdapters["claude-code"] = {
+      id: adapter.id,
+      capabilities: (platform) => adapter.capabilities(platform),
+      detect: () => adapter.detect(),
+      readUsage: async () => ({
+        agentId: "claude-code", authMode: "subscription",
+        windows: [{ name: "simulated", utilization: fakeUsage }],
+        readAt: new Date().toISOString(), live: true, source: "simulated",
+      }),
+      launch: (spec) => adapter.launch(spec),
+      requestReport: (previous, spec) => adapter.requestReport(previous, spec),
+    };
+  }
   const adapters = createAdapterRegistry(configuredAdapters);
   const listeners = new Set<RuntimeListener>();
   const projects = new Map<string, string>();
   const engines = new Map<string, RunEngine>();
   const approvals = new Map<string, { promise: Promise<boolean>; resolve: (approved: boolean) => void }>();
   const running = new Map<string, Promise<unknown>>();
+  const usageWaiters = new Map<string, () => void>();
   const recovered = await recoverInterruptedRuns({ db, runs, redactor });
 
   const emit = (type: RuntimeEvent["type"], payload: unknown, runId?: string) => {
@@ -113,11 +132,14 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
     const repository = await getRepositoryInfo(root);
     const config = await configFor(projectId).getSettings();
     const runId = cryptoId();
+    let releaseUsageWait!: () => void;
+    const usageWait = new Promise<void>((resolveUsageWait) => { releaseUsageWait = resolveUsageWait; });
+    usageWaiters.set(runId, releaseUsageWait);
     const engine = new RunEngine({
       flow: loaded.flow, projectConfig: config, adapters, workspace: new GitWorkspacePort(root, options.worktreeRoot ?? paths.worktrees), store, slots,
       clock: { now: () => new Date().toISOString(), sleep: (milliseconds, signal) => new Promise<void>((resolveSleep, reject) => {
         const timer = setTimeout(resolveSleep, milliseconds); signal?.addEventListener("abort", () => { clearTimeout(timer); reject(signal.reason); }, { once: true });
-      }) }, projectRoot: root, flowFile: join(root, ".zeko", "flows", `${flowId}.flow.yaml`), flowHash: fileHash,
+      }) }, waitForUsageUpdate: () => usageWait, projectRoot: root, flowFile: join(root, ".zeko", "flows", `${flowId}.flow.yaml`), flowHash: fileHash,
       baseCommit: repository.head, platform: process.platform === "win32" ? "win32" : "linux", hostPid: process.pid,
       hostStartedAt: new Date(Date.now() - process.uptime() * 1000).toISOString(), origin, createId: (() => { let first = true; return () => { if (first) { first = false; return runId; } return cryptoId(); }; })(),
       concurrencyLimit: config.concurrencyLimit, inspectFiles: async ({ workspacePath, baseCommit, resultCommit }) => getObservedFiles({ cwd: workspacePath, baseCommit, resultCommit }), markWorkspaceUntrusted: async () => undefined,
@@ -137,7 +159,7 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
       emit("run.finished", { runId, status: result.run.status, outcome: result.run.outcome, totals: result.run.totals }, runId);
       return result;
     }).catch((error: unknown) => { emit("engine.error", { code: "INTERNAL_ERROR", message: error instanceof Error ? error.message : String(error) }, runId); throw error; })
-      .finally(() => { engines.delete(runId); running.delete(runId); });
+      .finally(() => { engines.delete(runId); running.delete(runId); usageWaiters.delete(runId); });
     running.set(runId, execution);
     return { runId, wait: execution };
   }
@@ -172,7 +194,7 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
       return { ...await checkPreflight(loaded.flow, adapters), uncommittedChanges, diagnostics: loaded.diagnostics };
     },
     async startRun(projectId: string, flowId: string, fileHash: string, origin?: "cli" | "desktop") { return startRun(projectId, flowId, fileHash, origin); },
-    async cancelRun(runId: string) { await engines.get(runId)?.cancelRun(); },
+    async cancelRun(runId: string) { await engines.get(runId)?.cancelRun(); usageWaiters.get(runId)?.(); },
     async forceCancelRun(runId: string) { await engines.get(runId)?.forceCancelRun(); },
     async cancelNode(runId: string, nodeId: string) { await engines.get(runId)?.cancelNode(nodeId); },
     async decideApproval(runId: string, nodeId: string, decision: "approved" | "rejected") {
@@ -278,3 +300,8 @@ class RuntimeError extends Error {
   constructor(readonly code: string, message: string) { super(message); this.name = "RuntimeError"; }
 }
 function cryptoId(): string { return randomUUID().replace(/^[0-9a-f]{8}-[0-9a-f]{4}-4/, (prefix) => `${prefix.slice(0, -1)}7`); }
+function parseFakeUsage(value: string | undefined): number | undefined {
+  if (value === undefined || value.trim() === "") return undefined;
+  const utilization = Number(value);
+  return Number.isFinite(utilization) && utilization >= 0 && utilization <= 1 ? utilization : undefined;
+}

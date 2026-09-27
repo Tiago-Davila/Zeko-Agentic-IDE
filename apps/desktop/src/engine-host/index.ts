@@ -9,7 +9,10 @@ let messagePort: MessagePortMain | undefined;
 let outputBatcher: OutputBatcher | undefined;
 const flowWatchers = new Map<string, FlowWatcher>();
 const smokeDatabase = process.argv.includes("--zeko-sqlite-smoke") ? process.env["ZEKO_DATABASE_PATH"] : undefined;
-const runtimePromise = createZekoRuntime(smokeDatabase ? { dbPath: smokeDatabase } : {});
+const runtimePromise = createZekoRuntime({
+  development: process.env["ZEKO_DEVELOPMENT"] === "1",
+  ...(smokeDatabase ? { dbPath: smokeDatabase } : {}),
+});
 
 process.parentPort.on("message", (event) => {
   const data = event.data as { type?: unknown } | undefined;

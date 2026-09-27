@@ -20,7 +20,10 @@ const lifecycle = new EngineHostLifecycle({
     else void window.loadFile(join(import.meta.dirname, "../renderer/index.html"));
     return window;
   },
-  forkEngine: (entry) => utilityProcess.fork(entry, [], { serviceName: "Zeko engine host" }),
+  forkEngine: (entry) => utilityProcess.fork(entry, [], {
+    serviceName: "Zeko engine host",
+    env: { ...process.env, ZEKO_DEVELOPMENT: app.isPackaged ? "0" : "1" },
+  }),
   createChannel: () => new MessageChannelMain(),
   engineEntry: join(app.getAppPath(), "out/main/engine-host.js"),
   onQuit: () => app.quit(),
