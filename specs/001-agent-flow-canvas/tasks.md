@@ -1266,7 +1266,7 @@ quickstart (repo original, rama actual, ramas `zeko/*` y procesos).
   `b` parte del commit de `a`; diff con marca de finales de línea; costo "estimated". **Archivos**:
   `specs/001-agent-flow-canvas/evidence/scenario-1.md`. **Cubre**: FR-026, FR-041, FR-043,
   FR-046, FR-051, SC-004, SC-007. **Depende de**: T154, T119
-- [ ] T156 [REAL] [US2] Quickstart **Escenario 2**, flujo paralelo con límite 8 y 1: `y` Blocked,
+- [x] T156 [REAL] [US2] Quickstart **Escenario 2**, flujo paralelo con límite 8 y 1: `y` Blocked,
   `z` Skipped, `x` Completed. **Archivos**: `specs/001-agent-flow-canvas/evidence/scenario-2.md`.
   **Cubre**: FR-027, FR-031, NFR-011. **Depende de**: T155
 - [ ] T157 [REAL] [US3] Quickstart **Escenario 3**, aprobación: aprobar y rechazar desde el canvas,
