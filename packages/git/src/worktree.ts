@@ -1,6 +1,6 @@
 import { homedir, tmpdir } from "node:os";
 import { mkdir } from "node:fs/promises";
-import { isAbsolute, join, relative, resolve, sep } from "node:path";
+import { join, posix, resolve, win32 } from "node:path";
 import { runGit } from "./git-cli.js";
 
 export interface WorktreeLocationOptions {
@@ -18,6 +18,11 @@ export interface CreateWorktreeOptions extends WorktreeLocationOptions {
   tempDirectory?: string;
 }
 
+// Path rules follow the requested platform, not the host, so Windows paths are checked as Windows paths anywhere.
+function pathFor(platform: NodeJS.Platform): typeof posix {
+  return platform === "win32" ? win32 : posix;
+}
+
 export class WorkspaceCreateError extends Error {
   override readonly name = "WorkspaceCreateError";
   readonly code = "WORKSPACE_CREATE_FAILED";
@@ -32,25 +37,27 @@ export class WorkspaceCreateError extends Error {
 export function getWorktreeRoot(options: WorktreeLocationOptions = {}): string {
   const platform = options.platform ?? process.platform;
   const env = options.env ?? process.env;
+  const path = pathFor(platform);
   if (platform === "win32") {
     const localAppData = env["LOCALAPPDATA"];
-    if (!localAppData || !isAbsolute(localAppData)) {
+    if (!localAppData || !path.isAbsolute(localAppData)) {
       throw new Error("LOCALAPPDATA must be an absolute path on Windows");
     }
-    return join(localAppData, "Zeko", "wt");
+    return path.join(localAppData, "Zeko", "wt");
   }
-  const dataHome = env["XDG_DATA_HOME"] || join(homedir(), ".local", "share");
-  if (!isAbsolute(dataHome)) throw new Error("XDG_DATA_HOME must be an absolute path");
-  return join(dataHome, "Zeko", "wt");
+  const dataHome = env["XDG_DATA_HOME"] || path.join(homedir(), ".local", "share");
+  if (!path.isAbsolute(dataHome)) throw new Error("XDG_DATA_HOME must be an absolute path");
+  return path.join(dataHome, "Zeko", "wt");
 }
 
 function isWithin(parentPath: string, candidatePath: string, windows: boolean): boolean {
-  const parent = resolve(parentPath);
-  const candidate = resolve(candidatePath);
+  const path = pathFor(windows ? "win32" : "linux");
+  const parent = path.resolve(parentPath);
+  const candidate = path.resolve(candidatePath);
   const normalizedParent = windows ? parent.toLowerCase() : parent;
   const normalizedCandidate = windows ? candidate.toLowerCase() : candidate;
-  const rel = relative(normalizedParent, normalizedCandidate);
-  return rel === "" || (rel !== ".." && !rel.startsWith(`..${sep}`) && !isAbsolute(rel));
+  const rel = path.relative(normalizedParent, normalizedCandidate);
+  return rel === "" || (rel !== ".." && !rel.startsWith(`..${path.sep}`) && !path.isAbsolute(rel));
 }
 
 export function assertSafeWorktreePath(input: {
