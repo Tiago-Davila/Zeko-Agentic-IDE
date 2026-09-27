@@ -1239,7 +1239,7 @@ confinamiento y capacidades, costo y uso, e historial. La UI solo pinta lo que c
   `apps/desktop/src/renderer/dialogs/delete-workspaces-dialog.tsx`. **Cubre**: FR-048, FR-060–062,
   US8-1–3. **Base**: contracts/ipc.md `run.list`, `run.get`, `workspaces.delete`. **Depende de**:
   T146
-- [ ] T153 [P] [US1] Configuración del proyecto: `concurrencyLimit`, umbral de uso y
+- [X] T153 [P] [US1] Configuración del proyecto: `concurrencyLimit`, umbral de uso y
   `defaultModels`, a través de `settings.get` / `settings.set`. **Archivos**:
   `apps/desktop/src/renderer/screens/settings-screen.tsx`. **Cubre**: FR-011a, FR-027, FR-053.
   **Base**: data-model §ProjectConfig. **Depende de**: T139

@@ -8,6 +8,7 @@ import { ApprovalDialog } from "../dialogs/approval-dialog.js";
 import { FlowCanvas } from "../canvas/flow-canvas.js";
 import type { PreflightResult } from "../ipc/client.js";
 import { HistoryScreen } from "./history-screen.js";
+import { SettingsScreen } from "./settings-screen.js";
 
 interface FlowEditorProps { projectId: string; flowId: string; onBack: () => void }
 interface Conflict { currentHash: string }
@@ -31,6 +32,7 @@ export function FlowEditor({ projectId, flowId, onBack }: FlowEditorProps) {
   const [approvalPending, setApprovalPending] = useState(false);
   const [approvalError, setApprovalError] = useState<string>();
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   async function reload(): Promise<void> {
     setLoading(true);
@@ -154,6 +156,7 @@ export function FlowEditor({ projectId, flowId, onBack }: FlowEditorProps) {
   }
 
   if (historyOpen) return <HistoryScreen projectId={projectId} onBack={() => setHistoryOpen(false)} />;
+  if (settingsOpen) return <SettingsScreen projectId={projectId} onBack={() => setSettingsOpen(false)} />;
   if (loading) return <main className="flow-editor-state"><span className="eyebrow">{t("flow.loading")}</span></main>;
   if (!flow) return <main className="flow-editor-state">
     <button className="button button--quiet" type="button" onClick={onBack}>{t("canvas.back")}</button>
@@ -171,7 +174,7 @@ export function FlowEditor({ projectId, flowId, onBack }: FlowEditorProps) {
   return <>
     {error && <div className="editor-error" role="alert">{error}</div>}
     <FlowCanvas projectId={projectId} flow={flow} onChange={(next) => { setFlow(next); setDirty(true); }} onBack={onBack}
-      onSave={() => void save()} onStartRun={() => void checkBeforeRun()} onOpenHistory={() => setHistoryOpen(true)} dirty={dirty} saving={saving} runId={runId} runStatus={runStatus} />
+      onSave={() => void save()} onStartRun={() => void checkBeforeRun()} onOpenHistory={() => setHistoryOpen(true)} onOpenSettings={() => setSettingsOpen(true)} dirty={dirty} saving={saving} runId={runId} runStatus={runStatus} />
     {runId && <div className="run-start-toast" role="status">{t("run.started")}</div>}
     {conflict && <FileConflictDialog onCancel={() => setConflict(undefined)} onKeep={keepMyVersion} onReload={() => void reload()} />}
     {preflight && <PreflightDialog result={preflight} running={starting} error={preflightError} onCancel={() => setPreflight(undefined)} onStart={() => void startRun()} />}

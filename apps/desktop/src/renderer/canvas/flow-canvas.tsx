@@ -35,11 +35,12 @@ interface FlowCanvasProps {
   runId?: string | undefined;
   runStatus: RunStatus;
   onOpenHistory: () => void;
+  onOpenSettings: () => void;
 }
 
 const nodeTypes = { input: InputCanvasNode, agent: AgentCanvasNode, approval: ApprovalCanvasNode };
 
-export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, onStartRun, onOpenHistory, dirty, saving, runId, runStatus }: FlowCanvasProps) {
+export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, onStartRun, onOpenHistory, onOpenSettings, dirty, saving, runId, runStatus }: FlowCanvasProps) {
   const t = useT();
   const [message, setMessage] = useState<string>();
   const [selectedNodeId, setSelectedNodeId] = useState<string>();
@@ -149,6 +150,7 @@ export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, onStartR
         <div><p className="eyebrow">{t("canvas.flowLabel")}</p><h1>{flow.name}</h1></div>
       </div>
       <div className="canvas-toolbar__actions">
+        <button className="button button--quiet" type="button" onClick={onOpenSettings}>{t("settings.title")}</button>
         <button className="button button--quiet" type="button" onClick={onOpenHistory}>{t("history.title")}</button>
         <button className="button button--quiet" type="button" disabled={!dirty || saving} onClick={onSave}>{saving ? t("flow.saving") : dirty ? t("flow.save") : t("flow.saved")}</button>
         <button className="button button--primary" type="button" disabled={!validationReady || hasErrors || dirty} title={!validationReady ? t("validation.pending") : hasErrors ? t("run.blockedByErrors") : dirty ? t("run.saveBeforeRun") : undefined} onClick={onStartRun}>{t("run.start")}</button>
