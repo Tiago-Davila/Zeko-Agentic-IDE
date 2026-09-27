@@ -1,6 +1,7 @@
 import { app, BrowserWindow, dialog, ipcMain, MessageChannelMain, utilityProcess } from "electron";
 import { join } from "node:path";
 import { EngineHostLifecycle } from "./engine-host-lifecycle.js";
+import { dimension, parseOpenRequest, PtyManager } from "./pty-manager.js";
 
 const lifecycle = new EngineHostLifecycle({
   createWindow: () => {
@@ -28,6 +29,25 @@ const lifecycle = new EngineHostLifecycle({
   engineEntry: join(app.getAppPath(), "out/main/engine-host.js"),
   onQuit: () => app.quit(),
 });
+
+const terminals = new PtyManager({
+  data: (id, data) => sendToWindows("terminal.data", { id, data }),
+  exit: (id, exitCode) => sendToWindows("terminal.exit", { id, exitCode }),
+});
+
+function sendToWindows(channel: string, payload: unknown): void {
+  for (const window of BrowserWindow.getAllWindows()) if (!window.isDestroyed()) window.webContents.send(channel, payload);
+}
+
+ipcMain.handle("terminal.open", (_event, request: unknown) => terminals.open(parseOpenRequest(request)));
+ipcMain.handle("terminal.restart", (_event, request: unknown) => terminals.restart(parseOpenRequest(request)));
+ipcMain.on("terminal.write", (_event, id: unknown, data: unknown) => {
+  if (typeof id === "string" && typeof data === "string") terminals.write(id, data);
+});
+ipcMain.on("terminal.resize", (_event, id: unknown, cols: unknown, rows: unknown) => {
+  if (typeof id === "string") terminals.resize(id, dimension(cols, 80), dimension(rows, 24));
+});
+app.on("will-quit", () => terminals.killAll());
 
 ipcMain.handle("dialog.openFolder", async () => {
   const result = await dialog.showOpenDialog({ properties: ["openDirectory"] });
