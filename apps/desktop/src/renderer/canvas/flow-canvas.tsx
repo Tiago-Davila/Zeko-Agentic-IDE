@@ -169,7 +169,7 @@ export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, onStartR
         onChange={(node: AgentNode) => onChange({ ...flow, nodes: flow.nodes.map((item) => item.id === node.id ? node : item) })}
         onClose={() => setSelectedNodeId(undefined)} />}
     </section>
-    {runId && selectedNodeId && <NodeResultPanel runId={runId} nodeId={selectedNodeId} runStatus={runStatus} nodeStatus={liveStates[selectedNodeId]?.status} />}
+    {runId && selectedNodeId && <NodeResultPanel projectId={projectId} runId={runId} nodeId={selectedNodeId} runStatus={runStatus} nodeStatus={liveStates[selectedNodeId]?.status} />}
     {runId && selectedNodeId && <OutputPanel runId={runId} nodeId={selectedNodeId} />}
   </main>;
 }

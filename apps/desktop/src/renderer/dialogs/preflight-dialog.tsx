@@ -22,7 +22,7 @@ export function PreflightDialog({ result, running, error, onCancel, onStart }: P
       </section>
       <div className="preflight-agent-list">
         {result.perNodeAuth.map((item) => <article className="preflight-agent" key={item.nodeId}>
-          <div className="preflight-agent__heading"><strong>{item.agentId === "claude-code" ? "Claude Code" : item.agentId === "codex" ? "Codex" : item.agentId}</strong><code>{item.nodeId}</code></div>
+          <div className="preflight-agent__heading"><strong>{t(item.agentId === "claude-code" ? "agent.claudeCode" : item.agentId === "codex" ? "agent.codex" : "agent.fake")}</strong><code>{item.nodeId}</code></div>
           <div className="preflight-agent__details">
             <span>{item.installed ? t("preflight.installed") : t("preflight.notInstalled")}</span>
             <span>{t(`preflight.auth.${item.state}`)}</span>

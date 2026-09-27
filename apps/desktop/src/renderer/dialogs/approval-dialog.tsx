@@ -19,7 +19,7 @@ export function ApprovalDialog({ nodeId, summary, pending, error, onDecide }: Ap
       <p>{t("approval.description")}</p>
       <div className="approval-predecessors">
         {summary.map((predecessor) => <article className="approval-predecessor" key={predecessor.nodeId}>
-          <header><div><strong>{predecessor.nodeId}</strong>{predecessor.agent && <span>{predecessor.agent}</span>}</div>
+          <header><div><strong>{predecessor.nodeId}</strong>{predecessor.agent && <span>{predecessor.agent === "claude-code" ? t("agent.claudeCode") : predecessor.agent === "codex" ? t("agent.codex") : predecessor.agent}</span>}</div>
             <span className={`result-status result-status--${predecessor.finalStatus}`}>{t(`status.${predecessor.finalStatus}`)}</span>
           </header>
           {predecessor.report && <p>{predecessor.report.summary}</p>}

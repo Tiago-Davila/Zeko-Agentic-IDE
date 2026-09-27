@@ -35,7 +35,7 @@ export function AgentNodePanel({ node, defaults, notApplicable, onChange, onClos
       <div className="inspector-field">
         <label htmlFor="node-agent">{t("node.agent")}</label>
         <select id="node-agent" value={node.agent} onChange={(event) => changeAgent(event.target.value as AgentNode["agent"])}>
-          <option value="claude-code">{"Claude Code"}</option><option value="codex">{"Codex"}</option>
+          <option value="claude-code">{t("agent.claudeCode")}</option><option value="codex">{t("agent.codex")}</option>
         </select>
       </div>
       <ModelField agent={node.agent} models={node.models} onChange={(models) => update("models", models)} />

@@ -47,7 +47,7 @@ export interface RunDetail {
     discrepancies?: { undeclared: string[]; declaredNotObserved: string[]; scopeViolations: string[]; historyRewritten: boolean };
     denials?: Array<{ tool: string; reason: string; input?: unknown }>;
     denialCheck: "applied" | "not_available"; inconsistency?: string;
-    attempts: import("@zeko/contracts").Attempt[]; workspacePath?: string; cost?: { amountUsd: number; basis: string };
+    attempts: import("@zeko/contracts").Attempt[]; workspacePath?: string; cost?: { amountUsd: number; basis: "billed" | "list_price_estimate" | "unknown" };
     consumption?: import("@zeko/contracts").CostTotals["consumption"];
   }>;
   processes: Array<{ pid: number; creationTime: number; startedAt: string; endedAt?: string }>;

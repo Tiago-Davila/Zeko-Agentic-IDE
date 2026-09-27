@@ -5,12 +5,14 @@ import { useT } from "../i18n/use-t.js";
 import { DiffViewer } from "./diff-viewer.js";
 import { RunControls } from "./run-controls.js";
 import type { NodeStatus, RunStatus } from "@zeko/contracts";
+import { CostUsagePanel } from "./cost-usage-panel.js";
 
-interface NodeResultPanelProps { runId: string; nodeId: string; runStatus: RunStatus; nodeStatus: NodeStatus | undefined }
+interface NodeResultPanelProps { projectId: string; runId: string; nodeId: string; runStatus: RunStatus; nodeStatus: NodeStatus | undefined }
 
-export function NodeResultPanel({ runId, nodeId, runStatus, nodeStatus }: NodeResultPanelProps) {
+export function NodeResultPanel({ projectId, runId, nodeId, runStatus, nodeStatus }: NodeResultPanelProps) {
   const t = useT();
   const [detail, setDetail] = useState<RunDetail["nodeRuns"][number]>();
+  const [runRecord, setRunRecord] = useState<RunDetail["run"]>();
   const [diffPath, setDiffPath] = useState<string>();
   const [loading, setLoading] = useState(true);
 
@@ -21,7 +23,7 @@ export function NodeResultPanel({ runId, nodeId, runStatus, nodeStatus }: NodeRe
     async function refresh(): Promise<void> {
       try {
         const result = await ipc.request("run.get", { runId });
-        if (active) setDetail(result?.nodeRuns.find((nodeRun) => nodeRun.nodeId === nodeId));
+        if (active) { setRunRecord(result?.run); setDetail(result?.nodeRuns.find((nodeRun) => nodeRun.nodeId === nodeId)); }
       } catch {
         if (active) setDetail(undefined);
       } finally { if (active) setLoading(false); }
@@ -29,14 +31,14 @@ export function NodeResultPanel({ runId, nodeId, runStatus, nodeStatus }: NodeRe
     void refresh();
     const unsubscribe = ipc.onEvent((event) => {
       if (event.runId !== runId) return;
-      if (event.type === "run.finished" || event.type === "node.result" || event.type === "node.state") void refresh();
+      if (event.type === "run.finished" || event.type === "run.held" || event.type === "run.resumed" || event.type === "node.result" || event.type === "node.state") void refresh();
     });
     return () => { active = false; unsubscribe(); };
   }, [nodeId, runId]);
 
   if (loading && !detail) return <section className="result-panel"><header className="result-panel__header"><div><p className="eyebrow">{t("result.eyebrow")}</p><strong>{nodeId}</strong></div>
     <RunControls runId={runId} nodeId={nodeId} runStatus={runStatus} nodeStatus={nodeStatus} /></header><p className="result-panel__empty">{t("result.loading")}</p></section>;
-  if (!detail) return <section className="result-panel"><header className="result-panel__header"><div><p className="eyebrow">{t("result.eyebrow")}</p><strong>{nodeId}</strong></div>
+  if (!detail || !runRecord) return <section className="result-panel"><header className="result-panel__header"><div><p className="eyebrow">{t("result.eyebrow")}</p><strong>{nodeId}</strong></div>
     <RunControls runId={runId} nodeId={nodeId} runStatus={runStatus} nodeStatus={nodeStatus} /></header><p className="result-panel__empty">{t("result.notAvailable")}</p></section>;
 
   return <>
@@ -72,6 +74,7 @@ export function NodeResultPanel({ runId, nodeId, runStatus, nodeStatus }: NodeRe
           {detail.inferredDenials.map((denial, index) => <p key={`${denial.source}-${index}`}><span className="inferred-tag">{t("result.inferredTag")}</span>{denial.message}</p>)}
         </section>}
         {detail.inconsistency && <p className="result-warning">{t("result.inconsistency")}</p>}
+        <CostUsagePanel projectId={projectId} runId={runId} run={runRecord} nodeRun={detail} />
       </div>
     </section>
     {diffPath && <DiffViewer runId={runId} nodeId={nodeId} path={diffPath} onClose={() => setDiffPath(undefined)} />}

@@ -1222,7 +1222,7 @@ confinamiento y capacidades, costo y uso, e historial. La UI solo pinta lo que c
 - [X] T150 [US3] Diálogo de aprobación con el resumen de los predecesores, y aprobar / rechazar.
   **Archivos**: `apps/desktop/src/renderer/dialogs/approval-dialog.tsx`. **Cubre**: FR-012,
   US3-1–4. **Base**: contracts/ipc.md `approval.*`. **Depende de**: T146
-- [ ] T151 [US6] Costo y uso:
+- [X] T151 [US6] Costo y uso:
   - costo y consumo por nodo ("not available", "estimated") y total del run ("partial",
     "estimated");
   - uso de la suscripción por agente con la hora de la última lectura y "not live" para Codex;
