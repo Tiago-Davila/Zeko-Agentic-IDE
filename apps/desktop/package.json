@@ -1,0 +1,30 @@
+{
+  "name": "@zeko/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "build": "electron-vite build",
+    "package:win": "electron-builder --dir --win --x64"
+  },
+  "dependencies": {
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
+    "@xyflow/react": "^12.8.4",
+    "@zeko/contracts": "workspace:*",
+    "@zeko/i18n": "workspace:*",
+    "@zeko/runtime": "workspace:*",
+    "node-pty": "^1.1.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "electron": "^38.2.0",
+    "electron-builder": "^26.16.1",
+    "electron-vite": "^5.0.0",
+    "vite": "^7.1.7"
+  }
+}

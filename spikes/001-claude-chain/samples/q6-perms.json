@@ -1,0 +1,134 @@
+[
+  {
+    "config": "default",
+    "flags": "",
+    "exit": 0,
+    "permissionMode": "default",
+    "fileCreated": false,
+    "bashRan": true,
+    "denials": [
+      "Write"
+    ],
+    "toolErrors": [
+      "\"Claude requested permissions to write to C:\\\\Users\\\\Tiago\\\\Zeko-Agentic-IDE\\\\spikes\\\\001-claude-chain\\\\runs\\\\perm-default\\\\permiso.txt, but you haven't granted it yet.\""
+    ],
+    "wall_ms": 14220,
+    "result": "Pude ejecutar `git --version` (2.50.0.windows.1), pero no pude crear permiso.txt porque el permiso de escritura fue denegado."
+  },
+  {
+    "config": "prompts-none",
+    "flags": "--permission-prompts none",
+    "exit": 0,
+    "permissionMode": "default",
+    "fileCreated": false,
+    "bashRan": true,
+    "denials": [
+      "Write"
+    ],
+    "toolErrors": [
+      "\"Permission for this tool use was denied. It requires approval, and this session has no approval surface — nobody can answer a permission prompt here — so it was denied automatically. The action was N"
+    ],
+    "wall_ms": 19871,
+    "result": "No pude crear permiso.txt (Write bloqueado automáticamente por falta de superficie de aprobación en esta sesión), pero sí ejecuté `git --version` con éxito: git version 2.50.0.windows.1."
+  },
+  {
+    "config": "allowed-write",
+    "flags": "--allowedTools Write",
+    "exit": 0,
+    "permissionMode": "default",
+    "fileCreated": true,
+    "bashRan": true,
+    "denials": [],
+    "toolErrors": [],
+    "wall_ms": 16087,
+    "result": "Pude crear permiso.txt y ejecutar `git --version` (2.50.0.windows.1) sin problemas; nada falló."
+  },
+  {
+    "config": "allowed-write-bashgit",
+    "flags": "--allowedTools Write Bash(git --version)",
+    "exit": 0,
+    "permissionMode": "default",
+    "fileCreated": true,
+    "bashRan": true,
+    "denials": [],
+    "toolErrors": [],
+    "wall_ms": 14453,
+    "result": "Pude hacer ambas cosas: creé permiso.txt con 'x' y ejecuté `git --version` (2.50.0.windows.1) sin problemas."
+  },
+  {
+    "config": "acceptEdits",
+    "flags": "--permission-mode acceptEdits",
+    "exit": 0,
+    "permissionMode": "acceptEdits",
+    "fileCreated": true,
+    "bashRan": true,
+    "denials": [],
+    "toolErrors": [],
+    "wall_ms": 17312,
+    "result": "Pude crear permiso.txt y ejecutar `git --version` (2.50.0.windows.1) sin problemas; no hubo nada que no pudiera hacer."
+  },
+  {
+    "config": "dontAsk",
+    "flags": "--permission-mode dontAsk",
+    "exit": 0,
+    "permissionMode": "dontAsk",
+    "fileCreated": false,
+    "bashRan": true,
+    "denials": [
+      "Write"
+    ],
+    "toolErrors": [
+      "\"Permission to use Write has been denied because Claude Code is running in don't ask mode. IMPORTANT: You *may* attempt to accomplish this action using other tools that might naturally be used to acco"
+    ],
+    "wall_ms": 18868,
+    "result": "No pude crear permiso.txt (Write bloqueado en modo \"don't ask\"), pero sí ejecuté `git --version` → git version 2.50.0.windows.1."
+  },
+  {
+    "config": "dontAsk+allowed-write",
+    "flags": "--permission-mode dontAsk --allowedTools Write",
+    "exit": 0,
+    "permissionMode": "dontAsk",
+    "fileCreated": true,
+    "bashRan": true,
+    "denials": [],
+    "toolErrors": [],
+    "wall_ms": 19172,
+    "result": "Pude crear permiso.txt y ejecutar `git --version` (2.50.0.windows.1) sin problemas; no hubo nada que no pudiera hacer."
+  },
+  {
+    "config": "disallowed-bash",
+    "flags": "--allowedTools Write --disallowedTools Bash",
+    "exit": 0,
+    "permissionMode": "default",
+    "fileCreated": true,
+    "bashRan": false,
+    "denials": [],
+    "toolErrors": [],
+    "wall_ms": 15613,
+    "result": "No existe una herramienta Bash disponible en este entorno (solo PowerShell), así que no pude ejecutar ese paso con Bash.\n\nPude crear permiso.txt con \"x\", pero no pude ejecutar `git --version` porque aquí no hay herramienta Bash disponible (solo PowerShell, que no me pediste usar)."
+  },
+  {
+    "config": "tools-read-only",
+    "flags": "--tools Read",
+    "exit": 0,
+    "permissionMode": "default",
+    "fileCreated": false,
+    "bashRan": false,
+    "denials": [],
+    "toolErrors": [],
+    "wall_ms": 10847,
+    "result": "No puedo hacer ninguna de las dos: no dispongo de herramientas Write ni Bash, solo cuento con la herramienta Read en esta sesión."
+  },
+  {
+    "config": "bypass",
+    "flags": "--dangerously-skip-permissions",
+    "exit": 0,
+    "permissionMode": "bypassPermissions",
+    "fileCreated": true,
+    "bashRan": true,
+    "denials": [],
+    "toolErrors": [],
+    "wall_ms": 19680,
+    "result": "Pude hacer ambas cosas: creé permiso.txt con 'x' y confirmé git version 2.50.0.windows.1."
+  }
+]

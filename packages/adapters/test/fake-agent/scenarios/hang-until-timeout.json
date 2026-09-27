@@ -1,0 +1,5 @@
+{
+  "hangUntilInterrupt": true,
+  "emitFinalEvent": false,
+  "interruptMode": "ignore"
+}

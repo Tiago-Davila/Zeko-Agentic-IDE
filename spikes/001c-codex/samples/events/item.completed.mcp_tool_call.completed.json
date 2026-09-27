@@ -1,0 +1,23 @@
+{
+  "type": "item.completed",
+  "item": {
+    "id": "item_2",
+    "type": "mcp_tool_call",
+    "server": "zekofs",
+    "tool": "read_file",
+    "arguments": {
+      "path": "datos.txt"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "alfa\nbeta\ngamma\n"
+        }
+      ],
+      "structured_content": null
+    },
+    "error": null,
+    "status": "completed"
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "events": [{ "type": "assistant_text", "ts": "2026-09-25T00:00:00.000Z", "attemptId": "018f0000-0000-7000-8000-000000000101", "text": "Implemented the requested change." }],
+  "outcome": { "kind": "exited", "exitCode": 0, "durationMs": 40 },
+  "reportCandidate": { "state": "valid", "report": { "status": "COMPLETED", "summary": "Done.", "filesChanged": [], "checks": [], "blockers": [], "findings": [] } }
+}

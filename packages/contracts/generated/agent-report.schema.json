@@ -1,0 +1,80 @@
+{
+  "type": "object",
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": [
+        "COMPLETED",
+        "BLOCKED",
+        "FAILED"
+      ],
+      "description": "COMPLETED: all acceptance criteria met. BLOCKED: could not proceed because something outside your control is missing or was denied. FAILED: you attempted the task and it did not meet the acceptance criteria."
+    },
+    "summary": {
+      "type": "string",
+      "description": "What you did and the outcome, in plain language."
+    },
+    "filesChanged": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Paths you modified, relative to the repository root. Empty if none."
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the check."
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "PASSED",
+              "FAILED",
+              "NOT_RUN"
+            ],
+            "description": "Result of the check."
+          },
+          "evidence": {
+            "type": "string",
+            "description": "Concrete evidence for the outcome."
+          }
+        },
+        "required": [
+          "name",
+          "outcome",
+          "evidence"
+        ],
+        "additionalProperties": false
+      },
+      "description": "Verifications you performed. Empty if none."
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "What prevented completion. Must be empty only if status is COMPLETED and nothing blocked you."
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Relevant observations for the next step. Empty if none."
+    }
+  },
+  "required": [
+    "status",
+    "summary",
+    "filesChanged",
+    "checks",
+    "blockers",
+    "findings"
+  ],
+  "additionalProperties": false
+}

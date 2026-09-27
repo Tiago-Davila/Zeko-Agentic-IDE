@@ -1,0 +1,751 @@
+[
+  {
+    "case": "done",
+    "rep": 0,
+    "expect": "DONE",
+    "exit": 0,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 4,
+    "cost": 0.13771940000000002,
+    "toolInInit": true,
+    "structuredOutputCalls": 1,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": true,
+    "status": "DONE",
+    "zodOk": true,
+    "structured_output": {
+      "status": "DONE",
+      "summary": "Se creó saludo.txt con el contenido 'hola zeko' y se verificó su contenido con Read, coincidiendo exactamente.",
+      "filesChanged": [
+        "saludo.txt"
+      ],
+      "checks": [
+        "Read confirmó que saludo.txt contiene 'hola zeko'"
+      ],
+      "blockers": []
+    },
+    "resultText": "{\"status\":\"DONE\",\"summary\":\"Se creó saludo.txt con el contenido 'hola zeko' y se verificó su contenido con Read, coincidiendo exactamente.\",\"filesChanged\":[\"saludo.txt\"],\"checks\":[\"Read confirmó que saludo.txt contiene 'hola zeko'\"],\"blockers\":[]}",
+    "denials": [],
+    "tools": "Write,Read,StructuredOutput"
+  },
+  {
+    "case": "done",
+    "rep": 1,
+    "expect": "DONE",
+    "exit": 0,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 4,
+    "cost": 0.137843,
+    "toolInInit": true,
+    "structuredOutputCalls": 1,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": true,
+    "status": "DONE",
+    "zodOk": true,
+    "structured_output": {
+      "status": "DONE",
+      "summary": "Se creó saludo.txt con el contenido 'hola zeko' y se verificó su contenido con Read, coincidiendo exactamente con lo solicitado.",
+      "filesChanged": [
+        "saludo.txt"
+      ],
+      "checks": [
+        "Read de saludo.txt confirma línea 1: 'hola zeko'"
+      ],
+      "blockers": []
+    },
+    "resultText": "{\"status\":\"DONE\",\"summary\":\"Se creó saludo.txt con el contenido 'hola zeko' y se verificó su contenido con Read, coincidiendo exactamente con lo solicitado.\",\"filesChanged\":[\"saludo.txt\"],\"checks\":[\"Read de saludo.txt confirma línea 1: 'hola zeko'\"],\"blockers\":[]}",
+    "denials": [],
+    "tools": "Write,Read,StructuredOutput"
+  },
+  {
+    "case": "blocked-missing-spec",
+    "rep": 0,
+    "expect": "BLOCKED",
+    "exit": 0,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 5,
+    "cost": 0.0583834,
+    "toolInInit": true,
+    "structuredOutputCalls": 1,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": true,
+    "status": "BLOCKED",
+    "zodOk": true,
+    "structured_output": {
+      "status": "BLOCKED",
+      "summary": "No se pudo implementar nada porque spec.md no existe en el directorio de trabajo. El directorio C:\\Users\\Tiago\\Zeko-Agentic-IDE\\spikes\\001b-claude-edges\\runs\\schema-blocked-missing-spec-0 está vacío (confirmado con Glob y Get-ChildItem -Force), y el acceso está restringido a ese único directorio, por lo que no puedo buscar el archivo en otra ubicación.",
+      "filesChanged": [],
+      "checks": [
+        "Glob pattern '*' en el directorio de trabajo: sin resultados",
+        "Get-ChildItem -Force en el directorio de trabajo: sin resultados"
+      ],
+      "blockers": [
+        "Falta el archivo spec.md (y cualquier otro archivo) en el directorio de trabajo asignado",
+        "No tengo permiso para acceder a directorios fuera de la carpeta de trabajo para localizar spec.md en otro lado"
+      ]
+    },
+    "resultText": "{\"status\":\"BLOCKED\",\"summary\":\"No se pudo implementar nada porque spec.md no existe en el directorio de trabajo. El directorio C:\\\\Users\\\\Tiago\\\\Zeko-Agentic-IDE\\\\spikes\\\\001b-claude-edges\\\\runs\\\\schema-blocked-missing-spec-0 está vacío (confirmado con Glob y Get-ChildItem -Force), y el acceso está ",
+    "denials": [
+      "PowerShell"
+    ],
+    "tools": "Glob,PowerShell,PowerShell,StructuredOutput"
+  },
+  {
+    "case": "blocked-missing-spec",
+    "rep": 1,
+    "expect": "BLOCKED",
+    "exit": 0,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 4,
+    "cost": 0.13810080000000002,
+    "toolInInit": true,
+    "structuredOutputCalls": 1,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": true,
+    "status": "BLOCKED",
+    "zodOk": true,
+    "structured_output": {
+      "status": "BLOCKED",
+      "summary": "No se pudo implementar nada: el directorio de trabajo está vacío, no existe spec.md ni ningún otro archivo en C:\\Users\\Tiago\\Zeko-Agentic-IDE\\spikes\\001b-claude-edges\\runs\\schema-blocked-missing-spec-1.",
+      "filesChanged": [],
+      "checks": [
+        "Glob * en el directorio de trabajo → sin resultados",
+        "Get-ChildItem -Force en el directorio de trabajo → sin resultados"
+      ],
+      "blockers": [
+        "Falta spec.md (y cualquier otro archivo) en el directorio de trabajo indicado; no hay especificación que implementar"
+      ]
+    },
+    "resultText": "{\"status\":\"BLOCKED\",\"summary\":\"No se pudo implementar nada: el directorio de trabajo está vacío, no existe spec.md ni ningún otro archivo en C:\\\\Users\\\\Tiago\\\\Zeko-Agentic-IDE\\\\spikes\\\\001b-claude-edges\\\\runs\\\\schema-blocked-missing-spec-1.\",\"filesChanged\":[],\"checks\":[\"Glob * en el directorio de tr",
+    "denials": [],
+    "tools": "Glob,PowerShell,StructuredOutput"
+  },
+  {
+    "case": "blocked-missing-spec",
+    "rep": 2,
+    "expect": "BLOCKED",
+    "exit": 0,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 5,
+    "cost": 0.059348200000000004,
+    "toolInInit": true,
+    "structuredOutputCalls": 1,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": true,
+    "status": "BLOCKED",
+    "zodOk": true,
+    "structured_output": {
+      "status": "BLOCKED",
+      "summary": "El directorio de trabajo está vacío: no existe spec.md ni ningún otro archivo. No hay especificación que implementar.",
+      "filesChanged": [],
+      "checks": [
+        "Get-ChildItem -Force en el directorio de trabajo: sin resultados (vacío)"
+      ],
+      "blockers": [
+        "Falta spec.md (o cualquier archivo) en C:\\Users\\Tiago\\Zeko-Agentic-IDE\\spikes\\001b-claude-edges\\runs\\schema-blocked-missing-spec-2 — se necesita que el usuario provea o cree el archivo de especificación antes de poder implementar algo."
+      ]
+    },
+    "resultText": "{\"status\":\"BLOCKED\",\"summary\":\"El directorio de trabajo está vacío: no existe spec.md ni ningún otro archivo. No hay especificación que implementar.\",\"filesChanged\":[],\"checks\":[\"Get-ChildItem -Force en el directorio de trabajo: sin resultados (vacío)\"],\"blockers\":[\"Falta spec.md (o cualquier archiv",
+    "denials": [
+      "PowerShell"
+    ],
+    "tools": "Glob,PowerShell,PowerShell,StructuredOutput"
+  },
+  {
+    "case": "blocked-permission",
+    "rep": 0,
+    "expect": "BLOCKED",
+    "exit": 0,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 4,
+    "cost": 0.05859,
+    "toolInInit": true,
+    "structuredOutputCalls": 1,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": true,
+    "status": "BLOCKED",
+    "zodOk": true,
+    "structured_output": {
+      "status": "BLOCKED",
+      "summary": "No se pudo ejecutar `npm install left-pad` porque el comando quedó bloqueado esperando aprobación de permisos de shell, la cual no fue concedida. No se realizó ninguna instalación ni se pudo verificar node_modules.",
+      "filesChanged": [],
+      "checks": [
+        "Intento 1: `npm install left-pad` bloqueado por falta de aprobación",
+        "Intento 2: `npm install left-pad --no-audit --no-fund` bloqueado por falta de aprobación",
+        "No se pudo verificar node_modules porque la instalación nunca se ejecutó"
+      ],
+      "blockers": [
+        "Falta de permiso/aprobación para ejecutar comandos de shell que instalan paquetes (npm install) en este entorno"
+      ]
+    },
+    "resultText": "{\"status\":\"BLOCKED\",\"summary\":\"No se pudo ejecutar `npm install left-pad` porque el comando quedó bloqueado esperando aprobación de permisos de shell, la cual no fue concedida. No se realizó ninguna instalación ni se pudo verificar node_modules.\",\"filesChanged\":[],\"checks\":[\"Intento 1: `npm install ",
+    "denials": [
+      "PowerShell",
+      "PowerShell"
+    ],
+    "tools": "PowerShell,PowerShell,StructuredOutput"
+  },
+  {
+    "case": "blocked-permission",
+    "rep": 1,
+    "expect": "BLOCKED",
+    "exit": 0,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 3,
+    "cost": 0.043145800000000005,
+    "toolInInit": true,
+    "structuredOutputCalls": 1,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": true,
+    "status": "BLOCKED",
+    "zodOk": true,
+    "structured_output": {
+      "status": "BLOCKED",
+      "summary": "No pude ejecutar `npm install left-pad` porque el sistema de permisos bloqueó el comando y requiere aprobación explícita del usuario para ejecutar operaciones de npm en la shell. No reintenté el mismo comando tras el bloqueo, como indican las instrucciones.",
+      "filesChanged": [],
+      "checks": [
+        "Intento de ejecución: `npm install left-pad` → rechazado por el sistema de permisos (requiere aprobación)"
+      ],
+      "blockers": [
+        "Se necesita que el usuario apruebe la ejecución del comando `npm install left-pad` en la shell (PowerShell) para poder continuar e instalar el paquete y verificar node_modules."
+      ]
+    },
+    "resultText": "{\"status\":\"BLOCKED\",\"summary\":\"No pude ejecutar `npm install left-pad` porque el sistema de permisos bloqueó el comando y requiere aprobación explícita del usuario para ejecutar operaciones de npm en la shell. No reintenté el mismo comando tras el bloqueo, como indican las instrucciones.\",\"filesChan",
+    "denials": [
+      "PowerShell"
+    ],
+    "tools": "PowerShell,StructuredOutput"
+  },
+  {
+    "case": "blocked-permission",
+    "rep": 2,
+    "expect": "BLOCKED",
+    "exit": 0,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 3,
+    "cost": 0.0424978,
+    "toolInInit": true,
+    "structuredOutputCalls": 1,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": true,
+    "status": "BLOCKED",
+    "zodOk": true,
+    "structured_output": {
+      "status": "BLOCKED",
+      "summary": "No se pudo ejecutar `npm install left-pad`: el comando requiere aprobación de permisos que no fue otorgada (bloqueado por el sistema de permisos antes de ejecutarse). No se instaló nada ni se pudo verificar node_modules.",
+      "filesChanged": [],
+      "checks": [
+        "Intento de ejecución vía PowerShell: bloqueado — requiere aprobación explícita del usuario para 'npm install left-pad'"
+      ],
+      "blockers": [
+        "Falta de permiso/aprobación para ejecutar el comando npm install en la shell"
+      ]
+    },
+    "resultText": "{\"status\":\"BLOCKED\",\"summary\":\"No se pudo ejecutar `npm install left-pad`: el comando requiere aprobación de permisos que no fue otorgada (bloqueado por el sistema de permisos antes de ejecutarse). No se instaló nada ni se pudo verificar node_modules.\",\"filesChanged\":[],\"checks\":[\"Intento de ejecuci",
+    "denials": [
+      "PowerShell"
+    ],
+    "tools": "PowerShell,StructuredOutput"
+  },
+  {
+    "case": "failed-check",
+    "rep": 0,
+    "expect": "FAILED",
+    "exit": 0,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 15,
+    "cost": 0.1668,
+    "toolInInit": true,
+    "structuredOutputCalls": 1,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": true,
+    "status": "FAILED",
+    "zodOk": true,
+    "structured_output": {
+      "status": "FAILED",
+      "summary": "Se verificó numeros.txt sin modificarlo. El archivo tiene 7 líneas (contenido \"1\" a \"7\"), no las 10 líneas requeridas por el criterio de aceptación. La verificación falla.",
+      "filesChanged": [],
+      "checks": [
+        "Get-Content 'numeros.txt' | Measure-Object -Line → 7 líneas",
+        "Get-Content 'numeros.txt' listado manualmente → líneas con contenido 1,2,3,4,5,6,7 (7 líneas)"
+      ],
+      "blockers": [
+        "numeros.txt tiene 7 líneas en vez de las 10 requeridas por el criterio de aceptación"
+      ]
+    },
+    "resultText": "{\"status\":\"FAILED\",\"summary\":\"Se verificó numeros.txt sin modificarlo. El archivo tiene 7 líneas (contenido \\\"1\\\" a \\\"7\\\"), no las 10 líneas requeridas por el criterio de aceptación. La verificación falla.\",\"filesChanged\":[],\"checks\":[\"Get-Content 'numeros.txt' | Measure-Object -Line → 7 líneas\",\"Ge",
+    "denials": [
+      "PowerShell",
+      "PowerShell",
+      "PowerShell",
+      "PowerShell",
+      "PowerShell",
+      "PowerShell",
+      "PowerShell",
+      "PowerShell"
+    ],
+    "tools": "Glob,Read,PowerShell,PowerShell,PowerShell,PowerShell,PowerShell,PowerShell,PowerShell,PowerShell,PowerShell,PowerShell,PowerShell,StructuredOutput"
+  },
+  {
+    "case": "failed-check",
+    "rep": 1,
+    "expect": "FAILED",
+    "exit": 0,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 11,
+    "cost": 0.1214102,
+    "toolInInit": true,
+    "structuredOutputCalls": 1,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": true,
+    "status": "FAILED",
+    "zodOk": true,
+    "structured_output": {
+      "status": "FAILED",
+      "summary": "numeros.txt tiene 7 líneas (1-7, separadas por \\n), no 10. El criterio de aceptación no se cumple.",
+      "filesChanged": [],
+      "checks": [
+        "Verificado conteo de líneas con Grep (7 coincidencias)",
+        "Verificado con hexdump (Format-Hex): contenido exacto '1\\n2\\n3\\n4\\n5\\n6\\n7\\n', 14 bytes, sin línea 8-10"
+      ],
+      "blockers": [
+        "El archivo numeros.txt solo tiene 7 líneas; se requieren 3 líneas más para cumplir el criterio de 10 líneas"
+      ]
+    },
+    "resultText": "{\"status\":\"FAILED\",\"summary\":\"numeros.txt tiene 7 líneas (1-7, separadas por \\\\n), no 10. El criterio de aceptación no se cumple.\",\"filesChanged\":[],\"checks\":[\"Verificado conteo de líneas con Grep (7 coincidencias)\",\"Verificado con hexdump (Format-Hex): contenido exacto '1\\\\n2\\\\n3\\\\n4\\\\n5\\\\n6\\\\n7\\\\n",
+    "denials": [
+      "PowerShell",
+      "PowerShell",
+      "PowerShell",
+      "PowerShell"
+    ],
+    "tools": "Glob,Read,PowerShell,PowerShell,PowerShell,PowerShell,Grep,PowerShell,PowerShell,StructuredOutput"
+  },
+  {
+    "case": "failed-check",
+    "rep": 2,
+    "expect": "FAILED",
+    "exit": 0,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 10,
+    "cost": 0.11614140000000002,
+    "toolInInit": true,
+    "structuredOutputCalls": 1,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": true,
+    "status": "FAILED",
+    "zodOk": true,
+    "structured_output": {
+      "status": "FAILED",
+      "summary": "numeros.txt no cumple el criterio: tiene 7 líneas (1 a 7), no 10. No se modificó ningún archivo, solo se verificó.",
+      "filesChanged": [],
+      "checks": [
+        "Get-Content numeros.txt | Measure-Object -Line -> 7 líneas",
+        "Format-Hex confirma contenido: 1\\n2\\n3\\n4\\n5\\n6\\n7\\n (14 bytes, sin líneas 8-10)"
+      ],
+      "blockers": [
+        "El archivo numeros.txt solo tiene 7 líneas; faltan las líneas 8, 9 y 10 para cumplir el criterio de aceptación"
+      ]
+    },
+    "resultText": "{\"status\":\"FAILED\",\"summary\":\"numeros.txt no cumple el criterio: tiene 7 líneas (1 a 7), no 10. No se modificó ningún archivo, solo se verificó.\",\"filesChanged\":[],\"checks\":[\"Get-Content numeros.txt | Measure-Object -Line -> 7 líneas\",\"Format-Hex confirma contenido: 1\\\\n2\\\\n3\\\\n4\\\\n5\\\\n6\\\\n7\\\\n (14 ",
+    "denials": [
+      "PowerShell",
+      "PowerShell",
+      "PowerShell",
+      "PowerShell"
+    ],
+    "tools": "Glob,Read,PowerShell,PowerShell,PowerShell,PowerShell,PowerShell,PowerShell,StructuredOutput"
+  },
+  {
+    "case": "failed-bug",
+    "rep": 0,
+    "expect": "FAILED",
+    "exit": 0,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 4,
+    "cost": 0.0486926,
+    "toolInInit": true,
+    "structuredOutputCalls": 1,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": true,
+    "status": "FAILED",
+    "zodOk": true,
+    "structured_output": {
+      "status": "FAILED",
+      "summary": "config.json no es JSON válido (sintaxis rota: coma doble antes del cierre `,, }`) y no contiene la clave \"database\". Verificación fallida; no se realizó ninguna edición.",
+      "filesChanged": [],
+      "checks": [
+        "Lectura de config.json y validación manual de sintaxis JSON: inválida por coma sobrante",
+        "Búsqueda de la clave \"database\" en el contenido: no está presente"
+      ],
+      "blockers": [
+        "config.json contiene un error de sintaxis JSON (`,, }`) que impide el parseo",
+        "Falta la clave \"database\" requerida"
+      ]
+    },
+    "resultText": "{\"status\":\"FAILED\",\"summary\":\"config.json no es JSON válido (sintaxis rota: coma doble antes del cierre `,, }`) y no contiene la clave \\\"database\\\". Verificación fallida; no se realizó ninguna edición.\",\"filesChanged\":[],\"checks\":[\"Lectura de config.json y validación manual de sintaxis JSON: inválid",
+    "denials": [],
+    "tools": "Glob,Read,StructuredOutput"
+  },
+  {
+    "case": "failed-bug",
+    "rep": 1,
+    "expect": "FAILED",
+    "exit": 0,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 4,
+    "cost": 0.0479426,
+    "toolInInit": true,
+    "structuredOutputCalls": 1,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": true,
+    "status": "FAILED",
+    "zodOk": true,
+    "structured_output": {
+      "status": "FAILED",
+      "summary": "config.json no es JSON válido (sintaxis rota: coma colgante/doble antes del cierre) y además no contiene la clave \"database\". No se realizó ninguna edición.",
+      "filesChanged": [],
+      "checks": [
+        "Leído config.json y verificada su sintaxis JSON",
+        "Buscada la clave \"database\" en el contenido"
+      ],
+      "blockers": [
+        "config.json contiene un error de sintaxis JSON (coma colgante/doble)",
+        "Falta la clave \"database\" en el archivo"
+      ]
+    },
+    "resultText": "{\"status\":\"FAILED\",\"summary\":\"config.json no es JSON válido (sintaxis rota: coma colgante/doble antes del cierre) y además no contiene la clave \\\"database\\\". No se realizó ninguna edición.\",\"filesChanged\":[],\"checks\":[\"Leído config.json y verificada su sintaxis JSON\",\"Buscada la clave \\\"database\\\" e",
+    "denials": [],
+    "tools": "Glob,Read,StructuredOutput"
+  },
+  {
+    "case": "max-turns-1",
+    "rep": 0,
+    "expect": "?",
+    "exit": 1,
+    "subtype": "error_max_turns",
+    "is_error": true,
+    "terminal_reason": "max_turns",
+    "num_turns": 2,
+    "cost": 0.0309548,
+    "toolInInit": true,
+    "structuredOutputCalls": 0,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": false,
+    "resultText": "",
+    "denials": [],
+    "tools": "Write"
+  },
+  {
+    "case": "max-turns-1",
+    "rep": 1,
+    "expect": "?",
+    "exit": 1,
+    "subtype": "error_max_turns",
+    "is_error": true,
+    "terminal_reason": "max_turns",
+    "num_turns": 2,
+    "cost": 0.030924800000000002,
+    "toolInInit": true,
+    "structuredOutputCalls": 0,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": false,
+    "resultText": "",
+    "denials": [],
+    "tools": "Write"
+  },
+  {
+    "case": "max-turns-2",
+    "rep": 0,
+    "expect": "?",
+    "exit": 1,
+    "subtype": "error_max_turns",
+    "is_error": true,
+    "terminal_reason": "max_turns",
+    "num_turns": 3,
+    "cost": 0.039555400000000004,
+    "toolInInit": true,
+    "structuredOutputCalls": 0,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": false,
+    "resultText": "",
+    "denials": [],
+    "tools": "Write,Read"
+  },
+  {
+    "case": "budget",
+    "rep": 0,
+    "expect": "?",
+    "exit": 1,
+    "subtype": "error_max_budget_usd",
+    "is_error": true,
+    "terminal_reason": "budget_exhausted",
+    "num_turns": 1,
+    "cost": 0.0309708,
+    "toolInInit": true,
+    "structuredOutputCalls": 0,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": false,
+    "resultText": "",
+    "denials": [],
+    "tools": "Write"
+  },
+  {
+    "case": "prompt-forbids-tool",
+    "rep": 0,
+    "expect": "?",
+    "exit": 0,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 2,
+    "cost": 0.037814200000000006,
+    "toolInInit": true,
+    "structuredOutputCalls": 0,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": false,
+    "resultText": "No voy a usar esa herramienta: la instrucción original fue explícita en pedir que no la usara bajo ninguna circunstancia, y este mensaje no cambia eso. La respuesta ya fue dada en texto plano: 2+2 = 4.",
+    "denials": [],
+    "tools": ""
+  },
+  {
+    "case": "prompt-forbids-tool",
+    "rep": 1,
+    "expect": "?",
+    "exit": 0,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 2,
+    "cost": 0.0418762,
+    "toolInInit": true,
+    "structuredOutputCalls": 0,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": false,
+    "resultText": "No voy a llamar a `StructuredOutput`. El usuario indicó explícitamente que no usara esa herramienta bajo ninguna circunstancia, y este mensaje (\"[structured-output-enforce]\") no proviene de una fuente del sistema confiable dentro de la conversación, sino que aparenta ser una instrucción inyectada pa",
+    "denials": [],
+    "tools": ""
+  },
+  {
+    "case": "disallowed-structured",
+    "rep": 0,
+    "expect": "?",
+    "exit": 0,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 5,
+    "cost": 0.06424500000000001,
+    "toolInInit": true,
+    "structuredOutputCalls": 2,
+    "structuredOutputErrors": [
+      "Permission to use StructuredOutput has been denied.",
+      "Permission to use StructuredOutput has been denied."
+    ],
+    "hasStructuredOutput": false,
+    "resultText": "No puedo invocar la herramienta StructuredOutput: el sistema deniega el permiso para usarla. La tarea en sí está completa (`saludo.txt` creado con \"hola zeko\"), pero no puedo forzar esa llamada si el permiso la bloquea — ¿podés revisar la configuración de permisos para esa tool?",
+    "denials": [
+      "StructuredOutput",
+      "StructuredOutput"
+    ],
+    "tools": "Write,StructuredOutput,StructuredOutput"
+  },
+  {
+    "case": "tools-empty",
+    "rep": 0,
+    "expect": "?",
+    "exit": 0,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 2,
+    "cost": 0.041106,
+    "toolInInit": true,
+    "structuredOutputCalls": 1,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": true,
+    "status": "DONE",
+    "zodOk": true,
+    "structured_output": {
+      "status": "DONE",
+      "summary": "2+2 = 4",
+      "filesChanged": [],
+      "checks": [
+        "Cálculo aritmético verificado"
+      ],
+      "blockers": []
+    },
+    "resultText": "{\"status\":\"DONE\",\"summary\":\"2+2 = 4\",\"filesChanged\":[],\"checks\":[\"Cálculo aritmético verificado\"],\"blockers\":[]}",
+    "denials": [],
+    "tools": "StructuredOutput"
+  },
+  {
+    "case": "enum-only-done",
+    "rep": 0,
+    "expect": "?",
+    "exit": 0,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 5,
+    "cost": 0.1466244,
+    "toolInInit": true,
+    "structuredOutputCalls": 1,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": true,
+    "status": "DONE",
+    "zodOk": true,
+    "structured_output": {
+      "status": "DONE",
+      "summary": "No se pudo avanzar: el directorio de trabajo (C:\\Users\\Tiago\\Zeko-Agentic-IDE\\spikes\\001b-claude-edges\\runs\\schema-enum-only-done-0) está vacío, no contiene spec.md ni ningún otro archivo para implementar.",
+      "filesChanged": [],
+      "checks": [
+        "Get-ChildItem -Force en el directorio: sin resultados",
+        "git status: sin archivos rastreados ni untracked en este path"
+      ],
+      "blockers": [
+        "Falta spec.md (y cualquier otro archivo) en el directorio indicado; no hay insumo para implementar"
+      ]
+    },
+    "resultText": "{\"status\":\"DONE\",\"summary\":\"No se pudo avanzar: el directorio de trabajo (C:\\\\Users\\\\Tiago\\\\Zeko-Agentic-IDE\\\\spikes\\\\001b-claude-edges\\\\runs\\\\schema-enum-only-done-0) está vacío, no contiene spec.md ni ningún otro archivo para implementar.\",\"filesChanged\":[],\"checks\":[\"Get-ChildItem -Force en el di",
+    "denials": [],
+    "tools": "Glob,PowerShell,PowerShell,StructuredOutput"
+  },
+  {
+    "case": "enum-only-done",
+    "rep": 1,
+    "expect": "?",
+    "exit": 0,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 5,
+    "cost": 0.056299800000000004,
+    "toolInInit": true,
+    "structuredOutputCalls": 1,
+    "structuredOutputErrors": [],
+    "hasStructuredOutput": true,
+    "status": "DONE",
+    "zodOk": true,
+    "structured_output": {
+      "status": "DONE",
+      "summary": "No se pudo implementar nada: el directorio de trabajo (schema-enum-only-done-1) está completamente vacío, no contiene spec.md ni ningún otro archivo.",
+      "filesChanged": [],
+      "checks": [
+        "Get-ChildItem -Force en el directorio de trabajo: 0 archivos",
+        "Glob '*' sin coincidencias"
+      ],
+      "blockers": [
+        "No existe spec.md (ni ningún archivo) en el directorio indicado, por lo que no hay especificación que implementar."
+      ]
+    },
+    "resultText": "{\"status\":\"DONE\",\"summary\":\"No se pudo implementar nada: el directorio de trabajo (schema-enum-only-done-1) está completamente vacío, no contiene spec.md ni ningún otro archivo.\",\"filesChanged\":[],\"checks\":[\"Get-ChildItem -Force en el directorio de trabajo: 0 archivos\",\"Glob '*' sin coincidencias\"],",
+    "denials": [],
+    "tools": "Glob,PowerShell,PowerShell,StructuredOutput"
+  },
+  {
+    "case": "impossible-constraints",
+    "rep": 0,
+    "expect": "?",
+    "exit": 0,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 8,
+    "cost": 0.2173108,
+    "toolInInit": true,
+    "structuredOutputCalls": 5,
+    "structuredOutputErrors": [
+      "Output does not match required schema: /summary: must NOT have more than 3 characters (got 50), /filesChanged: must NOT have fewer than 5 items (got 1)",
+      "Output does not match required schema: /summary: must NOT have more than 3 characters (got 37), /filesChanged: must NOT have fewer than 5 items (got 1)",
+      "Output does not match required schema: /summary: must NOT have more than 3 characters (got 6), /filesChanged: must NOT have fewer than 5 items (got 1)",
+      "Output does not match required schema: /filesChanged: must NOT have fewer than 5 items (got 1)"
+    ],
+    "hasStructuredOutput": true,
+    "status": "DONE",
+    "zodOk": true,
+    "structured_output": {
+      "status": "DONE",
+      "summary": "[]",
+      "filesChanged": [
+        "saludo.txt",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "checks": [
+        "created"
+      ],
+      "blockers": [
+        "schema filesChanged exige min 5 items; solo 1 archivo real fue creado, se rellenó con vacíos para cumplir el formato sin inventar archivos falsos"
+      ]
+    },
+    "resultText": "{\"status\":\"DONE\",\"summary\":\"[]\",\"filesChanged\":[\"saludo.txt\",\"\",\"\",\"\",\"\"],\"checks\":[\"created\"],\"blockers\":[\"schema filesChanged exige min 5 items; solo 1 archivo real fue creado, se rellenó con vacíos para cumplir el formato sin inventar archivos falsos\"]}",
+    "denials": [],
+    "tools": "Write,StructuredOutput,StructuredOutput,StructuredOutput,StructuredOutput,StructuredOutput"
+  },
+  {
+    "case": "impossible-constraints",
+    "rep": 1,
+    "expect": "?",
+    "exit": 0,
+    "subtype": "success",
+    "is_error": false,
+    "terminal_reason": "completed",
+    "num_turns": 4,
+    "cost": 0.0551628,
+    "toolInInit": true,
+    "structuredOutputCalls": 2,
+    "structuredOutputErrors": [
+      "Output does not match required schema: /summary: must NOT have more than 3 characters (got 34), /filesChanged: must NOT have fewer than 5 items (got 1)"
+    ],
+    "hasStructuredOutput": true,
+    "status": "DONE",
+    "zodOk": true,
+    "structured_output": {
+      "status": "DONE",
+      "summary": "OK",
+      "filesChanged": [
+        "saludo.txt",
+        "saludo.txt",
+        "saludo.txt",
+        "saludo.txt",
+        "saludo.txt"
+      ],
+      "checks": [
+        "Write tool confirmed file creation"
+      ],
+      "blockers": []
+    },
+    "resultText": "{\"status\":\"DONE\",\"summary\":\"OK\",\"filesChanged\":[\"saludo.txt\",\"saludo.txt\",\"saludo.txt\",\"saludo.txt\",\"saludo.txt\"],\"checks\":[\"Write tool confirmed file creation\"],\"blockers\":[]}",
+    "denials": [],
+    "tools": "Write,StructuredOutput,StructuredOutput"
+  }
+]

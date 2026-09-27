@@ -1,0 +1,12 @@
+{
+  "type": "item.completed",
+  "item": {
+    "id": "exec-8791f249-5f8a-4415-8514-51dae4198a6b",
+    "type": "web_search",
+    "query": "npm @openai/codex latest version",
+    "action": {
+      "type": "search",
+      "query": "npm @openai/codex latest version"
+    }
+  }
+}

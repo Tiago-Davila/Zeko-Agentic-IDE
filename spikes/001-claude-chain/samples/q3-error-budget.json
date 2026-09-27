@@ -1,0 +1,28 @@
+{
+  "label": "events-budget",
+  "exit": 1,
+  "signal": null,
+  "gotResult": true,
+  "subtype": "error_max_budget_usd",
+  "is_error": true,
+  "terminal_reason": "budget_exhausted",
+  "num_turns": 1,
+  "cost_usd": 0.030105600000000003,
+  "duration_ms": 3668,
+  "wall_ms": 5579,
+  "input_tokens": 0,
+  "cache_creation": 0,
+  "cache_read": 0,
+  "total_input": 0,
+  "output_tokens": 0,
+  "permission_denials": [],
+  "session_id": "afb903b4-1d55-4079-9475-bc8e060f8076",
+  "event_types": [
+    "system/init",
+    "system/thinking_tokens",
+    "system/thinking_tokens",
+    "assistant",
+    "assistant",
+    "result/error_max_budget_usd"
+  ]
+}
