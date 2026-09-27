@@ -181,12 +181,23 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
       approvals.delete(`${runId}:${nodeId}`); pending.resolve(decision === "approved");
     },
     async listRuns(projectId: string, flowId?: string, limit = 50) {
-      return db.prepare(`SELECT id,flow_id AS flowId,status,started_at AS startedAt,ended_at AS endedAt,cost_usd AS costUsd,cost_partial AS partial,cost_estimated AS estimated
-        FROM runs WHERE project_id=(SELECT id FROM projects WHERE root_path=?) AND (? IS NULL OR flow_id=?) ORDER BY started_at DESC LIMIT ?`).all(rootFor(projectId), flowId ?? null, flowId ?? null, Math.min(Math.max(limit, 1), 500));
+      const rows = db.prepare(`SELECT id,flow_id AS flowId,status,origin,started_at AS startedAt,ended_at AS endedAt,cost_usd AS costUsd,cost_partial AS partial,cost_estimated AS estimated
+        FROM runs WHERE project_id=(SELECT id FROM projects WHERE root_path=?) AND (? IS NULL OR flow_id=?) ORDER BY started_at DESC LIMIT ?`).all(rootFor(projectId), flowId ?? null, flowId ?? null, Math.min(Math.max(limit, 1), 500)) as Array<Record<string, unknown>>;
+      return rows.map((row) => {
+        const started = Number(row["startedAt"]);
+        const ended = typeof row["endedAt"] === "number" ? row["endedAt"] : undefined;
+        return {
+          id: row["id"], flowId: row["flowId"], status: row["status"], origin: row["origin"],
+          startedAt: started,
+          ...(ended === undefined ? {} : { endedAt: ended, durationMs: ended - started }),
+          ...(typeof row["costUsd"] === "number" ? { costUsd: row["costUsd"] } : {}),
+          partial: Boolean(row["partial"]), estimated: Boolean(row["estimated"]),
+        };
+      });
     },
     async getRun(runId: string) {
       const run = await runs.get(runId); if (!run) return undefined;
-      const nodeRuns = db.prepare("SELECT n.id,n.node_id AS nodeId,n.node_type AS nodeType,n.agent_id AS agentId,n.model,n.report,n.report_state AS reportState,n.status,n.reason_code AS reasonCode,n.reason_params AS reasonParams,n.hold,n.confinement_level AS confinementLevel,n.confinement_reason AS confinementReason,n.warnings,n.base_commit AS baseCommit,n.result_commit AS resultCommit,n.observed_files AS observedFiles,n.discrepancies,n.denials,n.denial_check AS denialCheck,n.inferred_denials AS inferredDenials,n.inconsistency,n.cost_usd AS costUsd,n.cost_basis AS costBasis,n.consumption,(SELECT w.path FROM workspaces w WHERE w.node_run_id=n.id ORDER BY rowid DESC LIMIT 1) AS workspacePath FROM node_runs n WHERE n.run_id=? ORDER BY n.rowid").all(runId);
+      const nodeRuns = db.prepare("SELECT n.id,n.node_id AS nodeId,n.node_type AS nodeType,n.agent_id AS agentId,n.model,n.report,n.report_state AS reportState,n.status,n.reason_code AS reasonCode,n.reason_params AS reasonParams,n.hold,n.confinement_level AS confinementLevel,n.confinement_reason AS confinementReason,n.warnings,n.base_commit AS baseCommit,n.result_commit AS resultCommit,n.observed_files AS observedFiles,n.discrepancies,n.denials,n.denial_check AS denialCheck,n.inferred_denials AS inferredDenials,n.inconsistency,n.cost_usd AS costUsd,n.cost_basis AS costBasis,n.consumption,(SELECT w.path FROM workspaces w WHERE w.node_run_id=n.id AND w.state!='deleted' ORDER BY rowid DESC LIMIT 1) AS workspacePath FROM node_runs n WHERE n.run_id=? ORDER BY n.rowid").all(runId);
       const processes = runs.processTree.forRun(runId, false);
       return { run, nodeRuns: nodeRuns.map((row) => {
         const value = row as Record<string, unknown>;

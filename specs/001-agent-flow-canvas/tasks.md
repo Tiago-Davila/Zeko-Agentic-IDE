@@ -1230,7 +1230,7 @@ confinamiento y capacidades, costo y uso, e historial. La UI solo pinta lo que c
 
   **Archivos**: `apps/desktop/src/renderer/run/cost-usage-panel.tsx`. **Cubre**: FR-050–053,
   US6-1–3. **Base**: R-17. **Depende de**: T146
-- [ ] T152 [US8] Historial:
+- [X] T152 [US8] Historial:
   - lista de runs con fecha, duración, costo, estado, resultado por nodo, agente y origen;
   - detalle de un run y runs `interrupted`;
   - eliminación de copias aisladas con confirmación.

@@ -32,7 +32,7 @@ export interface PreflightResult {
 }
 export interface RunSummary {
   id: string; flowId: string; status: "running" | "finished" | "cancelled" | "interrupted";
-  startedAt: string; endedAt?: string; costUsd?: number; partial?: boolean; estimated?: boolean;
+  origin: "desktop" | "cli"; startedAt: number; endedAt?: number; durationMs?: number; costUsd?: number; partial: boolean; estimated: boolean;
 }
 export interface RunDetail {
   run: import("@zeko/contracts").Run;
