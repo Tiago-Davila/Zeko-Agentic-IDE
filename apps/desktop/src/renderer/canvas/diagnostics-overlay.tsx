@@ -4,14 +4,13 @@ import { useT } from "../i18n/use-t.js";
 interface DiagnosticsOverlayProps {
   diagnostics: Diagnostic[];
   onFocusNode: (nodeId: string) => void;
-  hasInspector: boolean;
 }
 
-export function DiagnosticsOverlay({ diagnostics, onFocusNode, hasInspector }: DiagnosticsOverlayProps) {
+export function DiagnosticsOverlay({ diagnostics, onFocusNode }: DiagnosticsOverlayProps) {
   const t = useT();
   if (diagnostics.length === 0) return null;
   const errors = diagnostics.filter((diagnostic) => diagnostic.severity === "error").length;
-  return <section className={`diagnostics-overlay${errors ? " diagnostics-overlay--error" : ""}${hasInspector ? " diagnostics-overlay--shifted" : ""}`} aria-label={t("validation.title")}>
+  return <section className={`diagnostics-overlay${errors ? " diagnostics-overlay--error" : ""}`} aria-label={t("validation.title")}>
     <div className="diagnostics-overlay__heading"><span className="diagnostics-overlay__mark" aria-hidden="true">{errors ? "!" : "i"}</span>
       <strong>{errors ? t("validation.errors", { count: errors }) : t("validation.warnings", { count: diagnostics.length })}</strong>
     </div>

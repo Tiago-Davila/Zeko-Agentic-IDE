@@ -363,5 +363,16 @@
   "search.prompt": "Type to search in files",
   "search.invalidPattern": "Invalid regular expression",
   "search.failed": "Search failed",
-  "search.copyLinePath": "Copy line path"
+  "search.copyLinePath": "Copy line path",
+  "rail.navigation": "Workspace navigation",
+  "rail.newWorkflow": "New workflow",
+  "rail.workflows": "Workflows",
+  "rail.flowsFailed": "Workflows could not be loaded.",
+  "palette.title": "Nodes",
+  "palette.inputHint": "Starts the flow with an objective",
+  "palette.agentHint": "Runs Claude Code or Codex",
+  "palette.approvalHint": "Pauses for your review",
+  "canvas.flowActions": "Flow actions",
+  "flow.unsaved": "Unsaved changes",
+  "flow.discardConfirm": "You have unsaved changes. Leave this flow and discard them?"
 }
