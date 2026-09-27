@@ -180,6 +180,17 @@ h1, h2, h3, p { margin-top: 0; }
 .preflight-blocked { margin: 13px 0 0; padding: 10px; color: #93473c; background: #fbefed; border-radius: 5px; font-size: 11px; }
 .preflight-warning { margin: 10px 0 0; padding: 9px 10px; color: #8a672f; background: #faf5e9; border-radius: 5px; font-size: 10px; }
 .run-start-toast { position: fixed; z-index: 6; right: 20px; bottom: 20px; padding: 12px 16px; color: #f4fbf8; background: #193542; border: 1px solid #38515b; border-radius: 7px; box-shadow: 0 7px 24px #19354224; font-size: 11px; }
+.approval-dialog { max-height: min(780px, calc(100vh - 40px)); overflow: auto; }
+.approval-predecessors { display: grid; max-height: 390px; gap: 9px; margin: 18px 0; overflow: auto; }
+.approval-predecessor { padding: 12px; background: white; border: 1px solid #e1e9e9; border-radius: 6px; }
+.approval-predecessor > header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.approval-predecessor > header > div { display: flex; align-items: center; gap: 8px; color: #354f58; font-size: 11px; }
+.approval-predecessor > header > div > span { color: #819094; font-size: 9px; }
+.approval-predecessor > p { margin: 9px 0; color: #73848a; font-size: 10px; line-height: 1.55; }
+.approval-files, .approval-scope { display: grid; gap: 4px; margin-top: 8px; color: #77898d; font: 9px "Cascadia Code", Consolas, monospace; }
+.approval-files strong, .approval-scope strong { color: #60777d; font: 700 9px "DM Sans", "Segoe UI Variable", sans-serif; }
+.approval-scope { color: #a04f43; }
+.approval-empty { margin: 0; color: #879598; font-size: 11px; }
 .live-node-status { margin-top: 8px; }
 .live-node-status__button { display: inline-flex; align-items: center; gap: 5px; padding: 0; color: #687e83; background: transparent; border: 0; cursor: pointer; font-size: 9px; font-weight: 700; }
 .live-node-status__dot { width: 6px; height: 6px; border-radius: 50%; background: #9aa9aa; }

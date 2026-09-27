@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import type { Diagnostic, FlowFile } from "@zeko/contracts";
+import { PredecessorResultSchema, type Diagnostic, type FlowFile, type PredecessorResult } from "@zeko/contracts";
 import { IpcClientError, ipc } from "../ipc/client.js";
 import { useT } from "../i18n/use-t.js";
 import { FileConflictDialog } from "../dialogs/file-conflict-dialog.js";
 import { PreflightDialog } from "../dialogs/preflight-dialog.js";
+import { ApprovalDialog } from "../dialogs/approval-dialog.js";
 import { FlowCanvas } from "../canvas/flow-canvas.js";
 import type { PreflightResult } from "../ipc/client.js";
 
@@ -25,6 +26,9 @@ export function FlowEditor({ projectId, flowId, onBack }: FlowEditorProps) {
   const [runId, setRunId] = useState<string>();
   const [runStatus, setRunStatus] = useState<"running" | "finished" | "cancelled" | "interrupted">("running");
   const [preflightError, setPreflightError] = useState<string>();
+  const [approvals, setApprovals] = useState<Array<{ nodeId: string; summary: PredecessorResult[] }>>([]);
+  const [approvalPending, setApprovalPending] = useState(false);
+  const [approvalError, setApprovalError] = useState<string>();
 
   async function reload(): Promise<void> {
     setLoading(true);
@@ -60,7 +64,26 @@ export function FlowEditor({ projectId, flowId, onBack }: FlowEditorProps) {
       if (active && result) setRunStatus(result.run.status);
     }).catch(() => undefined);
     const unsubscribe = ipc.onEvent((event) => {
-      if (event.runId !== runId || event.type !== "run.finished" || typeof event.payload !== "object" || event.payload === null) return;
+      if (event.runId !== runId || typeof event.payload !== "object" || event.payload === null) return;
+      if (event.type === "approval.requested") {
+        const payload = event.payload as Record<string, unknown>;
+        const nodeId = payload["nodeId"];
+        const summaries = payload["summary"];
+        if (typeof nodeId !== "string" || !Array.isArray(summaries)) return;
+        const parsed = summaries.map((item) => PredecessorResultSchema.safeParse(item));
+        const summary = parsed.flatMap((item) => item.success ? [item.data] : []);
+        if (summary.length !== parsed.length) return;
+        setApprovals((current) => current.some((item) => item.nodeId === nodeId) ? current : [...current, { nodeId, summary }]);
+        return;
+      }
+      if (event.type === "node.state") {
+        const payload = event.payload as Record<string, unknown>;
+        if ((payload["status"] === "approved" || payload["status"] === "rejected") && typeof payload["nodeId"] === "string") {
+          setApprovals((current) => current.filter((item) => item.nodeId !== payload["nodeId"]));
+        }
+        return;
+      }
+      if (event.type !== "run.finished") return;
       const status = (event.payload as Record<string, unknown>)["status"];
       if (status === "running" || status === "finished" || status === "cancelled" || status === "interrupted") setRunStatus(status);
     });
@@ -117,6 +140,17 @@ export function FlowEditor({ projectId, flowId, onBack }: FlowEditorProps) {
     }
   }
 
+  async function decideApproval(nodeId: string, decision: "approved" | "rejected"): Promise<void> {
+    if (!runId || approvalPending) return;
+    setApprovalPending(true); setApprovalError(undefined);
+    try {
+      await ipc.request("approval.decide", { runId, nodeId, decision });
+      setApprovals((current) => current.filter((item) => item.nodeId !== nodeId));
+    } catch (cause) {
+      setApprovalError(cause instanceof IpcClientError ? t("error.generic", { code: cause.code }) : t("approval.failed"));
+    } finally { setApprovalPending(false); }
+  }
+
   if (loading) return <main className="flow-editor-state"><span className="eyebrow">{t("flow.loading")}</span></main>;
   if (!flow) return <main className="flow-editor-state">
     <button className="button button--quiet" type="button" onClick={onBack}>{t("canvas.back")}</button>
@@ -138,5 +172,7 @@ export function FlowEditor({ projectId, flowId, onBack }: FlowEditorProps) {
     {runId && <div className="run-start-toast" role="status">{t("run.started")}</div>}
     {conflict && <FileConflictDialog onCancel={() => setConflict(undefined)} onKeep={keepMyVersion} onReload={() => void reload()} />}
     {preflight && <PreflightDialog result={preflight} running={starting} error={preflightError} onCancel={() => setPreflight(undefined)} onStart={() => void startRun()} />}
+    {approvals[0] && <ApprovalDialog nodeId={approvals[0].nodeId} summary={approvals[0].summary} pending={approvalPending} error={approvalError}
+      onDecide={(decision) => void decideApproval(approvals[0]?.nodeId ?? "", decision)} />}
   </>;
 }

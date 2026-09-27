@@ -1219,7 +1219,7 @@ confinamiento y capacidades, costo y uso, e historial. La UI solo pinta lo que c
 - [X] T149 [US2] Controles de cancelación de nodo y de run. **Archivos**:
   `apps/desktop/src/renderer/run/run-controls.tsx`. **Cubre**: FR-030, US2-5. **Base**: R-12,
   R-13. **Depende de**: T146
-- [ ] T150 [US3] Diálogo de aprobación con el resumen de los predecesores, y aprobar / rechazar.
+- [X] T150 [US3] Diálogo de aprobación con el resumen de los predecesores, y aprobar / rechazar.
   **Archivos**: `apps/desktop/src/renderer/dialogs/approval-dialog.tsx`. **Cubre**: FR-012,
   US3-1–4. **Base**: contracts/ipc.md `approval.*`. **Depende de**: T146
 - [ ] T151 [US6] Costo y uso:
