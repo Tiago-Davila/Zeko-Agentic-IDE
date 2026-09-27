@@ -10,11 +10,12 @@ import type { PreflightResult } from "../ipc/client.js";
 import { HistoryScreen } from "./history-screen.js";
 import { SettingsScreen } from "./settings-screen.js";
 import { ProjectExplorer } from "../explorer/project-explorer.js";
+import { WorkspaceRail, type RailView } from "../components/workspace-rail.js";
 
-interface FlowEditorProps { projectId: string; flowId: string; onBack: () => void }
+interface FlowEditorProps { projectId: string; flowId: string; onBack: () => void; onOpenFlow: (flowId: string) => void }
 interface Conflict { currentHash: string }
 
-export function FlowEditor({ projectId, flowId, onBack }: FlowEditorProps) {
+export function FlowEditor({ projectId, flowId, onBack, onOpenFlow }: FlowEditorProps) {
   const t = useT();
   const [flow, setFlow] = useState<FlowFile>();
   const [fileHash, setFileHash] = useState("");
@@ -32,8 +33,7 @@ export function FlowEditor({ projectId, flowId, onBack }: FlowEditorProps) {
   const [approvals, setApprovals] = useState<Array<{ nodeId: string; summary: PredecessorResult[] }>>([]);
   const [approvalPending, setApprovalPending] = useState(false);
   const [approvalError, setApprovalError] = useState<string>();
-  const [historyOpen, setHistoryOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [view, setView] = useState<RailView>("flow");
 
   async function reload(): Promise<void> {
     setLoading(true);
@@ -156,10 +156,16 @@ export function FlowEditor({ projectId, flowId, onBack }: FlowEditorProps) {
     } finally { setApprovalPending(false); }
   }
 
-  if (historyOpen) return <HistoryScreen projectId={projectId} onBack={() => setHistoryOpen(false)} />;
-  if (settingsOpen) return <SettingsScreen projectId={projectId} onBack={() => setSettingsOpen(false)} />;
-  if (loading) return <main className="flow-editor-state"><span className="eyebrow">{t("flow.loading")}</span></main>;
-  if (!flow) return <main className="flow-editor-state">
+  // Leaving the flow drops unsaved edits, so ask first.
+  function leave(action: () => void): void {
+    if (dirty && !window.confirm(t("flow.discardConfirm"))) return;
+    action();
+  }
+
+  const rail = <WorkspaceRail projectId={projectId} flowId={flowId} view={view} onChangeView={setView}
+    onOpenFlow={(next) => leave(() => onOpenFlow(next))} onBack={() => leave(onBack)} />;
+  if (loading) return <div className="editor-shell editor-shell--bare">{rail}<main className="flow-editor-state"><span className="eyebrow">{t("flow.loading")}</span></main></div>;
+  if (!flow) return <div className="editor-shell editor-shell--bare">{rail}<main className="flow-editor-state">
     <button className="button button--quiet" type="button" onClick={onBack}>{t("canvas.back")}</button>
     <div className="invalid-flow-panel"><p className="eyebrow">{t("flow.cannotOpen")}</p><h1>{t("flow.invalidTitle")}</h1>
       <p>{error ?? t("flow.invalidDescription")}</p>
@@ -170,18 +176,22 @@ export function FlowEditor({ projectId, flowId, onBack }: FlowEditorProps) {
       </div>)}
       <button className="button button--quiet" type="button" onClick={() => void reload()}>{t("flow.tryAgain")}</button>
     </div>
-  </main>;
+  </main></div>;
 
   // The runtime keys projects by their repository root, so projectId doubles as the explorer root.
   return <div className="editor-shell">
+    {rail}
     <aside className="project-rail project-rail--editor">
-      <div className="brand-lockup"><span className="brand-symbol" aria-hidden="true">{"Z"}</span><span>{t("brand.name")}</span></div>
       <ProjectExplorer projectId={projectId} root={projectId} />
     </aside>
     <div className="editor-main">
       {error && <div className="editor-error" role="alert">{error}</div>}
-      <FlowCanvas projectId={projectId} flow={flow} onChange={(next) => { setFlow(next); setDirty(true); }} onBack={onBack}
-        onSave={() => void save()} onStartRun={() => void checkBeforeRun()} onOpenHistory={() => setHistoryOpen(true)} onOpenSettings={() => setSettingsOpen(true)} dirty={dirty} saving={saving} runId={runId} runStatus={runStatus} />
+      {view === "history" && <div className="editor-page"><HistoryScreen projectId={projectId} onBack={() => setView("flow")} /></div>}
+      {view === "settings" && <div className="editor-page"><SettingsScreen projectId={projectId} onBack={() => setView("flow")} /></div>}
+      <div className="editor-canvas" hidden={view !== "flow"}>
+        <FlowCanvas projectId={projectId} flow={flow} onChange={(next) => { setFlow(next); setDirty(true); }}
+          onSave={() => void save()} onStartRun={() => void checkBeforeRun()} dirty={dirty} saving={saving} runId={runId} runStatus={runStatus} />
+      </div>
       {runId && <div className="run-start-toast" role="status">{t("run.started")}</div>}
       {conflict && <FileConflictDialog onCancel={() => setConflict(undefined)} onKeep={keepMyVersion} onReload={() => void reload()} />}
       {preflight && <PreflightDialog result={preflight} running={starting} error={preflightError} onCancel={() => setPreflight(undefined)} onStart={() => void startRun()} />}

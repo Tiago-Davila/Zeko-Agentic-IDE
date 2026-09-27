@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import {
   applyNodeChanges,
   Background,
@@ -12,6 +12,7 @@ import {
   type EdgeTypes,
   type Node as CanvasNode,
   type NodeChange,
+  type ReactFlowInstance,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { DEFAULT_MODELS, type AgentNode, type Diagnostic, type Edge, type FlowFile, type FlowNode, type ProjectConfig } from "@zeko/contracts";
@@ -27,26 +28,25 @@ import { DiagnosticsOverlay } from "./diagnostics-overlay.js";
 import { useRunState } from "../run/run-state-store.js";
 import { NodeResultPanel } from "../run/node-result-panel.js";
 import type { RunStatus } from "@zeko/contracts";
+import { NODE_DRAG_TYPE, NodePalette } from "./node-palette.js";
+import { PlayIcon, SaveIcon } from "../components/rail-icons.js";
 
 interface FlowCanvasProps {
   projectId: string;
   flow: FlowFile;
   onChange: (flow: FlowFile) => void;
-  onBack: () => void;
   onSave: () => void;
   onStartRun: () => void;
   dirty: boolean;
   saving: boolean;
   runId?: string | undefined;
   runStatus: RunStatus;
-  onOpenHistory: () => void;
-  onOpenSettings: () => void;
 }
 
 const nodeTypes = { input: FlowCanvasNode, agent: FlowCanvasNode, approval: FlowCanvasNode };
 const edgeTypes: EdgeTypes = { config: ConfigEdge };
 
-export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, onStartRun, onOpenHistory, onOpenSettings, dirty, saving, runId, runStatus }: FlowCanvasProps) {
+export function FlowCanvas({ projectId, flow, onChange, onSave, onStartRun, dirty, saving, runId, runStatus }: FlowCanvasProps) {
   const t = useT();
   const [message, setMessage] = useState<string>();
   const [selectedNodeId, setSelectedNodeId] = useState<string>();
@@ -58,6 +58,7 @@ export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, onStartR
   const [nodeViews, setNodeViews] = useState<NodeView[]>([]);
   const [minimapVisible, setMinimapVisible] = useState(true);
   const validationRequestId = useRef(0);
+  const flowInstance = useRef<ReactFlowInstance<CanvasNode<FlowNodeData>, CanvasEdge>>(undefined);
   const selectedNode = flow.nodes.find((node) => node.id === selectedNodeId);
   const nodes = useMemo<CanvasNode<FlowNodeData>[]>(() => flow.nodes.map((node) => ({
     id: node.id,
@@ -148,9 +149,9 @@ export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, onStartR
     onChange({ ...flow, nodes: flow.nodes.map((node) => ({ ...node, position: positions[node.id] ?? node.position })) });
   }
 
-  function addNode(type: FlowNode["type"]): void {
+  function addNode(type: FlowNode["type"], at?: { x: number; y: number }): void {
     const id = `${type}-${crypto.randomUUID().replaceAll("-", "").slice(0, 16)}`;
-    const position = { x: 220 + (flow.nodes.length % 3) * 60, y: 150 + flow.nodes.length * 30 };
+    const position = at ? { x: Math.round(at.x), y: Math.round(at.y) } : { x: 220 + (flow.nodes.length % 3) * 60, y: 150 + flow.nodes.length * 30 };
     let node: FlowNode;
     if (type === "input") node = { id, type, label: t("canvas.inputNode"), objective: t("canvas.defaultObjective"), position };
     else if (type === "approval") node = { id, type, label: t("canvas.approvalNode"), position };
@@ -162,44 +163,53 @@ export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, onStartR
     onChange({ ...flow, nodes: [...flow.nodes, node] });
   }
 
+  function dropNode(event: DragEvent): void {
+    const type = event.dataTransfer.getData(NODE_DRAG_TYPE);
+    if (type !== "input" && type !== "agent" && type !== "approval") return;
+    event.preventDefault();
+    addNode(type, flowInstance.current?.screenToFlowPosition({ x: event.clientX, y: event.clientY }));
+  }
+
+  const runBlocked = !validationReady || hasErrors || dirty;
   return <main className="canvas-shell">
-    <header className="canvas-toolbar">
-      <div className="canvas-toolbar__left">
-        <button className="button button--quiet" type="button" onClick={onBack}><span aria-hidden="true">{"←"}</span>{t("canvas.back")}</button>
-        <span className="canvas-toolbar__divider" />
-        <div><p className="eyebrow">{t("canvas.flowLabel")}</p><h1>{flow.name}</h1></div>
-      </div>
-      <div className="canvas-toolbar__actions">
-        <button className="button button--quiet" type="button" onClick={onOpenSettings}>{t("settings.title")}</button>
-        <button className="button button--quiet" type="button" onClick={onOpenHistory}>{t("history.title")}</button>
-        <button className="button button--quiet" type="button" disabled={!dirty || saving} onClick={onSave}>{saving ? t("flow.saving") : dirty ? t("flow.save") : t("flow.saved")}</button>
-        <button className="button button--primary" type="button" disabled={!validationReady || hasErrors || dirty} title={!validationReady ? t("validation.pending") : hasErrors ? t("run.blockedByErrors") : dirty ? t("run.saveBeforeRun") : undefined} onClick={onStartRun}>{t("run.start")}</button>
-        <button className="button button--node" type="button" onClick={() => addNode("input")}>{t("canvas.addInput")}</button>
-        <button className="button button--node" type="button" onClick={() => addNode("agent")}>{t("canvas.addAgent")}</button>
-        <button className="button button--node" type="button" onClick={() => addNode("approval")}>{t("canvas.addApproval")}</button>
-      </div>
-    </header>
-    {message && <div className="canvas-message" role="alert">{message}<button type="button" aria-label={t("common.dismiss")} onClick={() => setMessage(undefined)}>{"×"}</button></div>}
-    <section className={`canvas-body zeko-canvas${selectedNode?.type === "agent" ? " zeko-canvas--docked" : ""}`} aria-label={t("canvas.flowCanvas")}>
-      <ReactFlowProvider>
-        <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes} edgeTypes={edgeTypes} onNodesChange={updateNodes} onEdgesChange={removeEdges} onConnect={(connection) => void connect(connection)}
-          onNodeClick={(_event, node) => setSelectedNodeId(node.id)} onPaneClick={() => setSelectedNodeId(undefined)}
-          fitView fitViewOptions={{ padding: 0.24 }} minZoom={0.25} maxZoom={2} snapToGrid snapGrid={[16, 16]} panOnScroll selectionOnDrag
-          nodesDraggable nodesConnectable elementsSelectable deleteKeyCode={["Backspace", "Delete"]} defaultEdgeOptions={{ type: "config" }} proOptions={{ hideAttribution: false }}>
-          <Background variant={BackgroundVariant.Dots} gap={20} size={1.5} />
-          {minimapVisible && <MiniMap pannable zoomable ariaLabel={t("canvas.minimap")} maskColor="var(--xy-minimap-mask-background-color)" style={{ width: 168, height: 112 }}
-            nodeColor={(node) => `var(--color-state-${toneOf((node.data as FlowNodeData).liveState?.status)})`} className="zeko-canvas__minimap" />}
-          <div className="zeko-canvas__toolbar">
-            <CanvasToolbar nodeCount={nodes.length} onResetLayout={resetLayout} minimapVisible={minimapVisible} onToggleMinimap={() => setMinimapVisible((visible) => !visible)} />
-          </div>
-        </ReactFlow>
-      </ReactFlowProvider>
-      {flow.edges.length === 0 && <div className="canvas-hint">{t("canvas.connectHint")}</div>}
-      <DiagnosticsOverlay diagnostics={diagnostics} onFocusNode={setSelectedNodeId} hasInspector={selectedNode?.type === "agent"} />
-      {selectedNode?.type === "agent" && <NodeDock projectRoot={projectId} node={selectedNode} defaults={defaults} notApplicable={notApplicable}
-        onChange={(node: AgentNode) => onChange({ ...flow, nodes: flow.nodes.map((item) => item.id === node.id ? node : item) })}
-        onClose={() => setSelectedNodeId(undefined)} />}
-    </section>
-    {runId && selectedNodeId && <NodeResultPanel projectId={projectId} runId={runId} nodeId={selectedNodeId} runStatus={runStatus} nodeStatus={liveStates[selectedNodeId]?.status} />}
+    <div className="canvas-column">
+      <header className="canvas-toolbar">
+        <div className="canvas-toolbar__left">
+          <span className="canvas-toolbar__eyebrow">{t("canvas.flowLabel")}</span>
+          <h1>{flow.name}</h1>
+          <span className={`canvas-toolbar__status${dirty ? " canvas-toolbar__status--dirty" : ""}`}>{saving ? t("flow.saving") : dirty ? t("flow.unsaved") : t("flow.saved")}</span>
+        </div>
+      </header>
+      {message && <div className="canvas-message" role="alert">{message}<button type="button" aria-label={t("common.dismiss")} onClick={() => setMessage(undefined)}>{"×"}</button></div>}
+      <section className="canvas-body zeko-canvas" aria-label={t("canvas.flowCanvas")}
+        onDragOver={(event) => { if (event.dataTransfer.types.includes(NODE_DRAG_TYPE)) { event.preventDefault(); event.dataTransfer.dropEffect = "copy"; } }} onDrop={dropNode}>
+        <ReactFlowProvider>
+          <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes} edgeTypes={edgeTypes} onNodesChange={updateNodes} onEdgesChange={removeEdges} onConnect={(connection) => void connect(connection)}
+            onInit={(instance) => { flowInstance.current = instance; }}
+            onNodeClick={(_event, node) => setSelectedNodeId(node.id)} onPaneClick={() => setSelectedNodeId(undefined)}
+            fitView fitViewOptions={{ padding: 0.24 }} minZoom={0.25} maxZoom={2} snapToGrid snapGrid={[16, 16]} panOnScroll selectionOnDrag
+            nodesDraggable nodesConnectable elementsSelectable deleteKeyCode={["Backspace", "Delete"]} defaultEdgeOptions={{ type: "config" }} proOptions={{ hideAttribution: false }}>
+            <Background variant={BackgroundVariant.Dots} gap={20} size={1.5} />
+            {minimapVisible && <MiniMap pannable zoomable ariaLabel={t("canvas.minimap")} maskColor="var(--xy-minimap-mask-background-color)" style={{ width: 168, height: 112 }}
+              nodeColor={(node) => `var(--color-state-${toneOf((node.data as FlowNodeData).liveState?.status)})`} className="zeko-canvas__minimap" />}
+            <div className="zeko-canvas__toolbar">
+              <CanvasToolbar nodeCount={nodes.length} onResetLayout={resetLayout} minimapVisible={minimapVisible} onToggleMinimap={() => setMinimapVisible((visible) => !visible)} />
+            </div>
+          </ReactFlow>
+        </ReactFlowProvider>
+        <div className="canvas-actions" role="toolbar" aria-label={t("canvas.flowActions")}>
+          <button type="button" className="canvas-action" disabled={!dirty || saving} aria-label={t("flow.save")} title={saving ? t("flow.saving") : dirty ? t("flow.save") : t("flow.saved")} onClick={onSave}><SaveIcon /></button>
+          <button type="button" className="canvas-action canvas-action--run" disabled={runBlocked} aria-label={t("run.start")}
+            title={!validationReady ? t("validation.pending") : hasErrors ? t("run.blockedByErrors") : dirty ? t("run.saveBeforeRun") : t("run.start")} onClick={onStartRun}><PlayIcon /></button>
+        </div>
+        {flow.edges.length === 0 && <div className="canvas-hint">{t("canvas.connectHint")}</div>}
+        <DiagnosticsOverlay diagnostics={diagnostics} onFocusNode={setSelectedNodeId} />
+      </section>
+      {runId && selectedNodeId && <NodeResultPanel projectId={projectId} runId={runId} nodeId={selectedNodeId} runStatus={runStatus} nodeStatus={liveStates[selectedNodeId]?.status} />}
+    </div>
+    {selectedNode?.type === "agent" && <NodeDock projectRoot={projectId} node={selectedNode} defaults={defaults} notApplicable={notApplicable}
+      onChange={(node: AgentNode) => onChange({ ...flow, nodes: flow.nodes.map((item) => item.id === node.id ? node : item) })}
+      onClose={() => setSelectedNodeId(undefined)} />}
+    <NodePalette onAdd={(type) => addNode(type)} />
   </main>;
 }

@@ -9,7 +9,8 @@ function App() {
   const [opened, setOpened] = useState<{ projectId: string; flowId: string }>();
 
   return opened ? (
-    <FlowEditor projectId={opened.projectId} flowId={opened.flowId} onBack={() => setOpened(undefined)} />
+    <FlowEditor key={opened.flowId} projectId={opened.projectId} flowId={opened.flowId} onBack={() => setOpened(undefined)}
+      onOpenFlow={(flowId) => setOpened({ projectId: opened.projectId, flowId })} />
   ) : <>
     <ProjectScreen onOpenFlow={(projectId, flowId) => setOpened({ projectId, flowId })} />
   </>;
