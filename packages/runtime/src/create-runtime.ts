@@ -11,6 +11,7 @@ import { FlowFiles, FlowFileError } from "./flow-files.js";
 import { getRuntimePaths } from "./paths.js";
 import { preflight as checkPreflight } from "./preflight.js";
 import { ProjectConfigFile } from "./project-config-file.js";
+import { ProjectFiles } from "./project-files.js";
 import { recoverInterruptedRuns } from "./recovery.js";
 
 export interface CreateZekoRuntimeOptions {
@@ -105,6 +106,17 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
   const rootFor = (projectId: string) => projects.get(projectId) ?? resolve(projectId);
   const filesFor = (projectId: string) => new FlowFiles(rootFor(projectId));
   const configFor = (projectId: string) => new ProjectConfigFile(rootFor(projectId));
+  const projectFiles = new Map<string, ProjectFiles>();
+  // Explorer access is limited to projects opened through project.open, never arbitrary paths.
+  const explorerFor = (projectId: string) => {
+    const existing = projectFiles.get(projectId);
+    if (existing) return existing;
+    const root = projects.get(projectId);
+    if (!root) throw new RuntimeError("PROJECT_NOT_OPEN", "Project is not open");
+    const created = new ProjectFiles(root);
+    projectFiles.set(projectId, created);
+    return created;
+  };
 
   async function openProject(path: string) {
     const info = await getRepositoryInfo(path);
@@ -268,6 +280,9 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
     },
     async getSettings(projectId: string) { return configFor(projectId).getSettings(); },
     async setSettings(projectId: string, config: ProjectConfig) { return configFor(projectId).setSettings(config); },
+    async readProjectDir(projectId: string, path: unknown) { return explorerFor(projectId).readDir(path); },
+    async listProjectFiles(projectId: string, query: unknown, limit: unknown) { return explorerFor(projectId).list(query, limit); },
+    async searchProjectFiles(projectId: string, searchOptions: unknown) { return explorerFor(projectId).search(searchOptions); },
     subscribe(listener: RuntimeListener) {
       listeners.add(listener);
       if (recovered.runIds.length) listener({ kind: "event", type: "runs.recovered", payload: { runIds: recovered.runIds } });
@@ -290,6 +305,7 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
     "node.cancel": api.cancelNode, "approval.decide": api.decideApproval, "run.list": api.listRuns, "run.get": api.getRun,
     "node.output.page": api.nodeOutputPage, "node.diff": api.nodeDiff, "workspaces.delete": api.deleteWorkspaces,
     "settings.get": api.getSettings, "settings.set": api.setSettings,
+    "files.readDir": api.readProjectDir, "files.list": api.listProjectFiles, "files.search": api.searchProjectFiles,
   };
   Object.assign(api.ipcHandlers, ipcHandlers);
   if (Object.keys(api.ipcHandlers).length !== IPC_METHODS.length || IPC_EVENT_TYPES.length !== 12) throw new Error("Runtime IPC handlers/events are incomplete");

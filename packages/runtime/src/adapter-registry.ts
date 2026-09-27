@@ -15,6 +15,7 @@ export const IPC_METHODS = [
   "project.open", "flow.list", "flow.load", "flow.create", "flow.save", "flow.delete", "flow.validate", "flow.validateEdge",
   "agents.status", "run.preflight", "run.start", "run.cancel", "node.cancel", "approval.decide", "run.list", "run.get",
   "node.output.page", "node.diff", "workspaces.delete", "settings.get", "settings.set",
+  "files.readDir", "files.list", "files.search",
 ] as const;
 
 export const IPC_EVENT_TYPES = ["run.started", "node.state", "node.output", "node.result", "approval.requested", "agent.usage", "run.held", "run.resumed", "run.finished", "flow.fileChanged", "runs.recovered", "engine.error"] as const;

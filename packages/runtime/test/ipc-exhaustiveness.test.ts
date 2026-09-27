@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { createZekoRuntime, IPC_EVENT_TYPES, IPC_METHODS } from "../src/index.js";
 
-const expectedMethods = ["project.open", "flow.list", "flow.load", "flow.create", "flow.save", "flow.delete", "flow.validate", "flow.validateEdge", "agents.status", "run.preflight", "run.start", "run.cancel", "node.cancel", "approval.decide", "run.list", "run.get", "node.output.page", "node.diff", "workspaces.delete", "settings.get", "settings.set"];
+const expectedMethods = ["project.open", "flow.list", "flow.load", "flow.create", "flow.save", "flow.delete", "flow.validate", "flow.validateEdge", "agents.status", "run.preflight", "run.start", "run.cancel", "node.cancel", "approval.decide", "run.list", "run.get", "node.output.page", "node.diff", "workspaces.delete", "settings.get", "settings.set", "files.readDir", "files.list", "files.search"];
 const expectedEvents = ["run.started", "node.state", "node.output", "node.result", "approval.requested", "agent.usage", "run.held", "run.resumed", "run.finished", "flow.fileChanged", "runs.recovered", "engine.error"];
 
 describe("runtime IPC composition", () => {

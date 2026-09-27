@@ -52,6 +52,14 @@ export interface RunDetail {
   }>;
   processes: Array<{ pid: number; creationTime: number; startedAt: string; endedAt?: string }>;
 }
+export interface ProjectDirEntry { name: string; relativePath: string; isDirectory: boolean; isSymlink: boolean }
+export interface FileListResult { paths: string[]; truncated: boolean }
+export interface ContentSearchOptions {
+  query: string; caseSensitive: boolean; wholeWord: boolean; useRegex: boolean; includePattern: string; excludePattern: string;
+}
+export interface ContentSearchMatch { line: number; column: number; matchLength: number; lineContent: string }
+export interface ContentSearchFile { relativePath: string; matches: ContentSearchMatch[] }
+export interface ContentSearchResult { files: ContentSearchFile[]; totalMatches: number; truncated: boolean }
 export interface IpcContract {
   "project.open": { params: { path: string }; result: { projectId: string; root: string; flows: FlowSummary[] } };
   "flow.list": { params: { projectId: string }; result: FlowSummary[] };
@@ -74,6 +82,9 @@ export interface IpcContract {
   "workspaces.delete": { params: { runId: string; confirmed: true }; result: { deleted: number } };
   "settings.get": { params: { projectId: string }; result: ProjectConfig };
   "settings.set": { params: { projectId: string; config: ProjectConfig }; result: ProjectConfig };
+  "files.readDir": { params: { projectId: string; path: string }; result: ProjectDirEntry[] };
+  "files.list": { params: { projectId: string; query: string; limit: number }; result: FileListResult };
+  "files.search": { params: { projectId: string; options: ContentSearchOptions }; result: ContentSearchResult };
 }
 
 export type IpcMethod = keyof IpcContract;

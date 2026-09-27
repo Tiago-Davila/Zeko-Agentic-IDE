@@ -9,6 +9,7 @@ const requestMethods = [
   "project.open", "flow.list", "flow.load", "flow.create", "flow.save", "flow.delete", "flow.validate", "flow.validateEdge",
   "agents.status", "run.preflight", "run.start", "run.cancel", "node.cancel", "approval.decide", "run.list", "run.get",
   "node.output.page", "node.diff", "workspaces.delete", "settings.get", "settings.set",
+  "files.readDir", "files.list", "files.search",
 ] as const;
 
 export const IpcRequestSchema = z.object({

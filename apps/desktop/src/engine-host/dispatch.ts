@@ -13,6 +13,7 @@ const ARGUMENTS: Record<string, readonly string[]> = {
   "approval.decide": ["runId", "nodeId", "decision"], "run.list": ["projectId", "flowId", "limit"], "run.get": ["runId"],
   "node.output.page": ["runId", "nodeId", "afterSeq", "limit"], "node.diff": ["runId", "nodeId", "path", "offset", "limit"],
   "workspaces.delete": ["runId", "confirmed"], "settings.get": ["projectId"], "settings.set": ["projectId", "config"],
+  "files.readDir": ["projectId", "path"], "files.list": ["projectId", "query", "limit"], "files.search": ["projectId", "options"],
 };
 
 /** Validate both directions of the renderer/engine boundary and dispatch to the shared runtime. */
