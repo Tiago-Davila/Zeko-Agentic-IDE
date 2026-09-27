@@ -1243,7 +1243,7 @@ confinamiento y capacidades, costo y uso, e historial. La UI solo pinta lo que c
   `defaultModels`, a través de `settings.get` / `settings.set`. **Archivos**:
   `apps/desktop/src/renderer/screens/settings-screen.tsx`. **Cubre**: FR-011a, FR-027, FR-053.
   **Base**: data-model §ProjectConfig. **Depende de**: T139
-- [ ] T154 [US2] Prueba de rendimiento: 8 agentes simulados emitiendo a la tasa de
+- [X] T154 [US2] Prueba de rendimiento: 8 agentes simulados emitiendo a la tasa de
   `q1-verbose-raw.jsonl` × 10. Verifica que la interacción (seleccionar un nodo, desplazar el
   canvas, abrir la salida) responde en menos de 200 ms y que un cambio de estado se ve en menos de
   1 s. **Archivos**: `apps/desktop/test/perf.win.test.ts`. **Cubre**: NFR-002, NFR-003, SC-002.
