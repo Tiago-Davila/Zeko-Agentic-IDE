@@ -7,6 +7,7 @@ import type {
   FlowFile,
   FlowNode,
   NodeResult,
+  NormalizedEvent,
   ProjectConfig,
   WarningCode,
 } from "@zeko/contracts";
@@ -61,7 +62,7 @@ export interface IpcContract {
   "approval.decide": { params: { runId: string; nodeId: string; decision: "approved" | "rejected" }; result: void };
   "run.list": { params: { projectId: string; flowId?: string; limit: number; before?: string }; result: RunSummary[] };
   "run.get": { params: { runId: string }; result: RunDetail | undefined };
-  "node.output.page": { params: { runId: string; nodeId: string; afterSeq?: number; limit: number }; result: { events: Array<Record<string, unknown>>; nextSeq: number } };
+  "node.output.page": { params: { runId: string; nodeId: string; afterSeq?: number; limit: number }; result: { events: NormalizedEvent[]; nextSeq: number | null } };
   "node.diff": { params: { runId: string; nodeId: string; path?: string }; result: { files: Array<{ path: string; change: string; eolOnly: boolean }>; patch?: string } };
   "workspaces.delete": { params: { runId: string; confirmed: true }; result: { deleted: number } };
   "settings.get": { params: { projectId: string }; result: ProjectConfig };

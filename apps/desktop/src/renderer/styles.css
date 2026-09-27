@@ -191,6 +191,16 @@ h1, h2, h3, p { margin-top: 0; }
 .live-node-status__chevron { color: #91a0a2; }
 .live-node-status__reason { margin: 6px 0 0; padding: 6px 7px; color: #77888b; background: #f4f7f7; border-radius: 4px; font-size: 9px; line-height: 1.5; }
 @keyframes status-pulse { 50% { box-shadow: 0 0 0 5px #248f8210; } }
+.output-panel { position: relative; z-index: 2; display: flex; flex: 0 0 225px; flex-direction: column; min-height: 145px; max-height: 34vh; background: #f8fafa; border-top: 1px solid #d5e0e1; }
+.output-panel__header { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 7px 17px; background: #fbfcfc; border-bottom: 1px solid #e3ebeb; }
+.output-panel__header .eyebrow { margin: 0 0 2px; font-size: 8px; }
+.output-panel__header h2 { margin: 0; color: #3d5861; font: 600 11px "Cascadia Code", Consolas, monospace; }
+.output-panel__header > span { color: #8a999c; font-size: 9px; }
+.output-terminal { flex: 1; min-height: 0; padding: 7px 10px; overflow: hidden; }
+.output-terminal .xterm { height: 100%; }
+.output-terminal .xterm-viewport { overflow-y: auto !important; }
+.output-error, .output-empty { position: absolute; right: 16px; bottom: 10px; margin: 0; padding: 5px 8px; color: #8e4d42; background: #fff4f1; border-radius: 4px; font-size: 9px; }
+.output-empty { left: 17px; right: auto; color: #879598; background: #f8fafa; }
 
 @media (max-width: 1080px) {
   .app-shell { grid-template-columns: 190px minmax(0, 1fr); }

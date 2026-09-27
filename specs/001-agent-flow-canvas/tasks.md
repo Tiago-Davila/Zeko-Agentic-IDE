@@ -1200,7 +1200,7 @@ confinamiento y capacidades, costo y uso, e historial. La UI solo pinta lo que c
   `apps/desktop/src/renderer/run/run-state-store.ts`,
   `apps/desktop/src/renderer/canvas/node-status.tsx`. **Cubre**: FR-028, FR-039, NFR-003, NFR-011.
   **Base**: R-25. **Depende de**: T145
-- [ ] T147 [US2] Salida por nodo: un único `@xterm/xterm` de solo lectura, ring buffer de 5 000
+- [X] T147 [US2] Salida por nodo: un único `@xterm/xterm` de solo lectura, ring buffer de 5 000
   eventos por nodo y rehidratación con `node.output.page` al cambiar de nodo o al reconectar.
   **Archivos**: `apps/desktop/src/renderer/run/output-panel.tsx`,
   `apps/desktop/src/renderer/run/ring-buffer.ts`. **Cubre**: FR-029, NFR-002, US2-4. **Base**:

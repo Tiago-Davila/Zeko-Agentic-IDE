@@ -61,7 +61,10 @@ export async function createZekoRuntime(options: CreateZekoRuntimeOptions = {}) 
       }
       else if (event.type === "agent.subscription_usage") emit("agent.usage", payload, event.runId);
       else if (event.type === "error") emit("engine.error", payload, event.runId);
-      else if (event.type === "agent.text" || event.type === "agent.tool_call" || event.type === "agent.tool_result" || event.type === "agent.permission_denied" || event.type === "agent.inferred_denial" || event.type === "agent.stderr") emit("node.output", { nodeId: event.nodeRunId, events: [{ type: event.type, ...payload }] }, event.runId);
+      else if (event.type === "agent.session_started" || event.type === "agent.text" || event.type === "agent.tool_call" || event.type === "agent.tool_result" || event.type === "agent.permission_denied" || event.type === "agent.inferred_denial" || event.type === "agent.stderr" || event.type === "agent.usage") {
+        const node = event.nodeRunId ? db.prepare("SELECT node_id AS nodeId FROM node_runs WHERE id=?").get(event.nodeRunId) as { nodeId: string } | undefined : undefined;
+        if (node) emit("node.output", { nodeId: node.nodeId, events: [{ type: event.type, ts: event.ts, ...(event.attemptId ? { attemptId: event.attemptId } : {}), ...payload }] }, event.runId);
+      }
     },
   };
   const slots = new SqliteSlotLeases(db);
