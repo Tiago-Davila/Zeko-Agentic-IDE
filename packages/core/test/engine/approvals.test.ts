@@ -14,6 +14,31 @@ const approvalFlow: FlowFile = {
 };
 
 describe("RunEngine approvals", () => {
+  it("resumes downstream scheduling when approval is the last outstanding operation", async () => {
+    const sequentialApprovalFlow: FlowFile = {
+      ...approvalFlow,
+      nodes: approvalFlow.nodes.filter((node) => node.id !== "independent"),
+      edges: approvalFlow.edges.filter((edge) => edge.from !== "goal" || edge.to !== "independent"),
+    };
+    let decide!: (approved: boolean) => void;
+    const { engine, adapter } = makeEngine([
+      { outcome: { kind: "exited", exitCode: 0, durationMs: 1 }, report: { state: "valid", report } },
+      { outcome: { kind: "exited", exitCode: 0, durationMs: 1 }, report: { state: "valid", report } },
+    ], {
+      flow: sequentialApprovalFlow,
+      requestApproval: () => new Promise<boolean>((resolve) => { decide = resolve; }),
+    });
+    const pending = engine.execute();
+    for (let i = 0; i < 30 && (adapter.launches.length < 1 || typeof decide !== "function"); i += 1) await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(adapter.launches).toHaveLength(1);
+    decide(true);
+    const result = await pending;
+    expect(result.run.status).toBe("finished");
+    expect(result.nodeRuns.get("review")?.status).toBe("approved");
+    expect(result.nodeRuns.get("b")?.status).toBe("completed");
+    expect(adapter.launches).toHaveLength(2);
+  });
+
   it("provides predecessor summaries, rejects one branch, and continues independent work", async () => {
     const received: Array<{ nodeId: string; summaryNode: string | undefined }> = [];
     let decide!: (approved: boolean) => void;

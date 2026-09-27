@@ -288,6 +288,7 @@ export class RunEngine {
                 );
               }
               await this.#state(runId, nodeRun, nodeRun.status, nodeRun.reason, "waiting_approval");
+              changed = true;
             })().finally(() => {
               running.delete(approvalKey);
             });
