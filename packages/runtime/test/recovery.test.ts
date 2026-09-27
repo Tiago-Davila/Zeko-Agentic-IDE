@@ -32,7 +32,10 @@ describe("runtime crash recovery", () => {
       supervisor: { terminateRecovered: async (identity) => { attempted.push(identity); return identity.pid === 101 && identity.creationTime === 100; } },
     });
     expect(result).toEqual({ runIds: [run.id], terminatedPids: [101] });
-    expect(attempted).toEqual([{ pid: 101, creationTime: 100 }, { pid: 202, creationTime: 200 }]);
+    // Linux ends the whole process group through its root; Windows terminates every recorded identity.
+    expect(attempted).toEqual(process.platform === "linux"
+      ? [{ pid: 101, creationTime: 100 }]
+      : [{ pid: 101, creationTime: 100 }, { pid: 202, creationTime: 200 }]);
     expect((await runs.get(run.id))?.status).toBe("interrupted");
     expect(db.prepare("SELECT node_id,status FROM node_runs WHERE run_id=? ORDER BY node_id").all(run.id)).toEqual([
       { node_id: "agent", status: "interrupted" }, { node_id: "goal", status: "skipped" },

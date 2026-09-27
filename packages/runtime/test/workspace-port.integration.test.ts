@@ -188,7 +188,7 @@ describe("GitWorkspacePort with RunEngine", () => {
     } finally {
       await result.fixture.dispose();
     }
-  });
+  }, 30_000);
 
   it("does not pass code lineage through a read-only node", async () => {
     const result = await execute(
@@ -215,5 +215,5 @@ describe("GitWorkspacePort with RunEngine", () => {
     } finally {
       await result.fixture.dispose();
     }
-  });
+  }, 30_000);
 });

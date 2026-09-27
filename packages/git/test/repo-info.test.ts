@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, realpath, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -8,7 +8,8 @@ import { getRepositoryInfo } from "../src/repo-info.js";
 const directories: string[] = [];
 
 async function tempDirectory(): Promise<string> {
-  const path = await mkdtemp(join(tmpdir(), "zeko-repo-info-"));
+  // Native realpath expands Windows 8.3 short names (RUNNER~1), which git never reports.
+  const path = await realpath(await mkdtemp(join(tmpdir(), "zeko-repo-info-")));
   directories.push(path);
   return path;
 }
