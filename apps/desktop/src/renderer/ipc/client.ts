@@ -83,7 +83,24 @@ interface ZekoBridge {
   request(message: { kind: "request"; id: string; method: IpcMethod; params: Record<string, unknown> }): Promise<IpcResponse>;
   request(message: { kind: "host-request"; channel: "dialog.openFolder" }): Promise<string | undefined>;
   onEvent(listener: (event: ZekoEvent) => void): () => void;
+  terminal: TerminalBridge;
 }
+
+export type TerminalKind = "claude-code" | "codex" | "shell";
+export interface OpenTerminalRequest {
+  sessionKey: string; cwd: string; kind: TerminalKind; model?: string; reasoningEffort?: string; cols: number; rows: number;
+}
+export interface OpenTerminalResult { id: string; buffer: string; exitCode?: number }
+interface TerminalBridge {
+  open(request: OpenTerminalRequest): Promise<OpenTerminalResult>;
+  restart(request: OpenTerminalRequest): Promise<OpenTerminalResult>;
+  write(id: string, data: string): void;
+  resize(id: string, cols: number, rows: number): void;
+  onData(listener: (payload: { id: string; data: string }) => void): () => void;
+  onExit(listener: (payload: { id: string; exitCode: number }) => void): () => void;
+}
+
+export const terminalBridge = (): TerminalBridge => window.zeko.terminal;
 
 declare global { interface Window { zeko: ZekoBridge } }
 

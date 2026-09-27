@@ -49,6 +49,27 @@ function request(message: unknown): Promise<IpcResponse | string | undefined> {
     });
 }
 
+type TerminalDataListener = (payload: { id: string; data: string }) => void;
+type TerminalExitListener = (payload: { id: string; exitCode: number }) => void;
+
+/** Interactive PTYs live in the main process (node-pty), not the engine host, so they bypass the engine port. */
+const terminal = Object.freeze({
+  open: (request: unknown) => ipcRenderer.invoke("terminal.open", request),
+  restart: (request: unknown) => ipcRenderer.invoke("terminal.restart", request),
+  write: (id: string, data: string) => ipcRenderer.send("terminal.write", id, data),
+  resize: (id: string, cols: number, rows: number) => ipcRenderer.send("terminal.resize", id, cols, rows),
+  onData(listener: TerminalDataListener): () => void {
+    const handler = (_event: unknown, payload: { id: string; data: string }) => listener(payload);
+    ipcRenderer.on("terminal.data", handler);
+    return () => ipcRenderer.removeListener("terminal.data", handler);
+  },
+  onExit(listener: TerminalExitListener): () => void {
+    const handler = (_event: unknown, payload: { id: string; exitCode: number }) => listener(payload);
+    ipcRenderer.on("terminal.exit", handler);
+    return () => ipcRenderer.removeListener("terminal.exit", handler);
+  },
+});
+
 const bridge = Object.freeze({
   request,
   onEvent(listener: EventListener): () => void {
@@ -56,6 +77,7 @@ const bridge = Object.freeze({
     listeners.add(listener);
     return () => listeners.delete(listener);
   },
+  terminal,
 });
 
 contextBridge.exposeInMainWorld("zeko", bridge);
