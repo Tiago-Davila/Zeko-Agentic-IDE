@@ -10,6 +10,8 @@ export default defineWorkspace([
     test: {
       name: "win",
       include: ["**/*.win.test.ts"],
+      // These tests assert timing budgets; running them beside the packaging smoke test starves them of CPU.
+      fileParallelism: false,
       exclude: ["**/node_modules/**", "**/dist/**", "**/coverage/**"],
     },
   },
