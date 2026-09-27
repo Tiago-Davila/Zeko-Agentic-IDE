@@ -101,6 +101,11 @@ export function FlowCanvas({ projectId, flow, onChange, onBack, onSave, onStartR
       const next = nextNodes.find((candidate) => candidate.id === node.id);
       return next ? [{ ...node, position: { x: Math.round(next.position.x), y: Math.round(next.position.y) } } as FlowNode] : [];
     });
+    const changed = nextFlowNodes.length !== flow.nodes.length || nextFlowNodes.some((node, index) => {
+      const current = flow.nodes[index];
+      return !current || current.id !== node.id || current.position.x !== node.position.x || current.position.y !== node.position.y;
+    });
+    if (!changed) return;
     const removed = new Set(flow.nodes.filter((node) => !nextFlowNodes.some((next) => next.id === node.id)).map((node) => node.id));
     onChange({ ...flow, nodes: nextFlowNodes, edges: flow.edges.filter((edge) => !removed.has(edge.from) && !removed.has(edge.to)) });
   }, [flow, nodes, onChange]);

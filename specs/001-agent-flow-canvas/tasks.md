@@ -1262,7 +1262,7 @@ rendimiento pasa.
 suscripción y adjuntan evidencia (runIds y capturas). Cada una incluye la verificación común de
 quickstart (repo original, rama actual, ramas `zeko/*` y procesos).
 
-- [ ] T155 [REAL] [US1] Quickstart **Escenario 1**, flujo secuencial: canvas idéntico al reabrir;
+- [x] T155 [REAL] [US1] Quickstart **Escenario 1**, flujo secuencial: canvas idéntico al reabrir;
   `b` parte del commit de `a`; diff con marca de finales de línea; costo "estimated". **Archivos**:
   `specs/001-agent-flow-canvas/evidence/scenario-1.md`. **Cubre**: FR-026, FR-041, FR-043,
   FR-046, FR-051, SC-004, SC-007. **Depende de**: T154, T119

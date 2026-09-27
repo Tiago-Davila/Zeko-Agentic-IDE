@@ -14,20 +14,24 @@ export function FlowList({ projectId, flows, onFlowsChanged, onOpenFlow }: FlowL
   const t = useT();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
+  const [createDialog, setCreateDialog] = useState(false);
+  const [flowName, setFlowName] = useState("");
 
   async function refresh(): Promise<void> {
     const nextFlows = await ipc.request("flow.list", { projectId });
     onFlowsChanged(nextFlows);
   }
 
-  async function createFlow(): Promise<void> {
-    const name = window.prompt(t("flow.createPrompt"))?.trim();
-    if (!name) return;
+  async function createFlow(name: string): Promise<void> {
+    const trimmedName = name.trim();
+    if (!trimmedName) return;
     setBusy(true);
     setError(undefined);
     try {
-      const { flowId } = await ipc.request("flow.create", { projectId, name });
+      const { flowId } = await ipc.request("flow.create", { projectId, name: trimmedName });
       await refresh();
+      setCreateDialog(false);
+      setFlowName("");
       onOpenFlow(flowId);
     } catch (cause) {
       setError(errorMessage(cause, t));
@@ -57,7 +61,7 @@ export function FlowList({ projectId, flows, onFlowsChanged, onOpenFlow }: FlowL
           <p className="eyebrow">{t("project.flowsEyebrow")}</p>
           <h2 id="flow-heading">{t("project.flows")}</h2>
         </div>
-        <button className="button button--primary" type="button" disabled={busy} onClick={() => void createFlow()}>
+        <button className="button button--primary" type="button" disabled={busy} onClick={() => { setFlowName(""); setCreateDialog(true); }}>
           <span aria-hidden="true">{"+"}</span>{t("flow.create")}
         </button>
       </div>
@@ -92,6 +96,21 @@ export function FlowList({ projectId, flows, onFlowsChanged, onOpenFlow }: FlowL
           ))}
         </ul>
       )}
+      {createDialog && <div className="dialog-backdrop" role="presentation">
+        <form className="confirm-dialog flow-create-dialog" role="dialog" aria-modal="true"
+          aria-labelledby="flow-create-title" onSubmit={(event) => { event.preventDefault(); void createFlow(flowName); }}>
+          <span className="dialog-symbol" aria-hidden="true">{"+"}</span>
+          <p className="eyebrow">{t("project.flowsEyebrow")}</p>
+          <h2 id="flow-create-title">{t("flow.create")}</h2>
+          <label className="flow-create-dialog__label" htmlFor="flow-create-name">{t("flow.createPrompt")}</label>
+          <input id="flow-create-name" className="flow-create-dialog__input" autoFocus required
+            value={flowName} onChange={(event) => setFlowName(event.currentTarget.value)} />
+          <div className="dialog-actions">
+            <button className="button button--quiet" type="button" disabled={busy} onClick={() => setCreateDialog(false)}>{t("common.cancel")}</button>
+            <button className="button button--primary" type="submit" disabled={busy || !flowName.trim()}>{t("flow.create")}</button>
+          </div>
+        </form>
+      </div>}
     </section>
   );
 }

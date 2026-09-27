@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
-import { IpcEventSchema, IpcRequestSchema, IpcResponseSchema } from "@zeko/contracts";
+import { IpcEventSchema, IpcRequestSchema, IpcResponseSchema } from "../../../../packages/contracts/src/ipc.js";
 
 type IpcEvent = typeof IpcEventSchema._output;
 type IpcResponse = typeof IpcResponseSchema._output;
