@@ -33,6 +33,14 @@ El usuario necesita explorar, decidir y corregir en conversación con un agente 
 - Q: ¿Cómo recibe el agente las instrucciones iniciales y el resultado de los predecesores? → A: Zeko los muestra al usuario; solo llega al agente el contenido que el usuario escribe en la terminal.
 - Q: ¿Guarda Zeko la transcripción completa de la sesión? → A: No; cada agente conserva y permite recuperar sus conversaciones con sus propias funciones. Zeko guarda solo el resultado y los eventos del run, incluida la recap usada como resumen.
 
+### Session 2026-09-28
+
+- Q: ¿Qué debe contener el campo de resumen del resultado de un nodo interactivo? → A: La recap del modelo: la última respuesta completa del agente antes del cierre, tomada de las funciones de conversación del propio agente; si no existe, «recap no disponible».
+- Q: Si la última respuesta del agente contiene un JSON con la forma del resultado, ¿cómo debe usarlo Zeko? → A: No lo interpreta; la recap se conserva como texto. Que el agente entregue un resultado estructurado, por ejemplo por MCP, queda fuera de alcance por ahora.
+- Q: Al reabrir un nodo interactivo terminado, ¿el agente continúa su conversación anterior o empieza una nueva? → A: Retoma la conversación anterior con la función del propio agente. Si el agente no puede recuperarla, Zeko lo indica y abre una conversación nueva sobre la misma copia.
+- Q: ¿Cómo sabe Zeko que la tarea de un nodo interactivo «requería cambios»? → A: Por una opción «requiere cambios» en la configuración del nodo, desactivada por defecto; solo si está activada, un «completado» sin cambios observados es una inconsistencia.
+- Q: Cuando el usuario declara el fin desde Zeko con el agente todavía abierto, ¿qué pasa con la sesión del agente? → A: Zeko cierra la sesión del agente antes de registrar los cambios; si el agente está respondiendo, pide confirmación para cerrarlo ya o espera a que termine la respuesta.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Conversar con el agente dentro de un flujo (Priority: P1)
@@ -67,15 +75,15 @@ El usuario declara que terminó e indica un estado, o sale normalmente del agent
 
 **Acceptance Scenarios**:
 
-1. **Dado** una sesión activa, **Cuando** el usuario declara su fin con estado «completado», «bloqueado» o «fallido» y el nodo dispone de un resumen, **Entonces** Zeko registra la declaración y determina el estado final según sus reglas.
+1. **Dado** una sesión activa, **Cuando** el usuario declara su fin con estado «completado», «bloqueado» o «fallido» y el nodo dispone de un resumen, **Entonces** Zeko registra la declaración, cierra la sesión del agente antes de registrar los cambios y determina el estado final según sus reglas.
 2. **Dado** una sesión activa, **Cuando** el usuario sale normalmente del agente desde su terminal, **Entonces** Zeko finaliza automáticamente el nodo, registra «completado» como estado declarado provisional y determina el estado final según sus reglas.
-3. **Dado** un nodo interactivo terminado cuya copia aislada sigue siendo confiable, **Cuando** el usuario lo reabre dentro del mismo run, **Entonces** puede continuar su trabajo en esa copia y Zeko conserva el resultado anterior en el historial como reemplazado.
+3. **Dado** un nodo interactivo terminado cuya copia aislada sigue siendo confiable, **Cuando** el usuario lo reabre dentro del mismo run, **Entonces** el agente retoma su conversación anterior, el usuario puede continuar su trabajo en esa copia y Zeko conserva el resultado anterior en el historial como reemplazado.
 4. **Dado** un dependiente activo o terminado, **Cuando** el usuario reabre el nodo interactivo del que depende, **Entonces** Zeko cancela al dependiente activo, invalida los resultados de todos los dependientes afectados y solicita confirmación antes de reejecutarlos.
-5. **Dado** una sesión cuya terminal tiene una recap del modelo disponible, **Cuando** Zeko produce el resultado, **Entonces** usa esa recap como resumen sin solicitar al agente que la genere ni permitir su edición desde Zeko.
+5. **Dado** una sesión cuyo agente tiene una recap del modelo disponible, **Cuando** Zeko produce el resultado, **Entonces** usa como resumen la última respuesta completa del agente antes del cierre, obtenida de las funciones de conversación del propio agente, sin solicitar al agente que la genere ni permitir su edición desde Zeko.
 6. **Dado** una sesión sin recap disponible, **Cuando** Zeko produce el resultado, **Entonces** indica «recap no disponible» en el campo de resumen y en el nodo, sin inventar contenido de la conversación.
 7. **Dado** un predecesor que modificó código, **Cuando** el usuario abre el nodo interactivo dependiente, **Entonces** trabaja desde el estado de código dejado por ese predecesor y ve su resultado completo como contexto informativo.
 8. **Dado** un nodo interactivo que modificó archivos dentro de su alcance y terminó completado, **Cuando** arranca un sucesor, **Entonces** recibe el resultado estructurado completo y comienza desde los cambios registrados por el nodo interactivo.
-9. **Dado** una declaración de «completado» sin cambios en una tarea que los requería, **Cuando** Zeko determina el resultado, **Entonces** muestra la inconsistencia en el nodo y en su historial.
+9. **Dado** un nodo con la opción «requiere cambios» activada y una declaración de «completado» sin cambios observados, **Cuando** Zeko determina el resultado, **Entonces** muestra la inconsistencia en el nodo y en su historial.
 10. **Dado** una sesión que modificó archivos fuera del alcance de rutas, **Cuando** Zeko determina el resultado, **Entonces** muestra esos archivos y aplica el estado final «bloqueado», aunque el usuario haya declarado «completado».
 11. **Dado** un run terminado, **Cuando** el usuario revisa el repositorio original, **Entonces** no encuentra cambios causados por el nodo interactivo en sus archivos, rama actual ni cambios pendientes.
 
@@ -130,6 +138,8 @@ El usuario inspecciona el historial para saber quién cerró el nodo o si termin
 - El límite de tiempo falta, es indefinido o no es finito: el flujo no supera la validación. Si el usuario minimiza la terminal durante una sesión activa, el tiempo sigue contando.
 - El usuario intenta reabrir un nodo cancelado o interrumpido cuya copia está marcada como no confiable: Zeko impide continuar sobre esa copia y explica el motivo.
 - La sesión termina sin una recap disponible para Zeko: el resultado conserva su forma y marca el resumen como «recap no disponible»; los demás campos y verificaciones conservan su validez.
+- El usuario declara el fin mientras el agente está respondiendo: Zeko le pide elegir entre cerrar el agente de inmediato o esperar a que termine; si lo cierra de inmediato, la recap es la última respuesta completa anterior o «recap no disponible». La copia no se registra hasta que la sesión está cerrada.
+- Al reabrir un nodo, el agente no puede recuperar la conversación anterior: Zeko lo indica y abre una conversación nueva sobre la misma copia; el resultado anterior sigue visible como reemplazado.
 - El usuario abre la terminal y no escribe las instrucciones iniciales mostradas por Zeko: el agente no las recibe automáticamente y la sesión permanece disponible para que el usuario decida qué comunicar.
 
 ## Requirements *(mandatory)*
@@ -139,7 +149,7 @@ El usuario inspecciona el historial para saber quién cerró el nodo o si termin
 **Definición del nodo**
 
 - **FR-001**: Zeko MUST ofrecer un tipo de nodo interactivo distinguible visualmente de los nodos de agente no interactivos en edición, ejecución e historial.
-- **FR-002**: El nodo MUST permitir configurar Claude Code o Codex como agente, modelo explícito, instrucciones iniciales opcionales, alcance de rutas y límite de tiempo máximo obligatorio y finito. Zeko MUST indicar el modelo al agente y MUST NOT heredar el modelo elegido por el propio agente.
+- **FR-002**: El nodo MUST permitir configurar Claude Code o Codex como agente, modelo explícito, instrucciones iniciales opcionales, alcance de rutas, la opción «requiere cambios» (desactivada por defecto) y límite de tiempo máximo obligatorio y finito. Zeko MUST indicar el modelo al agente y MUST NOT heredar el modelo elegido por el propio agente.
 - **FR-003**: Zeko MUST guardar la definición del nodo con el flujo y reconstruirla al reabrirlo. La definición MUST NOT contener secretos ni datos personales de la cuenta del agente.
 - **FR-004**: Zeko MUST validar la configuración del nodo y mostrar errores antes de ejecutar el flujo; en esta versión MUST admitir Claude Code y Codex en nodos interactivos.
 
@@ -151,7 +161,7 @@ El usuario inspecciona el historial para saber quién cerró el nodo o si termin
 - **FR-008**: Cerrar o minimizar la vista MUST conservar activa la sesión; reabrir el nodo MUST recuperar esa sesión mientras siga activa.
 - **FR-009**: Zeko MUST permitir al menos cuatro sesiones interactivas simultáneas, una por nodo, e impedir dos sesiones simultáneas sobre la misma copia aislada.
 - **FR-010**: El límite de tiempo MUST empezar cuando el usuario abre la sesión, excluir la espera previa y seguir contando mientras la sesión permanezca activa aunque la vista esté cerrada o minimizada. Si el nodo se reabre dentro del mismo run, el tiempo activo acumulado MUST seguir sujeto al mismo límite del nodo.
-- **FR-011**: Una salida normal del agente desde su terminal MUST finalizar automáticamente el nodo con «completado» como estado declarado provisional; Zeko MUST determinar el estado final según sus reglas. Un corte inesperado del proceso MUST tratarse como fallo. El usuario MUST poder reabrir un nodo terminado dentro del mismo run para continuar en su copia aislada si esta es confiable; una copia marcada como no confiable MUST impedir la reapertura.
+- **FR-011**: Una salida normal del agente desde su terminal MUST finalizar automáticamente el nodo con «completado» como estado declarado provisional; Zeko MUST determinar el estado final según sus reglas. Un corte inesperado del proceso MUST tratarse como fallo. El usuario MUST poder reabrir un nodo terminado dentro del mismo run para continuar en su copia aislada si esta es confiable; una copia marcada como no confiable MUST impedir la reapertura. Al reabrir, Zeko MUST retomar la conversación anterior del agente mediante la función de reanudación del propio agente. Si el agente no puede recuperarla, Zeko MUST indicarlo al usuario y abrir una conversación nueva sobre la misma copia.
 
 **Contexto, aislamiento y seguridad**
 
@@ -164,10 +174,10 @@ El usuario inspecciona el historial para saber quién cerró el nodo o si termin
 
 **Finalización y resultado**
 
-- **FR-018**: El usuario MUST poder terminar la tarea mediante una declaración explícita de «completado», «bloqueado» o «fallido». Una salida normal del agente desde la terminal MUST ser otra forma de terminarla y MUST registrar «completado» como declaración provisional. Zeko MUST usar la recap del modelo disponible en la terminal como resumen del resultado, sin solicitarla, modificarla ni exigir confirmación del usuario. Si no hay recap disponible, MUST indicar «recap no disponible» en el resumen y en el nodo.
+- **FR-018**: El usuario MUST poder terminar la tarea mediante una declaración explícita de «completado», «bloqueado» o «fallido». Tras una declaración explícita, Zeko MUST cerrar la sesión del agente antes de registrar los cambios; si el agente está respondiendo, MUST pedir al usuario que elija entre cerrarlo de inmediato o esperar a que termine la respuesta. Una salida normal del agente desde la terminal MUST ser otra forma de terminarla y MUST registrar «completado» como declaración provisional. Zeko MUST usar como resumen del resultado la recap del modelo, es decir, la última respuesta completa del agente antes del cierre, obtenida de las funciones de conversación del propio agente y no de la salida visible de la terminal, sin solicitarla, modificarla ni exigir confirmación del usuario. Si no hay recap disponible, MUST indicar «recap no disponible» en el resumen y en el nodo. Zeko MUST conservar la recap como texto y MUST NOT interpretarla como datos estructurados, aunque contenga JSON.
 - **FR-019**: Zeko MUST determinar y mostrar el estado final del nodo según las reglas generales del flujo, dando prioridad a cancelación, interrupción, corte del proceso, tiempo excedido y violaciones observadas por encima de «completado» declarado por el usuario.
 - **FR-020**: Zeko MUST determinar los archivos modificados observando la copia aislada, mostrar discrepancias con cualquier declaración y marcar «bloqueado» un cambio fuera del alcance de rutas.
-- **FR-021**: Si la tarea requería cambios y el usuario declara «completado» sin cambios observados, Zeko MUST mostrar la inconsistencia en el nodo y el historial. MUST mostrar otras inconsistencias detectables entre declaración y observación.
+- **FR-021**: Si el nodo tiene activada la opción «requiere cambios» y el usuario declara «completado» sin cambios observados, Zeko MUST mostrar la inconsistencia en el nodo y el historial. MUST mostrar otras inconsistencias detectables entre declaración y observación.
 - **FR-022**: Al terminar, Zeko MUST registrar los cambios de la copia aislada y producir un resultado con la misma forma que el de un nodo de agente: estado declarado, recap del modelo como resumen o indicación de ausencia, archivos observados, verificaciones, hallazgos, bloqueos, estado final y motivo. Las listas sin elementos MUST admitirse vacías.
 - **FR-023**: Los dependientes MUST recibir el resultado estructurado completo y, si el nodo interactivo terminó completado con cambios, MUST arrancar desde su estado de código registrado.
 - **FR-023a**: Al reabrir un nodo interactivo, el run MUST volver a estar en curso si ya había terminado. Zeko MUST conservar el resultado anterior en el historial como reemplazado, cancelar sus dependientes activos e invalidar los resultados de todos los dependientes directos e indirectos afectados; las ramas independientes MUST conservar sus resultados. Al cerrarse de nuevo el nodo, Zeko MUST pedir confirmación explícita antes de reejecutar dependientes con el nuevo resultado; ningún dependiente MUST consumir el resultado reemplazado como vigente.
@@ -192,10 +202,10 @@ El usuario inspecciona el historial para saber quién cerró el nodo o si termin
 
 ### Key Entities
 
-- **Definición de nodo interactivo**: tipo, agente, modelo explícito, instrucciones opcionales, alcance de rutas, límite de tiempo obligatorio y finito, y posición en el flujo; no contiene secretos.
-- **Sesión interactiva**: conversación activa de un nodo en un run, con momento de apertura, duración, estado de actividad y copia aislada asociada.
+- **Definición de nodo interactivo**: tipo, agente, modelo explícito, instrucciones opcionales, alcance de rutas, opción «requiere cambios» (desactivada por defecto), límite de tiempo obligatorio y finito, y posición en el flujo; no contiene secretos.
+- **Sesión interactiva**: conversación activa de un nodo en un run, con momento de apertura, duración, estado de actividad, copia aislada asociada y referencia a la conversación del agente que permite retomarla al reabrir el nodo, sin contener la transcripción.
 - **Declaración de fin**: origen manual o salida normal del agente, usuario cuando corresponda, estado declarado y momento.
-- **Resumen del resultado**: recap producida por el modelo dentro de la terminal cuando esté disponible; en su ausencia, indicación explícita de que no hay recap.
+- **Resumen del resultado**: recap del modelo, definida como la última respuesta completa del agente antes del cierre y obtenida de las funciones de conversación del propio agente; en su ausencia, indicación explícita de que no hay recap.
 - **Resultado del nodo**: declaración, estado final y motivo, archivos observados, verificaciones, hallazgos, bloqueos y costo informado cuando exista; consumible por cualquier dependiente. Los resultados anteriores de un nodo reabierto quedan identificados como reemplazados.
 - **Copia aislada**: estado de código y cambios propios del nodo, rama asociada y marca de confianza tras cancelación o interrupción.
 - **Historial del run**: resultado y eventos persistidos del nodo, incluidos los cierres y reaperturas sucesivos y la recap usada como resumen, sujetos a redacción antes de guardarse; no incluye transcripción completa.
@@ -230,3 +240,4 @@ El usuario inspecciona el historial para saber quién cerró el nodo o si termin
 - Compartir una sesión entre varios usuarios.
 - Confinar realmente la terminal interactiva.
 - Crear terminales sueltas fuera de un nodo de flujo.
+- Recibir del agente interactivo un resultado estructurado (por ejemplo, JSON mediante MCP); en esta versión la recap es solo texto.
