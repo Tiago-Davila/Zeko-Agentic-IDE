@@ -1,7 +1,7 @@
 # Contrato: adaptador de agente — capacidades y lanzamiento interactivo
 
 **Cubre**: FR-002, FR-004, FR-007, FR-011, FR-012, FR-015, FR-016, FR-018, FR-019, FR-025, FR-027,
-FR-028, NFR-004, NFR-006, SC-005.
+FR-028, FR-030, FR-031, FR-033, FR-034, FR-037, NFR-004, NFR-006, NFR-009, SC-005.
 **Base**: [contracts/adapter.md de 001](../../001-agent-flow-canvas/contracts/adapter.md). Las
 operaciones de 001 (`capabilities`, `detect`, `readUsage`, `launch`, `requestReport`), `LaunchSpec`,
 `NormalizedEvent`, `ReportCandidate` y la matriz de capacidades rigen sin cambios.
@@ -26,6 +26,9 @@ supervisor lo adopta (research R5-01, R5-06). Así `packages/adapters` sigue sin
 | `readSessionUsage(ref)` | `SessionRef` | `{consumption?, cost?, subscription?: AgentUsageReading}` | Opcional. Codex: `token_count` y `rate_limits` del rollout, como en 001 `[001c §11]`. Ausente si el agente no lo informa. | FR-027 |
 | `isBusy(ref)` | `SessionRef` | `boolean \| 'unknown'` | Opcional, solo si `interactive.busyDetection ≠ none`. | FR-018 |
 | `detect()` | (001) | `AgentAvailability` | Sin cambios; se llama también al abrir cada sesión (research R5-03). | FR-011, supuestos de la spec |
+| `normalizeActivityEvent(raw)` | `{payload: unknown}` (JSON nativo de un hook o de `notify`, o un registro del rollout) | `ActivityEvent[]` ([bridge.md](./bridge.md#avisos-de-actividad-kind-hook)) | Pura. Los nombres de eventos del agente viven solo aquí (research R5-17). Un payload desconocido devuelve `[]`, nunca error. | FR-030 |
+| `readConversationTail(ref, n)` | `SessionRef`, `n ≤ 50` | `{entries: string[], truncated}` | Solo lectura en streaming del archivo de sesión. Devuelve las últimas `n` entradas como `user:` / `assistant:` / `tool: <nombre>` / `result: <primera línea>`, sin copiar el archivo. Lo redacta el `runtime` antes de entregarlo (research R5-19). | FR-033, FR-034 |
+| `watchSessionFile?(ref)` | `SessionRef` | `AsyncIterable<unknown>` | Opcional (`activitySource ∈ {rollout, notify_rollout}`). Lee el archivo en streaming desde el final y entrega registros nuevos a `normalizeActivityEvent`. | FR-030 |
 
 ### `InteractiveLaunchSpec` (lo arma `core`)
 
@@ -40,7 +43,8 @@ supervisor lo adopta (research R5-01, R5-06). Así `packages/adapters` sigue sin
 | `platform` | `win32` \| `linux` | |
 | `sessionIdHint?` | uuid | motor, solo si `interactive.sessionRef = zeko_assigned` |
 | `resume?` | `{ref: SessionRef, mode: 'fork' \| 'in_place'}` | reapertura (R5-07) |
-| `launchProfileHash` | sha256 | motor; se compara con el del segmento anterior antes de reanudar |
+| `launchProfileHash` | sha256 | motor; se compara con el del segmento anterior antes de reanudar. Incluye `toolsExposed` |
+| `bridge` | `{exePath, pipe, sessionId, tokenFile, sessionDir, toolsExposed: ZekoToolName[]}` | motor (research R5-16, R5-18). `toolsExposed = []` si el nodo no tiene herramientas o el agente no las admite |
 
 **Qué no lleva**: prompt, instrucciones, criterios, resultados de predecesores ni schema de reporte.
 Nada de eso llega al agente (FR-017). El tiempo máximo tampoco: lo aplica el motor (R-11).
@@ -56,6 +60,9 @@ Nada de eso llega al agente (FR-017). El tiempo máximo tampoco: lo aplica el mo
 | `sensitiveValues` | string[] | Igual que 001: se registran en el redactor (R-28) |
 | `resumeApplied` | bool | `false` si se pidió reanudar y no se pudo armar |
 | `unsupportedRestrictions` | code[] | Restricciones del nodo que el agente no admite en modo interactivo; se muestran (FR-016) |
+| `files` | `{path, content}[]` | Archivos que el host escribe en `bridge.sessionDir` **antes** de lanzar y borra al cerrar: `claude-settings.json` (hooks) y `mcp.json` para Claude; ninguno para Codex (usa `-c`). La operación sigue siendo pura: el adaptador no escribe nada |
+| `activitySource` | `hooks` \| `notify_rollout` \| `rollout` \| `none` | Lo que se pudo armar; queda en el segmento |
+| `env` (agregado) | | `ZEKO_BRIDGE_PIPE`, `ZEKO_SESSION_ID`, `ZEKO_SESSION_TOKEN_FILE` cuando `bridge` está presente ([bridge.md](./bridge.md#entorno-de-la-sesión)) |
 
 ### `SessionRef` y `RecapResult`
 
@@ -102,6 +109,11 @@ Campo nuevo, **opcional**: su ausencia significa que el agente no admite nodos i
 | `orderlyExit` | `{sequence: string, graceMs: int}` \| `none` | Fase 1 de la cancelación (research R5-06). `graceMs ≤ 3000`. |
 | `permissionPersistencePaths` | string[] \| `unknown` | Rutas relativas al worktree donde el agente guarda aprobaciones persistentes; el commit del motor las excluye (research R5-05). |
 | `reportsCost`, `reportsConsumption` | bool | En sesiones interactivas. |
+| `activitySource` | `hooks` \| `notify_rollout` \| `rollout` \| `none` | De dónde sale la actividad (research R5-17). `none` = siempre `unknown`. |
+| `sessionsRoot` | ruta con variables (`~/.claude/projects`, `$CODEX_HOME/sessions`) | Directorio dentro del cual tiene que estar un `transcriptPath` informado por un aviso (research R5-23). |
+| `zekoTools` | bool | Si el lanzamiento puede registrar el servidor MCP `zeko` y sus herramientas quedan usables en la TUI (research R5-18). |
+| `messaging.input` | `bracketed_paste` \| `none` | Si el nodo puede recibir mensajes y avisos en su terminal (research R5-20). |
+| `messaging.submitDelayMs` | int 0..1000 | Espera entre el cierre del paste y el `\r`. |
 
 ### Valores declarados
 
@@ -125,6 +137,13 @@ son lo que se espera verificar; no se prometen.
 | `permissionPersistencePaths` | a medir | a medir | `unknown` | Q5, Q12 |
 | `reportsCost` | a verificar | `false` `[001c §11]` | `false` | Q3 |
 | `reportsConsumption` | a verificar | `true` (rollout, `[001c §11]`) | `false` | Q3, Q9 |
+| `activitySource` | `hooks` (`--settings`) | `notify_rollout` | `none` | Q16, Q17 |
+| `zekoTools` | `true` (`--mcp-config`) | `true` (`-c mcp_servers`) | `false` | Q18, Q19, Q22 |
+| `messaging.input` | `bracketed_paste` | `bracketed_paste` | `none` | Q20 |
+| `messaging.submitDelayMs` | a medir | a medir | — | Q20 |
+
+El **adaptador simulado** declara los valores candidatos de comunicación desde el primer día, para que
+el puente, los mensajes y la orquestación se prueben sin esperar a 005a (research §S, compuerta).
 
 Un test de contrato falla si un adaptador declara un valor distinto del de "Hasta 005a" sin una
 referencia a un hallazgo de `spikes/005a-interactive-agents/FINDINGS.md` en el código de la
@@ -146,6 +165,8 @@ que sí se verificaron.
 | Terminal habilitada | `PowerShell` agregado a `--tools`; `--allowedTools "PowerShell(<cmd>)"` por comando permitido | `[001 §6]` |
 | Sesión | `--session-id <uuid>` si `sessionRef = zeko_assigned` | listado en `[001 §1]`, no ejercitado |
 | Reapertura | `--resume <id>` (+ `--fork-session` si `resume = fork`), mismos flags | `[001 §4]` |
+| Actividad | `--settings <sessionDir>/claude-settings.json` con un hook `command` por evento de research R5-17: `"<exePath>" hook claude`, `timeout: 5` | `[claude-docs]`; U5-15 |
+| Herramientas de Zeko | `--mcp-config <sessionDir>/mcp.json` (servidor `zeko`: `<exePath> mcp`), junto al `--strict-mcp-config` de siempre; `--allowedTools` suma `mcp__zeko__<cada herramienta de toolsExposed>` | `[claude-docs]`; U5-17 |
 | Nunca | `-p`, `--output-format`, `--input-format`, `--json-schema`, `--max-turns`, `--permission-mode acceptEdits`, `--dangerously-skip-permissions` | R-10, research C5-12 |
 
 ### Codex
@@ -160,6 +181,8 @@ que sí se verificaron.
 | Aprobaciones | la política que Q7 encuentre sin escalado fuera del sandbox | `[001c §8]` (en `exec` siempre `never`) |
 | Entorno | sin `CODEX_API_KEY`, `OPENAI_API_KEY` ni `CODEX_HOME` heredados | `[001c §2, §10]` |
 | Reapertura | la forma de fork o reanudación de la TUI que Q9 verifique, mismo `cwd` | `[001c §5]` (`exec fork`) |
+| Actividad | `-c notify=["<exePath>","hook","codex"]`; respaldo con `watchSessionFile` del rollout localizado | `[codex-docs]`; U5-16 |
+| Herramientas de Zeko | `-c mcp_servers.zeko.command="<exePath>" -c mcp_servers.zeko.args=["mcp"]` y, si existe, la opción que restringe las herramientas expuestas a `toolsExposed` | `[codex-docs]`; U5-18, U5-21 |
 | Nunca | `exec`, `--json`, `--output-schema`, `danger-full-access`, reanudar desde otro `cwd` | R-13, R-16 |
 
 ## Adaptador simulado (`fake`, modo interactivo)
@@ -169,3 +192,11 @@ Implementa el bloque `interactive` con capacidades configurables por test y lanz
 hace eco inmediato, sale con el código del guion, escribe un archivo de sesión simulado con una recap
 (o sin ella, o con el último turno incompleto) y puede lanzar nietos `cmd.exe → powershell.exe` que
 escriben un archivo por segundo. Nunca llama a proveedores reales (Principio XVI).
+
+En modo `bridge` (research R5-15) además:
+
+- emite avisos con `zeko-bridge hook fake` en los puntos del guion;
+- es cliente MCP de `zeko-bridge mcp` para llamar herramientas desde el guion;
+- activa y desactiva `ESC[?2004h/l`;
+- registra cada entrada recibida, separando lo que llegó dentro de un bracketed paste, para que los
+  tests verifiquen el marco y la entrega en un solo turno.

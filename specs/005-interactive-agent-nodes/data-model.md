@@ -1,6 +1,7 @@
 # Data Model: Nodos interactivos de agente (005)
 
-**Fecha**: 2026-09-28 | **Plan**: [plan.md](./plan.md) | **Research**: [research.md](./research.md)
+**Fecha**: 2026-09-28 | **Actualizado**: 2026-10-16 (enlaces, mensajes, orquestación, rutas
+compartidas) | **Plan**: [plan.md](./plan.md) | **Research**: [research.md](./research.md)
 
 Este documento describe **solo los cambios y agregados** respecto de
 [data-model.md de 001](../001-agent-flow-canvas/data-model.md). Todo lo que no aparece aquí rige sin
@@ -29,6 +30,50 @@ Se agrega a la unión discriminada `Node`. Campos comunes: `id`, `type`, `label?
 | `terminal.allowedCommands` | string[] | `[]` | solo si `enabled` y el agente la admite en modo interactivo | FR-016 |
 | `requiresChanges` | bool | `false` | activa la inconsistencia `COMPLETED_WITHOUT_CHANGES` | FR-021 |
 | `limits.timeoutMinutes` | int | 30 | 1..1440, obligatorio y finito | FR-002, FR-010, NFR-008 de 001 |
+| `orchestration?` | `Orchestration` | ausente (= deshabilitada) | ver abajo | FR-044 |
+
+### Orchestration — nueva (dentro de `InteractiveNode`)
+
+| Campo | Tipo | Default | Regla | FR |
+|---|---|---|---|---|
+| `enabled` | bool | `false` | sin `true` no se exponen las herramientas de orquestación | FR-044 |
+| `allowedAgents` | (`claude-code` \| `codex`)[] | `[agent del nodo]` | no vacío si `enabled` | FR-044, FR-046 |
+| `allowedModels?` | `{ "claude-code"?: string[], codex?: string[] }` | ausente = cualquier modelo explícito | si existe, el modelo del hijo tiene que estar en la lista de su agente | FR-046 |
+| `maxChildren` | int | 4 | 1..16; total de hijos en el run para este nodo | FR-044, FR-046 |
+| `childLimits.timeoutMinutes` | int | 30 | 1..1440; máximo por hijo | FR-044, FR-046 |
+| `childLimits.maxTurns` | int | 40 | 1..200 | FR-044 |
+| `childLimits.maxRetries` | int | 1 | 0..3 | FR-044 |
+| `confirm` | bool | `true` | `false` crea los lotes válidos sin preguntar | FR-047 |
+
+### Communication y Link — nuevos (nivel de flujo)
+
+`communication` (opcional, todo con default):
+
+| Campo | Tipo | Default | Regla | FR |
+|---|---|---|---|---|
+| `messaging` | bool | `false` | interruptor general de mensajería del flujo | FR-036 |
+| `limits.pairIntervalSeconds` | int | 10 | 5..600 | FR-041 |
+| `limits.perTurn` | int | 4 | 1..8 | FR-041 |
+| `limits.perNode` | int | 20 | 1..100 | FR-041 |
+| `queue.capacity` | int | 16 | 1..32 | FR-038 |
+| `queue.ttlMinutes` | int | 10 | 1..60 | FR-038 |
+
+`links[]` (opcional):
+
+| Campo | Tipo | Regla | FR |
+|---|---|---|---|
+| `nodes` | `[nodeId, nodeId]` | dos nodos distintos del flujo; sin pares repetidos (en cualquier orden) | FR-032 |
+| `read` | `both` \| `nodeId` | `nodeId` = el que lee (tiene que ser uno de `nodes`) | FR-032, FR-035 |
+| `messages` | bool, default `false` | `true` exige que los dos nodos sean `interactive` | FR-036 |
+
+**Enlaces implícitos** (no se escriben): un `interactive` lee a sus predecesores directos; un
+orquestador lee a sus hijos. `resolveLinks` (research R5-19) une declarados e implícitos.
+
+### ProjectConfig — agregado
+
+| Campo | Tipo | Default | Regla | FR |
+|---|---|---|---|---|
+| `workspace.sharedPaths` | string[] | `[]` | rutas relativas sin `..` ni absolutas; al crear un worktree solo se vinculan las que existen, son directorios e ignoradas por git (research R5-22) | FR-056 |
 
 No tiene `acceptanceCriteria`, `limits.maxTurns` ni `limits.maxRetries`: el schema los rechaza
 (`additionalProperties: false`). No hay reintentos automáticos: una sesión fallida se reabre por
@@ -45,6 +90,13 @@ decisión del usuario (FR-011).
 | `INTERACTIVE_AGENT_UNSUPPORTED` | error | el adaptador del agente no declara `interactive.supported` | FR-004 |
 | `INVALID_LIMIT` | error | (existente) también para `timeoutMinutes` del nodo interactivo | FR-002, FR-010 |
 | `OPTION_NOT_APPLICABLE` | info | (existente) `terminal.allowedCommands` con un agente sin `toolRestriction` interactiva | FR-016 |
+| `LINK_UNKNOWN_NODE` | error | `links[].nodes` o `read` nombran un nodo inexistente | FR-032 |
+| `LINK_DUPLICATE` | error | dos enlaces sobre el mismo par | FR-032 |
+| `MESSAGING_LINK_NOT_INTERACTIVE` | error | `messages: true` con algún nodo no `interactive` | FR-036 |
+| `MESSAGING_LINKS_WITHOUT_SWITCH` | warning | hay enlaces con `messages: true` y `communication.messaging` es `false` | FR-036 |
+| `ORCHESTRATION_INVALID` | error | `enabled` con `allowedAgents` vacío, límites fuera de rango o un agente sin `interactive`/adaptador | FR-044 |
+| `LINKS_WITHOUT_INTERACTIVE_READER` | info | un enlace declarado sin ningún nodo `interactive` que pueda leer por él (no tiene efecto en 005) | FR-032 |
+| `COMMUNICATION_UNSUPPORTED_BY_AGENT` | warning | el adaptador declara `zekoTools = false` o `messaging.input = none` para un nodo con enlaces, mensajería u orquestación | FR-033, FR-037 |
 
 `validateFlow` recibe `host: 'desktop' | 'cli'`; es la misma función para los dos (research R5-12).
 
@@ -76,6 +128,12 @@ se presentan como confinamiento de la terminal (FR-015).
 | `RESUME_UNAVAILABLE` | la reapertura abrió una conversación nueva | FR-011 |
 | `AGENT_PERMISSION_FILES_EXCLUDED` | el commit excluyó archivos de permisos del agente (params: rutas) | FR-016 |
 | `COST_NOT_REPORTED` | (existente) también para sesiones interactivas sin fuente de costo | FR-027 |
+| `ACTIVITY_UNAVAILABLE` | el agente no tiene `activitySource`: actividad siempre `unknown` | FR-031 |
+| `ZEKO_TOOLS_UNAVAILABLE` | el agente no admite el servidor MCP de Zeko: sin lectura, mensajes ni orquestación | FR-033 |
+| `MESSAGE_INPUT_UNAVAILABLE` | el nodo no puede recibir mensajes ni avisos en su terminal | FR-037, FR-050 |
+| `SHARED_PATHS_NOT_ISOLATED` | el worktree tiene rutas compartidas (params: rutas) | FR-056 |
+| `SHARED_PATH_NOT_DIRECTORY` | una ruta compartida no es directorio y se omitió | FR-056 |
+| `SCOPES_OVERLAP` | (en un lote) dos hijos con alcances que se pueden intersecar (params: pares) | FR-049 |
 
 ---
 
@@ -93,6 +151,75 @@ se presentan como confinamiento de la terminal (FR-015).
 | `activeMs` | int | Σ `activeMs` de sus segmentos | FR-010 |
 | `hold?` | se agrega `RERUN_CONFIRMATION` | dependiente de un nodo reabierto, a la espera de confirmación | FR-023a |
 | `reportState` | se usa `not_applicable` para interactivos | la declaración reemplaza al reporte | FR-022 |
+| `origin` | `flow` \| `spawned` | `flow` por defecto; `spawned` = hijo de un lote | FR-045, FR-052 |
+| `parentNodeRunId?` | FK | solo hijos | FR-048, FR-050 |
+| `spawnBatchId?`, `spawnKey?` | FK, string | solo hijos; `nodeId = <padre>~<spawnKey>` | FR-045 |
+| `children?` | `ChildRef[]` | solo orquestadores; parte del resultado (`{nodeId, title, finalStatus, branch, resultCommit?, activeAtParentEnd}`) | FR-022, FR-053 |
+
+### AgentActivity — nueva (en memoria; transiciones como eventos)
+
+| Campo | Tipo | Notas | FR |
+|---|---|---|---|
+| `state` | `starting` \| `waiting_input` \| `working` \| `waiting_permission` \| `unknown` | `reduceActivity` (research R5-17) | FR-030, FR-031 |
+| `turnSeq` | int | +1 por `turn_started` | FR-040, FR-041 |
+| `lastEventAt?` | fecha | | FR-030 |
+| `composerDirty` | bool | texto del usuario sin enviar (research R5-20) | FR-037 |
+| `pasteMode` | bool | la TUI activó bracketed paste | FR-037 |
+| `messagingPaused` | bool | pausa del usuario | FR-042 |
+
+### SpawnBatch (tabla `spawn_batches`) — nueva
+
+| Campo | Tipo | Notas | FR |
+|---|---|---|---|
+| `id` | uuid v7 | | FR-045 |
+| `runId`, `parentNodeRunId` | FK | | FR-045 |
+| `requestedAt` | fecha | | FR-027 |
+| `snapshotCommit` | sha | instantánea del orquestador al pedir (research R5-22) | FR-049 |
+| `status` | `rejected` \| `pending_confirmation` \| `confirmed` \| `declined` \| `expired` | | FR-046, FR-047 |
+| `problems` | `{code, childKey?, params}[]` | errores y advertencias de `validateSpawnBatch` | FR-046 |
+| `decidedAt?`, `decidedBy?` | fecha, `desktop` \| `auto` | `auto` = `confirm: false` | FR-047 |
+
+Un lote `rejected` o `dryRun` no crea filas en `spawned_nodes` ni NodeRuns. Un `dryRun` ni siquiera
+se persiste: solo emite `spawn.validated`.
+
+### SpawnedNodeDefinition (tabla `spawned_nodes`) — nueva
+
+La definición de un hijo, con la forma de `AgentNode` de 001 (Principio VII: el mismo schema zod),
+más:
+
+| Campo | Tipo | Notas | FR |
+|---|---|---|---|
+| `nodeRunId` | FK | 1:1 con el NodeRun del hijo | FR-048 |
+| `batchId` | FK | | FR-045 |
+| `key` | string | `^[a-z][a-z0-9-]{0,31}$` | FR-045 |
+| `dependsOn` | key[] | dentro del lote | FR-045, FR-049 |
+| `definition` | JSON `AgentNode` (sin `position`) | `instructions` redactadas antes de persistir | FR-028, FR-045 |
+| `savedToFlowAt?` | fecha | "Guardar en el flujo" | FR-052 |
+
+### ReasonCode — agregados de comunicación
+
+| Código | Estado | Cuándo | FR |
+|---|---|---|---|
+| `PARENT_CANCELLED` | `cancelled` | el orquestador se canceló, o el usuario eligió cancelar los hijos al terminar el orquestador | FR-053 |
+| `CANCELLED_BY_ORCHESTRATOR` | `cancelled` | `zeko_cancel_child` | FR-050 |
+
+Un hijo cuya dependencia no termina `completed` queda `skipped` con `UPSTREAM_NOT_SUCCEEDED`, como
+cualquier nodo de agente. En la interrupción, `interrupted` sin motivo nuevo.
+
+### MessageDelivery — nueva (solo eventos; sin tabla ni cuerpo)
+
+| Campo | Tipo | Notas | FR |
+|---|---|---|---|
+| `messageId` | uuid v7 | | FR-040 |
+| `kind` | `agent` \| `zeko_notice` | | FR-039, FR-050 |
+| `fromNodeRunId?`, `toNodeRunId`, `toSessionId` | FK | `fromNodeRunId` ausente en avisos | FR-027 |
+| `inReplyTo?` | messageId | | FR-037 |
+| `chars` | int | tamaño después de sanear y redactar | FR-028 |
+| `outcome` | `MessageOutcome` (contracts/bridge.md) | último estado conocido | FR-040 |
+| `at` | fecha | | FR-027 |
+
+La cola vive en memoria del engine host (research R5-20). `zeko_message_status` y la vista leen esa
+memoria; el historial lee los eventos.
 
 `denials` queda ausente y `denialCheck = not_available` (en modo interactivo no hay denegaciones
 informadas, research R5-02).
@@ -126,6 +253,11 @@ de R-20 funcionan sin cambios.
 | `closeCause?` | `declaration` \| `normal_exit` \| `crash` \| `timeout` \| `cancel` \| `shutdown` \| `spawn_failed` | | FR-027 |
 | `processOutcome?` | `ProcessOutcome` | `killed.by` admite `declaration` | FR-019 |
 | `workspacePath` | ruta | **la misma** en todos los segmentos del NodeRun (§C5-03 de research) | FR-011, FR-012 |
+| `activitySource` | `hooks` \| `notify_rollout` \| `rollout` \| `none` | lo que el adaptador pudo armar para este segmento | FR-030, FR-031 |
+| `toolsExposed` | string[] | herramientas de Zeko registradas en este segmento (research R5-18) | FR-033, NFR-006 |
+
+La credencial de sesión (research R5-16) **no** se persiste en la base: vive en memoria del engine
+host y en el archivo de token del segmento, que se borra al cerrarlo.
 
 ### NodeResultRecord (tabla `node_results`) — nueva
 
@@ -234,6 +366,32 @@ pending (hold = RERUN_CONFIRMATION) ──(ancestro cerrado blocked | failed | c
 - Una aprobación dependiente vuelve a `pending` y, tras la confirmación, se pide de nuevo
   (`waiting_approval`).
 
+### Lotes e hijos (FR-045–053)
+
+```text
+pedido ──(validateSpawnBatch con errores)──▶ rejected                          [spawn.rejected]
+pedido ──(válido ∧ confirm = false)──▶ confirmed (decidedBy = auto) ──▶ hijos creados
+pedido ──(válido ∧ confirm = true)──▶ pending_confirmation                     [spawn.confirmation_requested]
+pending_confirmation ──(usuario confirma)──▶ confirmed ──▶ hijos creados
+pending_confirmation ──(usuario rechaza)──▶ declined
+pending_confirmation ──(sesión del orquestador termina)──▶ expired [PARENT_ENDED]
+```
+
+Un hijo creado es un NodeRun `origin = spawned` en `pending` y sigue las transiciones de un nodo de
+agente de 001, más:
+
+```text
+pending | running | waiting_approval ──(orquestador cancelado | usuario elige cancelar)──▶ cancelled [PARENT_CANCELLED]
+pending | running ──(zeko_cancel_child)──▶ cancelled [CANCELLED_BY_ORCHESTRATOR]
+pending ──(dependencia no completed)──▶ skipped [UPSTREAM_NOT_SUCCEEDED]
+(cualquier no terminal) ──(cierre de la app)──▶ interrupted
+```
+
+- Los hijos no son descendientes del orquestador en el DAG del flujo: la reapertura del orquestador
+  **no** los invalida (FR-023a) y sus dependientes del flujo no los esperan (FR-054).
+- Al terminar el orquestador con hijos activos (fuera de cancelación e interrupción), el run guarda
+  la decisión pendiente `children_on_parent_end` y la vista la pide (FR-053).
+
 ### Estados de run — agregado
 
 ```text
@@ -277,7 +435,39 @@ node_results(
 `runs` no cambia: la transición `finished → running` reutiliza `status`, `outcome` y `ended_at`.
 `workspaces.attempt_id` apunta al primer segmento del nodo interactivo.
 
-La base sigue sin guardar la transcripción ni la salida del PTY (FR-028).
+Agregados de comunicación (misma migración `002_interactive`, todavía no publicada):
+
+```text
+node_runs
+  + origin TEXT NOT NULL DEFAULT 'flow' CHECK(origin IN ('flow','spawned'))
+  + parent_node_run_id TEXT NULL FK→node_runs
+  + spawn_batch_id TEXT NULL FK→spawn_batches
+  + spawn_key TEXT NULL
+  + children TEXT NULL            /*JSON ChildRef[]; solo orquestadores*/
+  INDEX (parent_node_run_id)
+
+attempts
+  + activity_source TEXT NULL
+  + tools_exposed TEXT NULL       /*JSON string[]*/
+
+spawn_batches(
+  id TEXT PK, run_id TEXT FK→runs, parent_node_run_id TEXT FK→node_runs,
+  requested_at INTEGER, snapshot_commit TEXT,
+  status TEXT CHECK(status IN ('rejected','pending_confirmation','confirmed','declined','expired')),
+  problems TEXT /*JSON*/, decided_at INTEGER NULL, decided_by TEXT NULL)
+
+spawned_nodes(
+  node_run_id TEXT PK FK→node_runs, batch_id TEXT FK→spawn_batches,
+  key TEXT, depends_on TEXT /*JSON key[]*/, definition TEXT /*JSON AgentNode, redactado*/,
+  saved_to_flow_at INTEGER NULL)
+  UNIQUE (batch_id, key)
+```
+
+`workspaces` no cambia: la base de un hijo (instantánea o `resultCommit`) va en `base_commit` como
+cualquier copia. La ref `refs/zeko/snapshots/…` vive en el repositorio y la borra la limpieza de
+workspaces de 001 junto con las ramas `zeko/*`.
+
+La base sigue sin guardar la transcripción, la salida del PTY ni el texto de los mensajes (FR-028).
 
 ---
 
@@ -302,6 +492,22 @@ Todos llevan `run_id` y pasan por el redactor antes de guardarse (R-28, research
 | `rerun.confirmation_requested` | `sourceNodeRunId`, `dependents: nodeId[]` | FR-023a |
 | `rerun.decided` | `decision: confirmed \| declined`, `origin` | FR-023a |
 | `run.reopened` | `byNodeRunId` | FR-023a |
+| `session.activity` | `sessionId`, `from`, `to`, `turnSeq` (sin nombres ni argumentos de herramientas) | FR-030 |
+| `bridge.rejected` | `sessionId?`, `kind: hook \| tool`, `cause: no_token \| bad_token \| session_closed \| too_large \| timeout \| rate_limited` | FR-055, SC-011 |
+| `tool.called` | `sessionId`, `tool`, `outcome` (sin argumentos ni salida) | FR-033, XIII |
+| `tool.rejected` | `sessionId`, `tool`, `code` | FR-035, NFR-006 |
+| `context.read` | `reader`, `target`, `view`, `bytes` | FR-033, FR-034 |
+| `message.queued` | `MessageDelivery` con `outcome = QUEUED` | FR-038 |
+| `message.delivery` | `MessageDelivery` (cada cambio de `outcome`) | FR-040, US7-4 |
+| `session.messaging_paused` / `session.messaging_resumed` | `sessionId` | FR-042 |
+| `message.discarded` | `messageId`, `by: user` | FR-042 |
+| `spawn.validated` | `parentNodeRunId`, `dryRun: true`, `problems` | FR-045 |
+| `spawn.rejected` | `batchId`, `problems` | FR-046 |
+| `spawn.confirmation_requested` | `batchId`, `children: {key, agent, model, writeScope, limits, dependsOn}[]`, `warnings` | FR-047 |
+| `spawn.decided` | `batchId`, `decision: confirmed \| declined \| expired`, `decidedBy` | FR-047 |
+| `child.created` | `batchId`, `nodeRunId`, `nodeId`, `baseCommit` | FR-048, FR-049 |
+| `children.parent_end_decision` | `parentNodeRunId`, `decision: cancel \| let_finish`, `active: nodeId[]` | FR-053 |
+| `children.saved_to_flow` | `nodeIds`, `flowFile` | FR-052 |
 
 No existen eventos `agent.text`, `agent.tool_call` ni `agent.tool_result` para sesiones interactivas:
 no hay stream estructurado y no se guarda la transcripción (FR-028). Tampoco se escriben logs crudos

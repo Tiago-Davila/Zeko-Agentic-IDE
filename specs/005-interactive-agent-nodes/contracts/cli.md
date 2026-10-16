@@ -26,6 +26,18 @@ FR-029 dice "durante la validación". Es la misma familia que los errores de gra
 desde la TTY de la CLI; los interactivos no, porque requieren la terminal del agente dentro de la
 interfaz. Por eso uno depende del entorno y el otro no.
 
+## Comunicación (`communication`, `links`, `orchestration`)
+
+- Los campos se validan igual en la CLI (mismo `validateFlow`). Como la mensajería y la orquestación
+  solo existen en nodos interactivos, un flujo que las usa ya tiene un nodo interactivo y la CLI lo
+  rechaza con `INTERACTIVE_NODE_REQUIRES_DESKTOP`.
+- Un flujo **sin** nodos interactivos con `links` entre nodos de agente es válido en la CLI y en el
+  escritorio, pero los enlaces no tienen efecto en 005: los nodos de agente no tienen herramientas.
+  `validateFlow` emite la advertencia `LINKS_WITHOUT_INTERACTIVE_READER` (info), igual en los dos
+  hosts.
+- `zeko runs show <runId>` de un run iniciado en el escritorio muestra los hijos con su orquestador,
+  los lotes con su decisión y los envíos de mensajes con su resultado, sin texto (US7-4, US7-5).
+
 ## Salida para humanos (stderr)
 
 ```text

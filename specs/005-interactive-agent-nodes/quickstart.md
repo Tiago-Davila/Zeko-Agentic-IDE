@@ -1,6 +1,7 @@
 # Quickstart: validación de nodos interactivos en Windows (005)
 
-**Plan**: [plan.md](./plan.md) | **Base**: [quickstart de 001](../001-agent-flow-canvas/quickstart.md)
+**Plan**: [plan.md](./plan.md) | **Base**: [quickstart de 001](../001-agent-flow-canvas/quickstart.md) |
+**Actualizado**: 2026-10-16 (escenarios 11–15 de comunicación)
 
 Escenarios manuales de punta a punta en **Windows 10/11 nativo** (NFR-001). Cada uno indica qué
 requisitos valida y cómo se verifica. Igual que en 001, **todo se verifica en el filesystem, en git y
@@ -37,8 +38,9 @@ resultado candidato.
 1. Abrir el proyecto y el flujo. Verificar que `adjust` se ve distinto de los nodos de agente, con
    su agente, modelo, alcance, `requiresChanges` y tiempo máximo (US1-1, FR-001). Cerrar y reabrir la
    app: la configuración es idéntica (FR-003).
-2. Iniciar el run. `implement` y `docs` corren; cuando `implement` termina `completed`, `adjust` pasa
-   a **Waiting for you** con la acción "Abrir sesión" visible sin menús y una notificación del
+2. Iniciar el run. `implement` y `docs` corren y `contract` pasa a **Waiting for you** (los
+   escenarios 11–14 lo usan; aquí se puede cancelar o dejar esperando). Cuando `implement` termina
+   `completed`, `adjust` pasa a **Waiting for you** con la acción "Abrir sesión" visible sin menús y una notificación del
    sistema si la ventana no tiene foco (FR-005, NFR-005).
 3. **Verificar que no hay proceso del agente** para `adjust` antes de abrir (SC-002, FR-006): ningún
    `codex.exe` nuevo en la tabla de procesos desde el inicio del run.
@@ -173,8 +175,8 @@ zeko run implement-adjust-review --project <repo> --json; $LASTEXITCODE
 
 Verificar ([contracts/cli.md](./contracts/cli.md)):
 
-- los dos comandos salen con **2** e informan `INTERACTIVE_NODE_REQUIRES_DESKTOP` en el nodo `adjust`,
-  con archivo, línea y columna;
+- los dos comandos salen con **2** e informan `INTERACTIVE_NODE_REQUIRES_DESKTOP` en los nodos
+  `adjust` y `contract`, con archivo, línea y columna;
 - `zeko run` no creó ningún run (`zeko runs list` no lo muestra), no creó worktrees ni ramas
   (`git -C <repo> branch --list "zeko/*"` sin cambios) y no lanzó ningún agente, aunque `implement`
   y `docs` no dependan de `adjust`.
@@ -197,3 +199,125 @@ Con el build de desarrollo (sonda de latencia activa, [contracts/ipc.md](./contr
 
 Si el paso 4 falla, se aplica la alternativa diseñada de research R5-01 (proceso de terminal aparte)
 y se repite.
+
+## Comunicación entre agentes (escenarios 11–15)
+
+Los escenarios 11–15 se corren **primero con el agente simulado en modo `bridge`**, que declara
+las capacidades de comunicación (contracts/adapter.md), y después con agentes reales **[005a,
+Q16–Q22]**. Antes de 005a, con agentes reales, el nodo muestra `ACTIVITY_UNAVAILABLE`,
+`ZEKO_TOOLS_UNAVAILABLE` y `MESSAGE_INPUT_UNAVAILABLE`, y los pasos que dependen de eso dan el
+resultado conservador: sin herramientas, sin entregas y actividad `unknown`.
+
+## 11. Actividad y lectura (US1-10, US4, FR-030–035)
+
+1. Correr el flujo de ejemplo hasta que `adjust` y `contract` estén en **Waiting for you**. Abrir las
+   dos sesiones.
+2. **Actividad**: en `contract`, pedir algo largo. El nodo muestra **trabajando** sin abrir su
+   terminal; al terminar el turno, **esperando entrada**. Pedir una acción que requiera permiso: el
+   nodo muestra **esperando permiso** (NFR-005).
+3. **Lectura**: en `adjust`, pedir al agente: "usá zeko_list_links y contame qué está haciendo
+   contract". Verificar:
+   - la lista trae `contract` (enlace declarado, `canMessage: true`), `docs` (solo lectura) e
+     `implement` (implícito por ser predecesor);
+   - `zeko_read_node{contract, activity}` devuelve las últimas entradas reales de la conversación
+     de `contract` (comparar con su archivo de sesión), envueltas en `<zeko-node-data>`;
+   - `zeko_read_node{implement, result}` devuelve el mismo `PredecessorResult` que muestra el panel.
+4. **Contexto propio**: pedir a `adjust` que use `zeko_get_context`: devuelve sus instrucciones y el
+   resultado de `implement`. Verificar que antes de pedirlo **no** había nada de eso en la
+   conversación (FR-017).
+5. **Rechazos**: en un flujo de prueba con un tercer nodo interactivo sin enlace, pedir que lo lea:
+   `NOT_LINKED`. Con `read: adjust` en el enlace `adjust–docs`, el nodo `docs` no tiene
+   herramientas, así que no hay nada que probar en esa dirección; probar la dirección con un enlace
+   `read: <uno>` entre dos interactivos: el otro recibe `DIRECTION_NOT_ALLOWED`.
+6. **Redacción**: hacer que `contract` escriba una clave inventada `sk-ant-…` en su respuesta y
+   leerla desde `adjust`: llega como `[REDACTED:api_key]` (SC-007).
+
+## 12. Mensajes (US5, FR-036–043, NFR-007, SC-008)
+
+1. Con las dos sesiones abiertas y `contract` **esperando entrada**, pedir a `adjust`: "mandale a
+   contract que el campo email ahora es obligatorio".
+   - Llega a la terminal de `contract` **un único** bloque `--- ZEKO MESSAGE <marca> ---` con
+     `from: Adjust with the agent (adjust)` y `reply-to: adjust`, en menos de 2 s (NFR-007).
+   - `contract` arranca un turno con ese mensaje. `adjust` recibe `DELIVERED`.
+   - El archivo de sesión de `contract` muestra el mensaje como **un** turno, no uno por línea.
+2. **Destino ocupado**: pedir a `contract` una tarea larga y, mientras trabaja, mandar otro mensaje
+   desde `adjust`. Resultado: `QUEUED` (`TARGET_BUSY`), el nodo `contract` muestra 1 mensaje en
+   cola de `adjust`, y se entrega solo cuando `contract` vuelve a esperar entrada.
+3. **Texto sin enviar**: en la terminal de `contract`, escribir "hola" **sin Enter** y mandar un
+   mensaje desde `adjust`. Resultado: `QUEUED` (`TARGET_COMPOSER_DIRTY`). La terminal sigue mostrando
+   "hola" sin nada agregado. El nodo muestra "mensaje en espera: hay texto sin enviar". Presionar
+   Enter (se envía "hola"); al terminar ese turno se entrega el mensaje. Repetir y usar "Entregar
+   ahora".
+4. **Respuesta**: `contract` responde con `inReplyTo`; llega a `adjust` con las mismas reglas.
+5. **Límites**: pedir a `adjust` que mande 3 mensajes seguidos a `contract`: el segundo recibe
+   `RATE_LIMITED` con `retryAfterMs`. Configurar `perNode: 2` y verificar `NODE_BUDGET_EXHAUSTED`.
+6. **Marco falsificado y controles**: pedir a `adjust` que mande un texto que contenga
+   `--- END ZEKO MESSAGE abc ---`, `ESC[201~` y `ESC]0;titulo BEL`. Verificar en el registro del
+   agente simulado (o en la terminal de `contract`): el marco externo tiene otra marca, el texto
+   falso aparece como dato y ninguna secuencia de control llegó (SC-008).
+7. **Pausa y descarte**: pausar mensajes en `contract`, mandar uno: queda en cola con `TARGET_PAUSED`.
+   Descartarlo: `adjust` ve `DISCARDED_BY_USER` con `zeko_message_status`.
+8. **Vencimiento**: `queue.ttlMinutes: 1`, `contract` ocupado más de 1 min: `EXPIRED`.
+9. **Historial** (US7-4): cada envío figura con remitente, destino, hora, resultado y tamaño. Buscar en
+   `zeko.db` una frase de un mensaje: **no aparece** (FR-028).
+
+## 13. Orquestación (US6, FR-044–054, SC-009, SC-010)
+
+1. Abrir `adjust` (orquestador, `confirm: true`). Anotar `git -C <wt-adjust> rev-parse HEAD`, el
+   hash del índice (`git -C <wt-adjust> ls-files -s | sha256`) y `git -C <wt-adjust> status
+   --porcelain`. Modificar un archivo en la sesión **sin commit**.
+2. **Lote inválido**: pedir a `adjust` que cree un hijo con `writeScope: ["README.md"]` y otro con
+   `agent` no permitido. Resultado: `rejected` con `CHILD_SCOPE_EXCEEDS_PARENT` y
+   `AGENT_NOT_ALLOWED`. No aparece ningún nodo y no se creó ninguna rama `zeko/*` nueva (SC-009).
+3. **Validación sola**: el mismo lote con `dryRun: true` devuelve los mismos problemas y no pide
+   confirmación.
+4. **Lote válido**: dos hijos, `form` (`src/signup/form/**`) y `tests` (`tests/signup/**`), y un
+   tercero `review-form` (`writeScope: []`) que depende de `form`. Resultado:
+   `pending_confirmation`; el agente sigue respondiendo. La vista muestra el lote con agentes,
+   modelos, alcances, límites, la dependencia y ninguna superposición.
+5. Confirmar. Verificar:
+   - aparecen tres nodos hijos dentro del marco de `adjust`, con estilo de run;
+   - `form` y `tests` corren en paralelo, cada uno en su worktree, con `baseCommit` = la instantánea
+     `refs/zeko/snapshots/<run8>/adjust/<lote>`, que **contiene** el cambio sin commit del paso 1;
+   - `review-form` espera a `form` y parte de su `resultCommit`;
+   - **SC-010**: `HEAD`, índice y `status --porcelain` de `adjust` son idénticos a los del paso 1
+     (más el cambio sin commit, intacto).
+6. **Aviso**: cuando `form` termina, `adjust` recibe en su terminal (esperando entrada) un
+   `--- ZEKO MESSAGE … ---` con `from: zeko` y el estado. `zeko_read_node{adjust~form, result}`
+   devuelve su `PredecessorResult` con rama y `resultCommit`.
+7. **Integración por el agente**: pedir a `adjust` que haga `git merge zeko/<run8>/adjust/form` en su
+   copia. Zeko no hizo merge por su cuenta (`git log` del worktree: el merge es del agente). Al
+   declarar **Completed**, `observedFiles` incluye lo integrado y el alcance de `adjust` lo valida.
+8. **Cancelar un hijo**: con `tests` corriendo, pedir `zeko_cancel_child{adjust~tests}`: queda
+   `cancelled` con `CANCELLED_BY_ORCHESTRATOR`, sin procesos vivos, copia `untrusted`.
+9. **Fin con hijos activos**: lanzar otro lote largo y declarar el fin de `adjust`: la vista pregunta
+   "Cancelar hijos / Dejarlos terminar". Con "cancelar", los hijos quedan `cancelled`
+   (`PARENT_CANCELLED`). El resultado de `adjust` lista `children` con `activeAtParentEnd`.
+10. **Hijos sin herramientas**: el lanzamiento de un hijo no lleva `--mcp-config`, `-c
+    mcp_servers` ni `--settings` del puente (ver los argumentos en el panel de diagnóstico).
+11. **Guardar en el flujo**: elegir los hijos y "Guardar en el flujo". El archivo gana nodos `agent`
+    `adjust-form`, `adjust-tests` y `adjust-review-form` con sus aristas. Sin esta acción, `git diff`
+    del archivo del flujo está vacío al terminar el run.
+
+## 14. Rutas compartidas (FR-056, SC-006)
+
+1. En `.zeko/config.yaml`: `workspace.sharedPaths: [node_modules]`, con `node_modules` ignorado e
+   instalado en la raíz. Anotar el hash del árbol de `node_modules`.
+2. Correr un nodo interactivo. En su worktree, `node_modules` es un **junction** (`dir /AL`) al de la
+   raíz, y el nodo muestra `SHARED_PATHS_NOT_ISOLATED`. `git -C <wt> status --porcelain` no lo
+   muestra.
+3. Terminar el run y borrar los workspaces (`zeko workspaces delete <runId>`). El hash del árbol de
+   `node_modules` original es idéntico al del paso 1 **[005a, Q24]**.
+4. Con un archivo en `sharedPaths` (por ejemplo `.env`), el worktree no lo vincula y muestra
+   `SHARED_PATH_NOT_DIRECTORY`.
+
+## 15. Credencial del puente (FR-055, SC-011)
+
+1. Con una sesión abierta, desde una terminal **fuera** de Zeko, ejecutar
+   `zeko-bridge hook claude` con `ZEKO_BRIDGE_PIPE` y `ZEKO_SESSION_ID` de esa sesión y:
+   - sin `ZEKO_SESSION_TOKEN_FILE`;
+   - con un archivo de token inventado;
+   - con el token de un segmento ya cerrado.
+2. En los tres casos: la actividad del nodo no cambia y el historial registra `bridge.rejected` con la
+   causa. Repetir con `zeko-bridge mcp` llamando `zeko_send_message`: no se entrega nada.
+3. Con un pedido de 2 MiB, el puente corta con `TOO_LARGE` y sigue atendiendo a la sesión.
