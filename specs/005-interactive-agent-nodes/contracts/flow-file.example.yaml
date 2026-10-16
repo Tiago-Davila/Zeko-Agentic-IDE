@@ -1,0 +1,138 @@
+# .zeko/flows/implement-adjust-review.flow.yaml
+# Flujo de ejemplo del contrato de 005. Es válido en el escritorio. En la CLI, `zeko validate` y
+# `zeko run` lo rechazan con INTERACTIVE_NODE_REQUIRES_DESKTOP en "adjust" y "contract" (FR-029).
+# Linaje (R-22): "adjust" parte del resultCommit de "implement" y "review" del de "adjust".
+# Comunicación (2026-10-16): "adjust" y "contract" se leen y se mandan mensajes; "adjust" puede
+# crear hijos (orquestación) con confirmación.
+schemaVersion: 1
+id: implement-adjust-review
+name: Implement, adjust and review
+communication:
+  messaging: true                   # FR-036: interruptor general; false por defecto
+nodes:
+  - id: goal
+    type: input
+    position: { x: 0, y: 120 }
+    objective: |
+      Add input validation to the signup form so that invalid emails are rejected
+      with a clear message.
+
+  - id: implement
+    type: agent
+    label: Implement validation
+    position: { x: 280, y: 60 }
+    agent: claude-code
+    models:
+      claude-code: { model: sonnet }
+    instructions: |
+      Implement the objective. Keep changes inside the signup module.
+    acceptanceCriteria:
+      - Invalid emails show "Enter a valid email address".
+    writeScope:
+      - src/signup/**
+      - tests/signup/**
+    terminal:
+      enabled: false
+      allowedCommands: []
+    limits:
+      timeoutMinutes: 30
+      maxTurns: 40
+      maxRetries: 1
+
+  - id: adjust
+    type: interactive               # FR-001: tipo propio; el agente espera al usuario (FR-005, FR-006)
+    label: Adjust with the agent
+    position: { x: 560, y: 60 }
+    agent: codex
+    models:                         # obligatorio para el agente del nodo (FR-002)
+      codex: { model: gpt-6-luna, reasoningEffort: low }
+    instructions: |                 # se muestra al usuario; el agente puede leerla con zeko_get_context (FR-017)
+      Review the implementation with the agent and fix anything that looks wrong.
+    writeScope:
+      - src/signup/**
+      - tests/signup/**
+    terminal:
+      enabled: true                 # Codex usa siempre terminal; se conserva (FR-015 de 001)
+      allowedCommands: []
+    requiresChanges: false          # FR-021: activarlo marca "completado sin cambios" como inconsistencia
+    limits:
+      timeoutMinutes: 45            # obligatorio y finito; empieza al abrir la sesión (FR-010)
+    orchestration:                  # FR-044: ausente o enabled: false = sin herramientas de orquestación
+      enabled: true
+      allowedAgents: [claude-code, codex]
+      maxChildren: 4
+      childLimits: { timeoutMinutes: 20, maxTurns: 30, maxRetries: 1 }
+      confirm: true                 # FR-047: el usuario confirma cada lote
+
+  - id: contract
+    type: interactive               # segundo nodo interactivo, en paralelo con "implement"
+    label: Update the API contract
+    position: { x: 280, y: 380 }
+    agent: claude-code
+    models:
+      claude-code: { model: sonnet }
+    instructions: |
+      Update the signup API contract. Coordinate with "adjust" through Zeko messages.
+    writeScope:
+      - api/signup/**
+    terminal:
+      enabled: false
+      allowedCommands: []
+    requiresChanges: true
+    limits:
+      timeoutMinutes: 30
+
+  - id: review
+    type: agent
+    label: Independent review
+    position: { x: 840, y: 60 }
+    agent: claude-code
+    models:
+      claude-code: { model: sonnet }
+    instructions: |
+      Review the changes. Report problems as blockers if the objective is not met.
+    acceptanceCriteria:
+      - The objective is met and tests cover invalid emails.
+    writeScope: []
+    terminal:
+      enabled: false
+      allowedCommands: []
+    limits:
+      timeoutMinutes: 20
+      maxTurns: 40
+      maxRetries: 1
+
+  - id: docs
+    type: agent
+    label: Update docs
+    position: { x: 280, y: 220 }
+    agent: claude-code
+    models:
+      claude-code: { model: sonnet }
+    instructions: |
+      Document the new validation rule in the user guide.
+    acceptanceCriteria:
+      - docs/signup.md mentions the email rule.
+    writeScope:
+      - docs/**
+    terminal:
+      enabled: false
+      allowedCommands: []
+    limits:
+      timeoutMinutes: 15
+      maxTurns: 20
+      maxRetries: 0
+
+edges:
+  - { from: adjust, to: review }
+  - { from: goal, to: contract }
+  - { from: goal, to: docs }
+  - { from: goal, to: implement }
+  - { from: implement, to: adjust }
+
+links:                              # FR-032: enlaces de contexto; no cambian el orden de ejecución
+  - nodes: [adjust, contract]
+    read: both                      # los dos se leen con zeko_read_node
+    messages: true                  # FR-036/037: se pueden mandar mensajes (los dos son interactive)
+  - nodes: [adjust, docs]
+    read: adjust                    # solo "adjust" lee a "docs"; "docs" no tiene herramientas
