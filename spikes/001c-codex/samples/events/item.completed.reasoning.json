@@ -1,0 +1,8 @@
+{
+  "type": "item.completed",
+  "item": {
+    "id": "item_1",
+    "type": "reasoning",
+    "text": "**Preparing the execution plan**"
+  }
+}

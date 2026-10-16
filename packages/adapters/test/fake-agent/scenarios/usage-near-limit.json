@@ -1,0 +1,10 @@
+{
+  "usage": {
+    "agentId": "codex",
+    "authMode": "subscription",
+    "windows": [{ "name": "primary", "utilization": 0.96, "resetsAt": "2026-09-25T01:00:00.000Z" }],
+    "readAt": "2026-09-25T00:00:00.000Z",
+    "live": true,
+    "source": "fake-agent"
+  }
+}

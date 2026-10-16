@@ -1,0 +1,5 @@
+{
+  "exitCode": 0,
+  "stderrLines": ["Error: spawn failed: CreateProcess error=267"],
+  "outcome": { "kind": "infra_failure", "cause": "process_create", "detail": "CreateProcess error=267", "durationMs": 10 }
+}

@@ -1,0 +1,36 @@
+{
+  "type": "stream_event",
+  "event": {
+    "type": "message_start",
+    "message": {
+      "model": "claude-sonnet-5",
+      "id": "msg_011CfKSZBgSfSrbdNbA2EZwu",
+      "type": "message",
+      "role": "assistant",
+      "content": [],
+      "container": null,
+      "stop_reason": null,
+      "stop_sequence": null,
+      "stop_details": null,
+      "usage": {
+        "input_tokens": 2,
+        "cache_creation_input_tokens": 11423,
+        "cache_read_input_tokens": 17815,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 11423
+        },
+        "output_tokens": 3,
+        "service_tier": "standard",
+        "inference_geo": "not_available"
+      },
+      "input_transformations": [],
+      "diagnostics": null,
+      "context_management": null
+    }
+  },
+  "session_id": "57910248-3c54-41d5-96bd-995ef20e8d2f",
+  "parent_tool_use_id": null,
+  "uuid": "4cfe64e5-3fba-495c-b8b0-005a1464afd5",
+  "ttft_ms": 1961
+}

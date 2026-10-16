@@ -1,0 +1,14 @@
+{
+  "type": "stream_event",
+  "event": {
+    "type": "content_block_delta",
+    "index": 0,
+    "delta": {
+      "type": "signature_delta",
+      "signature": "Eq0CCqgBCBIYAipABfzPiZUfxQO4zL91bhZy1l4qN4/WvJtK5EE5rwkJonbijaSXcIQD/IsKCKtREqkglzZ593PBF5FhIFLWIN5YoDIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiQ5YzYxYWI3Ny01YzI3LTRmNGQtODU0NC01N2ZiNmIxZTY2YzFyEPA/nf7bKxqZ8DMpkim7jayIAQGoAazAzNUGsAECEgyq0yuCBUmwRWASBIsaDG6ledo9yCPygoDL4SIwF596Htyy1xQwPYRpHspjlh+FsgPuwnPRYJPfrHnIjAU8610tF1Izf8iqBOOVN1+iKjLwN0mBhMcLAvWoLgYd8Y0l5oC9VLB+S26zZtJY80+4sGV2QmBtqt0acmmlc9viWa6UBRgB"
+    }
+  },
+  "session_id": "57910248-3c54-41d5-96bd-995ef20e8d2f",
+  "parent_tool_use_id": null,
+  "uuid": "c5f2154d-2197-4c20-affb-382d6361bfe1"
+}

@@ -1,0 +1,11 @@
+{
+  "type": "item.completed",
+  "item": {
+    "id": "item_0",
+    "type": "command_execution",
+    "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Get-Content -Raw -LiteralPath /dev/stdin'",
+    "aggregated_output": "Get-Content : No se encuentra la ruta de acceso '/dev/stdin' porque no existe.\r\nEn l�nea: 2 Car�cter: 1\r\n+ Get-Content -Raw -LiteralPath /dev/stdin\r\n+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : ObjectNotFound: (/dev/stdin:String) [Get-Content], ItemNotFoundException\r\n    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.GetContentCommand\r\n \r\n",
+    "exit_code": 1,
+    "status": "failed"
+  }
+}

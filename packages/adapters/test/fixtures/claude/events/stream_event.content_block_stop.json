@@ -1,0 +1,10 @@
+{
+  "type": "stream_event",
+  "event": {
+    "type": "content_block_stop",
+    "index": 0
+  },
+  "session_id": "57910248-3c54-41d5-96bd-995ef20e8d2f",
+  "parent_tool_use_id": null,
+  "uuid": "a21053b2-22d1-47c4-a3cb-81d11352f273"
+}

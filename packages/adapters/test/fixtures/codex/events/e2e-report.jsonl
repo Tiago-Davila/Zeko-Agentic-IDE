@@ -1,0 +1,3 @@
+{"type":"thread.started","thread_id":"018f0000-0000-7000-8000-000000000099"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"{\"status\":\"COMPLETED\",\"summary\":\"Codex replay completed\",\"filesChanged\":[],\"checks\":[],\"blockers\":[],\"findings\":[]}"}}
+{"type":"turn.completed","usage":{"input_tokens":8,"output_tokens":12,"cached_input_tokens":2,"cache_write_input_tokens":0}}

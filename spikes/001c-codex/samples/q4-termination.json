@@ -1,0 +1,406 @@
+[
+  {
+    "case": "normal",
+    "label": "q4-normal",
+    "args": "exec --json --ignore-user-config --ignore-rules -m gpt-6-luna -c model_reasoning_effort=\"low\" -c windows.sandbox=\"unelevated\" -",
+    "exit": 0,
+    "signal": null,
+    "threadId": "01a0d5cd-d8f6-7bd2-a9d9-85507cc4994c",
+    "gotTurnCompleted": true,
+    "gotTurnFailed": false,
+    "errors": [],
+    "usage": {
+      "input_tokens": 13961,
+      "cached_input_tokens": 11008,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 5,
+      "reasoning_output_tokens": 0
+    },
+    "finalMessage": "ok",
+    "commands": [],
+    "fileChanges": [],
+    "itemTypes": [
+      "thread.started",
+      "turn.started",
+      "item.completed:agent_message",
+      "turn.completed"
+    ],
+    "wall_ms": 4184,
+    "hookFires": 0,
+    "lastEvents": [
+      {
+        "type": "turn.started"
+      },
+      {
+        "type": "item.completed",
+        "item": {
+          "id": "item_0",
+          "type": "agent_message",
+          "text": "ok"
+        }
+      },
+      {
+        "type": "turn.completed",
+        "usage": {
+          "input_tokens": 13961,
+          "cached_input_tokens": 11008,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 5,
+          "reasoning_output_tokens": 0
+        }
+      }
+    ],
+    "rollout": {
+      "rejections": [],
+      "task_complete": {
+        "type": "task_complete",
+        "turn_id": "01a0d5cd-d9c5-7f21-b6ce-1ef17b2eec99",
+        "last_agent_message": "ok",
+        "started_at": 1790293432,
+        "completed_at": 1790293435,
+        "duration_ms": 2919,
+        "time_to_first_token_ms": 2772
+      }
+    }
+  },
+  {
+    "case": "bad-model",
+    "label": "q4-bad-model",
+    "args": "exec --json --ignore-user-config -m modelo-que-no-existe -c windows.sandbox=\"unelevated\" -",
+    "exit": 1,
+    "signal": null,
+    "threadId": "01a0d5cd-d947-7d20-93fd-4afa2e94ec56",
+    "gotTurnCompleted": false,
+    "gotTurnFailed": true,
+    "turnFailed": {
+      "message": "{\"type\":\"error\",\"status\":400,\"error\":{\"type\":\"invalid_request_error\",\"message\":\"The 'modelo-que-no-existe' model is not supported when using Codex with a ChatGPT account.\"}}"
+    },
+    "errors": [
+      "{\"type\":\"error\",\"status\":400,\"error\":{\"type\":\"invalid_request_error\",\"message\":\"The 'modelo-que-no-existe' model is not supported when using Codex with a ChatGPT account.\"}}"
+    ],
+    "commands": [],
+    "fileChanges": [],
+    "itemTypes": [
+      "thread.started",
+      "item.completed:error",
+      "turn.started",
+      "error",
+      "turn.failed"
+    ],
+    "wall_ms": 2524,
+    "hookFires": 0,
+    "lastEvents": [
+      {
+        "type": "turn.started"
+      },
+      {
+        "type": "error",
+        "message": "{\"type\":\"error\",\"status\":400,\"error\":{\"type\":\"invalid_request_error\",\"message\":\"The 'modelo-que-no-existe' model is not supported when using Codex with a ChatGPT account.\"}}"
+      },
+      {
+        "type": "turn.failed",
+        "error": {
+          "message": "{\"type\":\"error\",\"status\":400,\"error\":{\"type\":\"invalid_request_error\",\"message\":\"The 'modelo-que-no-existe' model is not supported when using Codex with a ChatGPT account.\"}}"
+        }
+      }
+    ],
+    "rollout": {
+      "rejections": [],
+      "task_complete": {
+        "type": "task_complete",
+        "turn_id": "01a0d5cd-da68-74a3-a91d-929b351417c9",
+        "last_agent_message": null,
+        "error": {
+          "message": "{\"type\":\"error\",\"status\":400,\"error\":{\"type\":\"invalid_request_error\",\"message\":\"The 'modelo-que-no-existe' model is not supported when using Codex with a ChatGPT account.\"}}",
+          "codex_error_info": "other"
+        },
+        "started_at": 1790293432,
+        "completed_at": 1790293434,
+        "duration_ms": 1657
+      }
+    }
+  },
+  {
+    "case": "bad-config-value",
+    "label": "q4-bad-config-value",
+    "args": "exec --json --ignore-user-config --ignore-rules -m gpt-6-luna -c model_reasoning_effort=\"low\" -c windows.sandbox=\"unelevated\" -c sandbox_mode=\"cualquiera\" -",
+    "exit": 1,
+    "signal": null,
+    "gotTurnCompleted": false,
+    "gotTurnFailed": false,
+    "errors": [],
+    "commands": [],
+    "fileChanges": [],
+    "itemTypes": [],
+    "wall_ms": 53,
+    "hookFires": 0,
+    "stderr": "Error loading config.toml: unknown variant `cualquiera`, expected one of `read-only`, `workspace-write`, `danger-full-access`\nin `sandbox_mode`",
+    "lastEvents": []
+  },
+  {
+    "case": "bad-flag",
+    "label": "q4-bad-flag",
+    "args": "exec --json --ignore-user-config --ignore-rules -m gpt-6-luna -c model_reasoning_effort=\"low\" -c windows.sandbox=\"unelevated\" --max-turns 1 -",
+    "exit": 2,
+    "signal": null,
+    "gotTurnCompleted": false,
+    "gotTurnFailed": false,
+    "errors": [],
+    "commands": [],
+    "fileChanges": [],
+    "itemTypes": [],
+    "wall_ms": 55,
+    "hookFires": 0,
+    "stderr": "error: unexpected argument '--max-turns' found\n\n  tip: to pass '--max-turns' as a value, use '-- --max-turns'\n\nUsage: codex exec [OPTIONS] [PROMPT]\n       codex exec [OPTIONS] <COMMAND> [ARGS]\n\nFor more information, try '--help'.",
+    "lastEvents": []
+  },
+  {
+    "case": "rollout-budget-ignored",
+    "label": "q4-rollout-budget-ignored",
+    "args": "exec --json --ignore-user-config --ignore-rules -m gpt-6-luna -c model_reasoning_effort=\"low\" -c windows.sandbox=\"unelevated\" -s workspace-write -c features.rollout_budget={limit_tokens=3000} -",
+    "exit": 0,
+    "signal": null,
+    "threadId": "01a0d5cd-d96d-7122-91d0-82cba0c4a38a",
+    "gotTurnCompleted": true,
+    "gotTurnFailed": false,
+    "errors": [],
+    "usage": {
+      "input_tokens": 58660,
+      "cached_input_tokens": 53248,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 319,
+      "reasoning_output_tokens": 0
+    },
+    "finalMessage": "`datos.txt` tiene 3 líneas.",
+    "commands": [
+      {
+        "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Get-Location; Get-ChildItem -Name'",
+        "exit_code": 0,
+        "status": "completed",
+        "output": "\r\nPath                                                                                             \r\n----                                                                                             \r\n"
+      },
+      {
+        "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Get-Content -LiteralPath datos.txt'",
+        "exit_code": 0,
+        "status": "completed",
+        "output": "alfa\r\nbeta\r\ngamma\r\n"
+      },
+      {
+        "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Get-Content -LiteralPath datos.txt'",
+        "exit_code": 0,
+        "status": "completed",
+        "output": "alfa\r\nbeta\r\ngamma\r\n"
+      },
+      {
+        "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Get-Content -LiteralPath datos.txt'",
+        "exit_code": 0,
+        "status": "completed",
+        "output": "alfa\r\nbeta\r\ngamma\r\n"
+      }
+    ],
+    "fileChanges": [],
+    "itemTypes": [
+      "thread.started",
+      "turn.started",
+      "item.completed:agent_message",
+      "item.completed:agent_message",
+      "item.started:command_execution",
+      "item.completed:command_execution",
+      "item.started:command_execution",
+      "item.completed:command_execution",
+      "item.started:command_execution",
+      "item.completed:command_execution",
+      "item.started:command_execution",
+      "item.completed:command_execution",
+      "item.completed:agent_message",
+      "turn.completed"
+    ],
+    "wall_ms": 17757,
+    "hookFires": 0,
+    "stderr": "2026-09-24T23:43:58.178860Z ERROR codex_core::tools::router: error=exec_command failed: CreateProcess { message: \"Rejected(\\\"Failed to create unified exec process: CreateProcessAsUserW failed: 267 (El nombre del directorio no es válido.) | cwd=C:\\\\\\\\Users\\\\\\\\Tiago\\\\\\\\orca\\\\\\\\workspaces\\\\\\\\Zeko-Agentic-IDE\\\\\\\\spikes-001c-claude-chain\\\\\\\\spikes\\\\\\\\001c-codex\\\\\\\\runs\\\\\\\\q4 | cmd=C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe -Command \\\\\\\"try { [Console]::OutputEncoding=[System.Text.Encoding]::UTF8 } catch {}\\\\nGet-Content -LiteralPath datos.txt; Get-Content -LiteralPath datos.txt; Get-Content -LiteralPath datos.txt\\\\\\\" | env_u16_len=10172 | si_flags=256 | creation_flags=525312\\\")\" }",
+    "lastEvents": [
+      {
+        "type": "item.completed",
+        "item": {
+          "id": "item_5",
+          "type": "command_execution",
+          "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Get-Content -LiteralPath datos.txt'",
+          "aggregated_output": "alfa\r\nbeta\r\ngamma\r\n",
+          "exit_code": 0,
+          "status": "completed"
+        }
+      },
+      {
+        "type": "item.completed",
+        "item": {
+          "id": "item_6",
+          "type": "agent_message",
+          "text": "`datos.txt` tiene 3 líneas."
+        }
+      },
+      {
+        "type": "turn.completed",
+        "usage": {
+          "input_tokens": 58660,
+          "cached_input_tokens": 53248,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 319,
+          "reasoning_output_tokens": 0
+        }
+      }
+    ],
+    "rollout": {
+      "rejections": [
+        "[{\"type\":\"input_text\",\"text\":\"Script failed\\nWall time 0.1 seconds\\nOutput:\\n\"},{\"type\":\"input_text\",\"text\":\"Script error:\\nexec_command failed: CreateProcess { message: \\\"Rejected(\\\\\\\"Failed to create unified exec process: CreateProcessAsUserW failed: 267 (El nombre del directorio no es válido.) | cwd=C:\\\\\\\\\\\\\\\\Users\\\\\\\\\\\\\\\\Tiago\\\\\\\\\\\\\\\\orca\\\\\\\\\\\\\\\\workspaces\\\\\\\\\\\\\\\\Zeko-Agentic-IDE\\\\\\\\\\\\\\\\spikes"
+      ],
+      "task_complete": {
+        "type": "task_complete",
+        "turn_id": "01a0d5cd-da8a-7341-a683-a54103c05d02",
+        "last_agent_message": "`datos.txt` tiene 3 líneas.",
+        "started_at": 1790293432,
+        "completed_at": 1790293449,
+        "duration_ms": 16367,
+        "time_to_first_token_ms": 2559
+      }
+    }
+  },
+  {
+    "case": "rollout-budget-enable",
+    "label": "q4-rollout-budget-enable",
+    "args": "exec --json --ignore-user-config --ignore-rules -m gpt-6-luna -c model_reasoning_effort=\"low\" -c windows.sandbox=\"unelevated\" --enable rollout_budget -c features.rollout_budget.limit_tokens=3000 -",
+    "exit": 1,
+    "signal": null,
+    "gotTurnCompleted": false,
+    "gotTurnFailed": false,
+    "errors": [],
+    "commands": [],
+    "fileChanges": [],
+    "itemTypes": [],
+    "wall_ms": 70,
+    "hookFires": 0,
+    "stderr": "Error: features.rollout_budget.limit_tokens is required when rollout_budget is enabled",
+    "lastEvents": []
+  },
+  {
+    "case": "sandbox-unavailable",
+    "label": "q4-sandbox-unavailable",
+    "args": "exec --json --ignore-user-config --ignore-rules -m gpt-6-luna -c model_reasoning_effort=\"low\" -s workspace-write -",
+    "exit": 0,
+    "signal": null,
+    "threadId": "01a0d5cd-d9dc-7613-a576-dafb65ff153a",
+    "gotTurnCompleted": true,
+    "gotTurnFailed": false,
+    "errors": [],
+    "usage": {
+      "input_tokens": 28098,
+      "cached_input_tokens": 24064,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 85,
+      "reasoning_output_tokens": 0
+    },
+    "finalMessage": "No pude leer `datos.txt`: la política del entorno bloqueó el comando.",
+    "commands": [],
+    "fileChanges": [],
+    "itemTypes": [
+      "thread.started",
+      "turn.started",
+      "item.completed:agent_message",
+      "item.completed:agent_message",
+      "turn.completed"
+    ],
+    "wall_ms": 7128,
+    "hookFires": 0,
+    "stderr": "2026-09-24T23:43:56.908618Z ERROR codex_core::tools::router: error=exec_command failed: CreateProcess { message: \"Rejected(\\\"`\\\\\\\"C:\\\\\\\\\\\\\\\\Windows\\\\\\\\\\\\\\\\System32\\\\\\\\\\\\\\\\WindowsPowerShell\\\\\\\\\\\\\\\\v1.0\\\\\\\\\\\\\\\\powershell.exe\\\\\\\" -Command 'Get-Content -LiteralPath datos.txt | Measure-Object -Line'` rejected: blocked by policy\\\")\" }",
+    "lastEvents": [
+      {
+        "type": "item.completed",
+        "item": {
+          "id": "item_0",
+          "type": "agent_message",
+          "text": "Voy a leer `datos.txt` y contar sus líneas."
+        }
+      },
+      {
+        "type": "item.completed",
+        "item": {
+          "id": "item_1",
+          "type": "agent_message",
+          "text": "No pude leer `datos.txt`: la política del entorno bloqueó el comando."
+        }
+      },
+      {
+        "type": "turn.completed",
+        "usage": {
+          "input_tokens": 28098,
+          "cached_input_tokens": 24064,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 85,
+          "reasoning_output_tokens": 0
+        }
+      }
+    ],
+    "rollout": {
+      "rejections": [
+        "[{\"type\":\"input_text\",\"text\":\"Script failed\\nWall time 0.1 seconds\\nOutput:\\n\"},{\"type\":\"input_text\",\"text\":\"Script error:\\nexec_command failed: CreateProcess { message: \\\"Rejected(\\\\\\\"`\\\\\\\\\\\\\\\"C:\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Windows\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\System32\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\WindowsPowerShell\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\v1.0\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\powershell.exe\\\\\\\\\\\\\\\" -Command 'Get-Content -LiteralPath datos.txt | Measure-Object -Li"
+      ],
+      "task_complete": {
+        "type": "task_complete",
+        "turn_id": "01a0d5cd-daf5-7ba2-a47b-02ae7f4771c4",
+        "last_agent_message": "No pude leer `datos.txt`: la política del entorno bloqueó el comando.",
+        "started_at": 1790293433,
+        "completed_at": 1790293438,
+        "duration_ms": 5371,
+        "time_to_first_token_ms": 2469
+      }
+    }
+  },
+  {
+    "case": "timeout-kill",
+    "label": "q4-timeout-kill",
+    "args": "exec --json --ignore-user-config --ignore-rules -m gpt-6-luna -c model_reasoning_effort=\"low\" -c windows.sandbox=\"unelevated\" -s workspace-write -",
+    "exit": 1,
+    "signal": null,
+    "threadId": "01a0d5cd-e2d4-7bf1-943f-172be0d99d72",
+    "gotTurnCompleted": false,
+    "gotTurnFailed": false,
+    "errors": [],
+    "finalMessage": "Voy a ejecutar el comando solicitado y luego te respondo.",
+    "commands": [],
+    "fileChanges": [],
+    "itemTypes": [
+      "thread.started",
+      "turn.started",
+      "item.completed:agent_message",
+      "item.started:command_execution"
+    ],
+    "wall_ms": 25148,
+    "hookFires": 0,
+    "lastEvents": [
+      {
+        "type": "turn.started"
+      },
+      {
+        "type": "item.completed",
+        "item": {
+          "id": "item_0",
+          "type": "agent_message",
+          "text": "Voy a ejecutar el comando solicitado y luego te respondo."
+        }
+      },
+      {
+        "type": "item.started",
+        "item": {
+          "id": "item_1",
+          "type": "command_execution",
+          "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Start-Sleep 120'",
+          "aggregated_output": "",
+          "exit_code": null,
+          "status": "in_progress"
+        }
+      }
+    ],
+    "rollout": {
+      "rejections": []
+    }
+  }
+]

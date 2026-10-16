@@ -1,0 +1,109 @@
+{
+  "parallel": {
+    "n": 8,
+    "totalWallMs": 52859,
+    "allOk": true,
+    "uniqueThreads": 8,
+    "rows": [
+      {
+        "i": 0,
+        "exit": 0,
+        "threadId": "01a0d5d6-b0b9-7682-8481-7968a6c71ea5",
+        "turnCompleted": true,
+        "file": "0",
+        "final": "ok 0",
+        "wall_ms": 36578,
+        "rollout": true
+      },
+      {
+        "i": 1,
+        "exit": 0,
+        "threadId": "01a0d5d6-b146-73c2-9ba8-0818aa842294",
+        "turnCompleted": true,
+        "file": "1",
+        "final": "ok 1",
+        "wall_ms": 40334,
+        "rollout": true
+      },
+      {
+        "i": 2,
+        "exit": 0,
+        "threadId": "01a0d5d6-b255-7792-9933-9cad3e213d56",
+        "turnCompleted": true,
+        "file": "2",
+        "final": "ok 2",
+        "wall_ms": 51895,
+        "rollout": true
+      },
+      {
+        "i": 3,
+        "exit": 0,
+        "threadId": "01a0d5d6-b502-7050-89aa-d788fca47dbc",
+        "turnCompleted": true,
+        "file": "3",
+        "final": "ok 3",
+        "wall_ms": 52262,
+        "rollout": true
+      },
+      {
+        "i": 4,
+        "exit": 0,
+        "threadId": "01a0d5d6-b551-7981-9437-07614a991bbd",
+        "turnCompleted": true,
+        "file": "4",
+        "final": "ok 4",
+        "wall_ms": 51012,
+        "rollout": true
+      },
+      {
+        "i": 5,
+        "exit": 0,
+        "threadId": "01a0d5d6-b5d8-7783-86b4-40be91165b35",
+        "turnCompleted": true,
+        "file": "5",
+        "final": "ok 5",
+        "wall_ms": 51519,
+        "rollout": true
+      },
+      {
+        "i": 6,
+        "exit": 0,
+        "threadId": "01a0d5d6-b77b-70a3-ba92-8483b60a95df",
+        "turnCompleted": true,
+        "file": "6",
+        "final": "ok 6",
+        "wall_ms": 51250,
+        "rollout": true
+      },
+      {
+        "i": 7,
+        "exit": 0,
+        "threadId": "01a0d5d6-b4c2-71c2-8723-26e919d03785",
+        "turnCompleted": true,
+        "file": "7",
+        "final": "ok 7",
+        "wall_ms": 48065,
+        "rollout": true
+      }
+    ]
+  },
+  "sameThreadResume": {
+    "base": "01a0d5d7-7ffd-7f93-97af-1ff0a58bee37",
+    "runs": [
+      {
+        "exit": 1,
+        "stderr": "2026-09-24T23:54:31.850616Z ERROR codex_core::session::session: failed to initialize thread persistence: thread-store conflict: thread 01a0d5d7-7ffd-7f93-97af-1ff0a58bee37 already has an active writer\n2026-09-24T23:54:31.850782Z ERROR codex_core::session: Failed to create session: thread-store conflict: thread 01a0d5d7-7ffd-7f93-97af-1ff0a58bee37 already has an active writer\nError: thread/resume: thread/resume failed: thread 01a0d5d7-7ffd-7f93-97af-1ff0a58bee37 already has an active writer (code -32600)",
+        "wall_ms": 3562
+      },
+      {
+        "exit": 0,
+        "threadId": "01a0d5d7-7ffd-7f93-97af-1ff0a58bee37",
+        "finalMessage": "42",
+        "wall_ms": 6204
+      }
+    ],
+    "rolloutTurnsAfter": 2,
+    "rolloutLines": 28
+  },
+  "locksDir": 1
+}

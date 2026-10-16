@@ -1,0 +1,64 @@
+[
+  {
+    "config": "default",
+    "flags": "",
+    "exit": 0,
+    "tools": "PowerShell",
+    "gitDirCreated": false,
+    "denials": [
+      "PowerShell"
+    ],
+    "toolErrors": [
+      "\"This PowerShell command contains multiple operations. The following part requires approval: git init\""
+    ],
+    "result": "No pude ejecutarlo: la herramienta de shell requiere tu aprobación manual para `git init` y fue bloqueada automáticamente."
+  },
+  {
+    "config": "allowed-ps-gitinit",
+    "flags": "--allowedTools PowerShell(git init)",
+    "exit": 0,
+    "tools": "PowerShell",
+    "gitDirCreated": true,
+    "denials": [],
+    "toolErrors": [],
+    "result": "Sí, pude ejecutar `git init` correctamente."
+  },
+  {
+    "config": "allowed-bash-gitinit",
+    "flags": "--allowedTools Bash(git init)",
+    "exit": 0,
+    "tools": "PowerShell",
+    "gitDirCreated": false,
+    "denials": [
+      "PowerShell"
+    ],
+    "toolErrors": [
+      "\"This PowerShell command contains multiple operations. The following part requires approval: git init\""
+    ],
+    "result": "No pude ejecutarlo: el comando `git init` requiere tu aprobación y fue denegado/bloqueado por el sistema de permisos."
+  },
+  {
+    "config": "disallowed-ps",
+    "flags": "--disallowedTools PowerShell",
+    "exit": 0,
+    "tools": "",
+    "gitDirCreated": false,
+    "denials": [],
+    "toolErrors": [],
+    "result": "No tengo ninguna herramienta de shell/PowerShell disponible en esta sesión (no aparece en mi lista de herramientas ni en las diferidas), así que no puedo ejecutar `git init`; además, el entorno ya indica que este directorio ya es un repositorio git."
+  },
+  {
+    "config": "acceptEdits",
+    "flags": "--permission-mode acceptEdits",
+    "exit": 0,
+    "tools": "PowerShell",
+    "gitDirCreated": false,
+    "denials": [
+      "PowerShell"
+    ],
+    "toolErrors": [
+      "\"This PowerShell command contains multiple operations. The following part requires approval: git init\""
+    ],
+    "result": "El comando `git init` requiere tu aprobación manual antes de que pueda ejecutarlo — ¿confirmás que lo ejecute?"
+  }
+]

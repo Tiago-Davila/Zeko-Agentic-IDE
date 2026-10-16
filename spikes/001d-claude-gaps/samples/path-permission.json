@@ -1,0 +1,29 @@
+{
+  "platform": "win32",
+  "claudeVersion": "2.1.283",
+  "model": "claude-sonnet-5",
+  "mode": "restricted",
+  "permissionMode": "acceptEdits",
+  "allowedTools": [
+    "Read",
+    "Write(src/**)",
+    "Edit(src/**)",
+    "Glob",
+    "Grep"
+  ],
+  "result": {
+    "subtype": "error_max_turns",
+    "is_error": true,
+    "permissionDenialCount": 0,
+    "toolNames": ["Read", "Write"]
+  },
+  "filesystem": {
+    "srcInsideFileCreated": true,
+    "docsOutsideFileCreated": true,
+    "insideContentMatchedProjectInstruction": true
+  },
+  "stdin": {
+    "processAliveFourSecondsAfterResult": true,
+    "closedAfterEnd": true
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "exitCode": 1,
+  "stderrLines": ["fake-agent crashed intentionally"],
+  "outcome": { "kind": "crashed", "exitCode": 1, "signal": "SIGABRT", "durationMs": 25 },
+  "emitFinalEvent": false
+}

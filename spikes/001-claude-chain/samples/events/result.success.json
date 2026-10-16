@@ -1,0 +1,97 @@
+{
+  "duration_api_ms": 5386,
+  "stop_reason": "end_turn",
+  "session_id": "57910248-3c54-41d5-96bd-995ef20e8d2f",
+  "total_cost_usd": 0.0585206,
+  "usage": {
+    "input_tokens": 4,
+    "cache_creation_input_tokens": 11728,
+    "cache_read_input_tokens": 47053,
+    "output_tokens": 219,
+    "output_tokens_details": {
+      "thinking_tokens": 13
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 11728,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "not_available",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 32,
+        "cache_read_input_tokens": 29238,
+        "cache_creation_input_tokens": 305,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 305
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard"
+  },
+  "modelUsage": {
+    "claude-sonnet-5": {
+      "inputTokens": 4,
+      "outputTokens": 219,
+      "cacheReadInputTokens": 47053,
+      "cacheCreationInputTokens": 11728,
+      "webSearchRequests": 0,
+      "costUSD": 0.0585206,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "thinkingTokens": 13,
+      "canonicalModel": "claude-sonnet-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "is_error": false,
+  "num_turns": 3,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "El archivo datos.txt tiene 3 líneas (alfa, beta, gamma).",
+  "ttft_ms": 2579,
+  "type": "result",
+  "duration_ms": 8436,
+  "uuid": "1678082c-3e7c-45b7-9ca0-1e845e8f0e34",
+  "ttft_stream_ms": 2337,
+  "time_to_request_ms": 376,
+  "first_content_frame_ms": 2337,
+  "queued_turn_count": 0,
+  "result_index": 0
+}

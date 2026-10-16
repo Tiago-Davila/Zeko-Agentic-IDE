@@ -1,0 +1,11 @@
+{
+  "type": "system",
+  "subtype": "task_started",
+  "task_id": "bmlkmo1mu",
+  "tool_use_id": "toolu_01Mp5ynbRoEB6yQ1o1NfTw7y",
+  "description": "Check git version",
+  "is_backgrounded": false,
+  "task_type": "local_bash",
+  "uuid": "682defc5-12a6-4bbf-8d85-473d8972a0e2",
+  "session_id": "bdb61b81-928f-4f70-b1fa-40708385009d"
+}

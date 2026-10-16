@@ -1,0 +1,23 @@
+{
+  "type": "rate_limit_event",
+  "rate_limit_info": {
+    "status": "allowed",
+    "resetsAt": 1790125200,
+    "rateLimitType": "five_hour",
+    "overageStatus": "rejected",
+    "overageDisabledReason": "out_of_credits",
+    "isUsingOverage": false,
+    "unifiedWindows": {
+      "five_hour": {
+        "utilization": 0.33,
+        "resetsAt": 1790125200
+      },
+      "seven_day": {
+        "utilization": 0.03,
+        "resetsAt": 1790661600
+      }
+    }
+  },
+  "uuid": "976e84c1-2101-4723-a7c9-92bacb36eaf0",
+  "session_id": "57910248-3c54-41d5-96bd-995ef20e8d2f"
+}

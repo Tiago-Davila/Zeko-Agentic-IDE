@@ -1,0 +1,75 @@
+import { createZekoRuntime } from "@zeko/runtime";
+import type { MessagePortMain } from "electron";
+import { dispatchRequest, postValidated } from "./dispatch.js";
+import { FlowWatcher } from "./flow-watcher.js";
+import { OutputBatcher, type EngineEvent } from "./output-batcher.js";
+
+let stopped = false;
+let messagePort: MessagePortMain | undefined;
+let outputBatcher: OutputBatcher | undefined;
+const flowWatchers = new Map<string, FlowWatcher>();
+const smokeDatabase = process.argv.includes("--zeko-sqlite-smoke") ? process.env["ZEKO_DATABASE_PATH"] : undefined;
+const runtimePromise = createZekoRuntime({
+  development: process.env["ZEKO_DEVELOPMENT"] === "1",
+  ...(smokeDatabase ? { dbPath: smokeDatabase } : {}),
+});
+
+process.parentPort.on("message", (event) => {
+  const data = event.data as { type?: unknown } | undefined;
+  if (data?.type === "connect") {
+    const candidate = event.ports[0];
+    if (candidate && !messagePort) void attach(candidate);
+  } else if (data?.type === "shutdown") {
+    void shutdown();
+  }
+});
+
+async function attach(port: MessagePortMain): Promise<void> {
+  try {
+    const runtime = await runtimePromise;
+    if (stopped) { port.close(); return; }
+    messagePort = port;
+    outputBatcher = new OutputBatcher((event) => {
+      if (!postValidated(port, event)) postValidated(port, { kind: "event", type: "engine.error", payload: { code: "INVALID_ENGINE_EVENT" } });
+    });
+    runtime.subscribe((event) => {
+      const parsed = event as EngineEvent;
+      if (parsed.type === "node.output") outputBatcher?.push(parsed);
+      else if (!postValidated(port, parsed)) postValidated(port, { kind: "event", type: "engine.error", payload: { code: "INVALID_ENGINE_EVENT" } });
+    });
+    process.parentPort.postMessage({ type: "engine-ready" });
+    port.on("message", ({ data }) => {
+      void dispatchRequest(runtime, port, data, async ({ projectId, root }) => {
+        flowWatchers.get(projectId)?.close();
+        const watcher = new FlowWatcher(projectId, root, (change) => {
+          if (!postValidated(port, { kind: "event", type: "flow.fileChanged", payload: change })) {
+            postValidated(port, { kind: "event", type: "engine.error", payload: { code: "INVALID_ENGINE_EVENT" } });
+          }
+        });
+        await watcher.start();
+        flowWatchers.set(projectId, watcher);
+      });
+    });
+    port.on("close", () => { if (messagePort === port) messagePort = undefined; });
+    port.start();
+  } catch (error) {
+    const portMessage = error instanceof Error ? error.message : "Runtime initialization failed";
+    process.parentPort.postMessage({ type: "engine-error", message: portMessage });
+    postValidated(port, { kind: "event", type: "engine.error", payload: { code: "ENGINE_START_FAILED", params: { message: portMessage } } });
+    port.close();
+    process.exit(1);
+  }
+}
+
+async function shutdown(): Promise<void> {
+  if (stopped) return;
+  stopped = true;
+  for (const watcher of flowWatchers.values()) watcher.close();
+  flowWatchers.clear();
+  outputBatcher?.close();
+  messagePort?.close();
+  const runtime = await runtimePromise;
+  runtime.close();
+  process.parentPort.postMessage({ type: "shutdown-complete" });
+  process.exit(0);
+}

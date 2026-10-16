@@ -1,0 +1,120 @@
+{
+  "codexVersion": "codex-cli 0.155.1",
+  "codexExe": "C:\\nvm4w\\nodejs\\node_modules\\@openai\\codex\\node_modules\\@openai\\codex-win32-x64\\vendor\\x86_64-pc-windows-msvc\\bin\\codex.exe",
+  "minStdin": {
+    "label": "q1-min-stdin",
+    "args": "exec --json --ignore-user-config --ignore-rules -m gpt-6-luna -c model_reasoning_effort=\"low\" -c windows.sandbox=\"unelevated\" -",
+    "exit": 0,
+    "signal": null,
+    "threadId": "01a0d5ca-ac8f-7560-8217-1bde16a7a037",
+    "gotTurnCompleted": true,
+    "gotTurnFailed": false,
+    "errors": [],
+    "usage": {
+      "input_tokens": 15715,
+      "cached_input_tokens": 11008,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 5,
+      "reasoning_output_tokens": 0
+    },
+    "finalMessage": "hola",
+    "commands": [],
+    "fileChanges": [],
+    "itemTypes": [
+      "thread.started",
+      "turn.started",
+      "item.completed:agent_message",
+      "turn.completed"
+    ],
+    "wall_ms": 5143,
+    "hookFires": 0,
+    "rollout": {
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "approval_policy": "never",
+      "sandbox_policy": {
+        "type": "read-only"
+      }
+    }
+  },
+  "noJson": {
+    "exit": 0,
+    "stdout": "hola\n",
+    "stderrHead": "OpenAI Codex v0.155.1\n--------\nworkdir: C:\\Users\\Tiago\\orca\\workspaces\\Zeko-Agentic-IDE\\spikes-001-claude-chain\\spikes\\001c-codex\\runs\\q1\nmodel: gpt-6-luna\nprovider: openai\napproval: never\nsandbox: read-only\nreasoning effort: low\nreasoning summaries: none\nsession id: 01a0d5ca-bf9e-7932-b708-40b988fe"
+  },
+  "argOnly": {
+    "label": "q1-arg-plus-stdin",
+    "args": "exec --json --ignore-user-config --ignore-rules -m gpt-6-luna -c model_reasoning_effort=\"low\" -c windows.sandbox=\"unelevated\" Decime cuántas palabras hay en el bloque stdin. Respondé solo el número.",
+    "exit": 0,
+    "signal": null,
+    "threadId": "01a0d5ca-cdb3-7850-b7c3-1a465b032f9c",
+    "gotTurnCompleted": true,
+    "gotTurnFailed": false,
+    "errors": [],
+    "usage": {
+      "input_tokens": 28115,
+      "cached_input_tokens": 26112,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 49,
+      "reasoning_output_tokens": 0
+    },
+    "finalMessage": "0",
+    "commands": [
+      {
+        "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Get-Content -Raw -LiteralPath /dev/stdin'",
+        "exit_code": 1,
+        "status": "failed",
+        "output": "Get-Content : No se encuentra la ruta de acceso '/dev/stdin' porque no existe.\r\nEn l�nea: 2 Car�cter: 1\r\n+ Get-Content -Raw -LiteralPath /dev/stdin\r\n+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + C"
+      }
+    ],
+    "fileChanges": [],
+    "itemTypes": [
+      "thread.started",
+      "turn.started",
+      "item.started:command_execution",
+      "item.completed:command_execution",
+      "item.completed:agent_message",
+      "turn.completed"
+    ],
+    "wall_ms": 13021,
+    "hookFires": 0,
+    "stderr": "Reading additional input from stdin..."
+  },
+  "argAndPipedStdin": {
+    "exit": 0,
+    "answer": "5",
+    "userMessageAsSeenByModel": [
+      {
+        "type": "input_text",
+        "text": "Contá las palabras del bloque stdin y respondé solo el número.\n\n<stdin>\nuno dos tres cuatro cinco\n</stdin>"
+      }
+    ]
+  },
+  "noGit": {
+    "withoutSkip": {
+      "exit": 1,
+      "events": 0,
+      "stderr": "Not inside a trusted directory and --skip-git-repo-check was not specified."
+    },
+    "withSkip": {
+      "exit": 0,
+      "final": "hola"
+    }
+  },
+  "model": {
+    "viaDashM": "gpt-6-luna",
+    "viaDashC": "gpt-6-luna",
+    "defaultIgnoringUserConfig": {
+      "model": "gpt-6-sol",
+      "effort": "low",
+      "sandbox": "read-only"
+    },
+    "defaultWithUserConfig": {
+      "model": "gpt-6-sol",
+      "effort": "low",
+      "sandbox": "read-only",
+      "hookFires": 3
+    },
+    "eventsMentionModel": false
+  }
+}

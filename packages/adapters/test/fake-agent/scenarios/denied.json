@@ -1,0 +1,5 @@
+{
+  "events": [{ "type": "permission_denied", "ts": "2026-09-25T00:00:00.000Z", "attemptId": "018f0000-0000-7000-8000-000000000107", "tool": "Write", "reason": "Permission denied" }],
+  "outcome": { "kind": "exited", "exitCode": 0, "durationMs": 40, "denials": [{ "tool": "Write", "reason": "Permission denied" }] },
+  "reportCandidate": { "state": "valid", "report": { "status": "COMPLETED", "summary": "No changes were made.", "filesChanged": [], "checks": [], "blockers": [], "findings": [] } }
+}

@@ -1,0 +1,12 @@
+appId: dev.zeko.agentic-ide
+productName: Zeko
+directories:
+  output: ../../dist/desktop
+files:
+  - out/**/*
+asar: true
+win:
+  target:
+    - target: dir
+      arch:
+        - x64

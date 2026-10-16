@@ -1,0 +1,257 @@
+{
+  "table": [
+    {
+      "variant": "prompt",
+      "runs": 5,
+      "strictOk": 4,
+      "lenientOk": 5,
+      "avgUsd": "0.0474"
+    },
+    {
+      "variant": "file",
+      "runs": 5,
+      "strictOk": 5,
+      "lenientOk": 5,
+      "avgUsd": "0.0565"
+    },
+    {
+      "variant": "schema",
+      "runs": 5,
+      "strictOk": 5,
+      "lenientOk": 5,
+      "avgUsd": "0.0662"
+    }
+  ],
+  "rows": [
+    {
+      "variant": "prompt",
+      "i": 0,
+      "strictJson": true,
+      "lenient": true,
+      "exit": 0,
+      "cost": 0.0474052,
+      "turns": 3,
+      "raw": "{ \"status\": \"DONE\", \"summary\": \"Se creó saludo.txt con el contenido 'hola zeko' y se verificó su contenido con Read.\", \"filesChanged\": [\"saludo.txt\"], \"checks\": [\"Read confirmó que saludo.txt contiene 'hola zeko'\"], \"blockers\": [] }",
+      "resultText": "{ \"status\": \"DONE\", \"summary\": \"Se creó saludo.txt con el contenido 'hola zeko' y se verificó su contenido con Read.\", \"filesChanged\": [\"saludo.txt\"], \"checks\": [\"Read confirmó que saludo.txt contiene 'hola zeko'\"], \"blockers\": [] }",
+      "hasStructuredOutput": false
+    },
+    {
+      "variant": "prompt",
+      "i": 1,
+      "strictJson": true,
+      "lenient": true,
+      "exit": 0,
+      "cost": 0.0470538,
+      "turns": 3,
+      "raw": "{ \"status\": \"DONE\", \"summary\": \"Creado saludo.txt con el contenido 'hola zeko' y verificado con Read.\", \"filesChanged\": [\"saludo.txt\"], \"checks\": [\"Read confirmó que el contenido es 'hola zeko'\"], \"blockers\": [] }",
+      "resultText": "{ \"status\": \"DONE\", \"summary\": \"Creado saludo.txt con el contenido 'hola zeko' y verificado con Read.\", \"filesChanged\": [\"saludo.txt\"], \"checks\": [\"Read confirmó que el contenido es 'hola zeko'\"], \"blockers\": [] }",
+      "hasStructuredOutput": false
+    },
+    {
+      "variant": "prompt",
+      "i": 2,
+      "strictJson": true,
+      "lenient": true,
+      "exit": 0,
+      "cost": 0.047342800000000004,
+      "turns": 3,
+      "raw": "{ \"status\": \"DONE\", \"summary\": \"Se creó el archivo saludo.txt con el contenido 'hola zeko' y se verificó su contenido con Read.\", \"filesChanged\": [\"saludo.txt\"], \"checks\": [\"Read saludo.txt -> contenido 'hola zeko' confirmado\"], \"blockers\": [] }",
+      "resultText": "{ \"status\": \"DONE\", \"summary\": \"Se creó el archivo saludo.txt con el contenido 'hola zeko' y se verificó su contenido con Read.\", \"filesChanged\": [\"saludo.txt\"], \"checks\": [\"Read saludo.txt -> contenido 'hola zeko' confirmado\"], \"blockers\": [] }",
+      "hasStructuredOutput": false
+    },
+    {
+      "variant": "prompt",
+      "i": 3,
+      "strictJson": true,
+      "lenient": true,
+      "exit": 0,
+      "cost": 0.0474632,
+      "turns": 3,
+      "raw": "{ \"status\": \"DONE\", \"summary\": \"Se creó el archivo saludo.txt con el contenido 'hola zeko' y se verificó con Read que el contenido es correcto.\", \"filesChanged\": [\"saludo.txt\"], \"checks\": [\"Read saludo.txt -> 'hola zeko'\"], \"blockers\": [] }",
+      "resultText": "{ \"status\": \"DONE\", \"summary\": \"Se creó el archivo saludo.txt con el contenido 'hola zeko' y se verificó con Read que el contenido es correcto.\", \"filesChanged\": [\"saludo.txt\"], \"checks\": [\"Read saludo.txt -> 'hola zeko'\"], \"blockers\": [] }",
+      "hasStructuredOutput": false
+    },
+    {
+      "variant": "prompt",
+      "i": 4,
+      "strictJson": false,
+      "lenient": true,
+      "exit": 0,
+      "cost": 0.047557,
+      "turns": 3,
+      "raw": "Verificado: el contenido coincide.\n\n{ \"status\": \"DONE\", \"summary\": \"Se creó saludo.txt con el contenido 'hola zeko' y se verificó con Read.\", \"filesChanged\": [\"saludo.txt\"], \"checks\": [\"Read saludo.txt confirma contenido 'hola zeko'\"], \"blockers\": [] }",
+      "resultText": "Verificado: el contenido coincide.\n\n{ \"status\": \"DONE\", \"summary\": \"Se creó saludo.txt con el contenido 'hola zeko' y se verificó con Read.\", \"filesChanged\": [\"saludo.txt\"], \"checks\": [\"Read saludo.txt confirma contenido 'hola zeko'\"], \"blockers\": [] }",
+      "hasStructuredOutput": false
+    },
+    {
+      "variant": "file",
+      "i": 0,
+      "strictJson": true,
+      "lenient": true,
+      "exit": 0,
+      "cost": 0.056571800000000005,
+      "turns": 4,
+      "raw": "{\n  \"status\": \"DONE\",\n  \"summary\": \"Se creó saludo.txt con el contenido 'hola zeko' y se verificó su contenido con Read.\",\n  \"filesChanged\": [\"saludo.txt\"],\n  \"checks\": [\"Read confirmó que saludo.txt contiene 'hola zeko'\"],\n  \"blockers\": []\n}\n",
+      "resultText": "Listo: `saludo.txt` creado y verificado con \"hola zeko\", y `zeko-result.json` escrito con status DONE.",
+      "hasStructuredOutput": false
+    },
+    {
+      "variant": "file",
+      "i": 1,
+      "strictJson": true,
+      "lenient": true,
+      "exit": 0,
+      "cost": 0.0557744,
+      "turns": 4,
+      "raw": "{\n  \"status\": \"DONE\",\n  \"summary\": \"Se creó saludo.txt con el contenido 'hola zeko' y se verificó su contenido con Read.\",\n  \"filesChanged\": [\"saludo.txt\"],\n  \"checks\": [\"Read confirmó que saludo.txt contiene 'hola zeko'\"],\n  \"blockers\": []\n}\n",
+      "resultText": "Listo: `saludo.txt` creado y verificado, `zeko-result.json` generado con status DONE.",
+      "hasStructuredOutput": false
+    },
+    {
+      "variant": "file",
+      "i": 2,
+      "strictJson": true,
+      "lenient": true,
+      "exit": 0,
+      "cost": 0.056982000000000005,
+      "turns": 4,
+      "raw": "{\n  \"status\": \"DONE\",\n  \"summary\": \"Se creó saludo.txt con el contenido 'hola zeko' y se verificó su contenido con Read.\",\n  \"filesChanged\": [\"saludo.txt\"],\n  \"checks\": [\"Read confirmó que saludo.txt contiene exactamente 'hola zeko'\"],\n  \"blockers\": []\n}\n",
+      "resultText": "Tarea completada: `saludo.txt` creado con \"hola zeko\" y verificado; resultado registrado en `zeko-result.json` con status DONE.",
+      "hasStructuredOutput": false
+    },
+    {
+      "variant": "file",
+      "i": 3,
+      "strictJson": true,
+      "lenient": true,
+      "exit": 0,
+      "cost": 0.05614720000000001,
+      "turns": 4,
+      "raw": "{\n  \"status\": \"DONE\",\n  \"summary\": \"Se creó saludo.txt con el contenido 'hola zeko' y se verificó su contenido con Read.\",\n  \"filesChanged\": [\"saludo.txt\"],\n  \"checks\": [\"Read saludo.txt y confirmó contenido 'hola zeko'\"],\n  \"blockers\": []\n}\n",
+      "resultText": "Tarea completada: creé `saludo.txt` con \"hola zeko\", verifiqué su contenido con Read, y generé `zeko-result.json` con status DONE.",
+      "hasStructuredOutput": false
+    },
+    {
+      "variant": "file",
+      "i": 4,
+      "strictJson": true,
+      "lenient": true,
+      "exit": 0,
+      "cost": 0.0568542,
+      "turns": 4,
+      "raw": "{\n  \"status\": \"DONE\",\n  \"summary\": \"Se creó saludo.txt con el contenido 'hola zeko' y se verificó su contenido con Read.\",\n  \"filesChanged\": [\"saludo.txt\"],\n  \"checks\": [\"Read saludo.txt y confirmó contenido 'hola zeko'\"],\n  \"blockers\": []\n}\n",
+      "resultText": "Tarea completada: `saludo.txt` creado con \"hola zeko\" y verificado; resultado registrado en `zeko-result.json` con status DONE.",
+      "hasStructuredOutput": false
+    },
+    {
+      "variant": "schema",
+      "i": 0,
+      "strictJson": true,
+      "lenient": true,
+      "exit": 0,
+      "cost": 0.04862180000000001,
+      "turns": 4,
+      "raw": {
+        "status": "DONE",
+        "summary": "Se creó saludo.txt con el contenido 'hola zeko' y se verificó su contenido con Read.",
+        "filesChanged": [
+          "saludo.txt"
+        ],
+        "checks": [
+          "Read de saludo.txt confirma contenido: 'hola zeko'"
+        ],
+        "blockers": []
+      },
+      "resultText": "{\"status\":\"DONE\",\"summary\":\"Se creó saludo.txt con el contenido 'hola zeko' y se verificó su contenido con Read.\",\"filesChanged\":[\"saludo.txt\"],\"checks\":[\"Read de saludo.txt confirma contenido: 'hola zeko'\"],\"blockers\":[]}",
+      "hasStructuredOutput": true
+    },
+    {
+      "variant": "schema",
+      "i": 1,
+      "strictJson": true,
+      "lenient": true,
+      "exit": 0,
+      "cost": 0.1368472,
+      "turns": 4,
+      "raw": {
+        "status": "DONE",
+        "summary": "Se creó saludo.txt con el contenido 'hola zeko' y se verificó con Read que el contenido coincide.",
+        "filesChanged": [
+          "saludo.txt"
+        ],
+        "checks": [
+          "Read confirmó que saludo.txt contiene exactamente 'hola zeko'"
+        ],
+        "blockers": []
+      },
+      "resultText": "{\"status\":\"DONE\",\"summary\":\"Se creó saludo.txt con el contenido 'hola zeko' y se verificó con Read que el contenido coincide.\",\"filesChanged\":[\"saludo.txt\"],\"checks\":[\"Read confirmó que saludo.txt contiene exactamente 'hola zeko'\"],\"blockers\":[]}",
+      "hasStructuredOutput": true
+    },
+    {
+      "variant": "schema",
+      "i": 2,
+      "strictJson": true,
+      "lenient": true,
+      "exit": 0,
+      "cost": 0.048378000000000004,
+      "turns": 4,
+      "raw": {
+        "status": "DONE",
+        "summary": "Se creó saludo.txt con el contenido 'hola zeko' y se verificó con Read que el contenido es correcto.",
+        "filesChanged": [
+          "saludo.txt"
+        ],
+        "checks": [
+          "Read saludo.txt confirmó contenido 'hola zeko'"
+        ],
+        "blockers": []
+      },
+      "resultText": "{\"status\":\"DONE\",\"summary\":\"Se creó saludo.txt con el contenido 'hola zeko' y se verificó con Read que el contenido es correcto.\",\"filesChanged\":[\"saludo.txt\"],\"checks\":[\"Read saludo.txt confirmó contenido 'hola zeko'\"],\"blockers\":[]}",
+      "hasStructuredOutput": true
+    },
+    {
+      "variant": "schema",
+      "i": 3,
+      "strictJson": true,
+      "lenient": true,
+      "exit": 0,
+      "cost": 0.0486376,
+      "turns": 4,
+      "raw": {
+        "status": "DONE",
+        "summary": "Se creó el archivo saludo.txt con el contenido 'hola zeko' y se verificó su contenido con Read.",
+        "filesChanged": [
+          "saludo.txt"
+        ],
+        "checks": [
+          "Read saludo.txt -> contenido confirmado: 'hola zeko'"
+        ],
+        "blockers": []
+      },
+      "resultText": "{\"status\":\"DONE\",\"summary\":\"Se creó el archivo saludo.txt con el contenido 'hola zeko' y se verificó su contenido con Read.\",\"filesChanged\":[\"saludo.txt\"],\"checks\":[\"Read saludo.txt -> contenido confirmado: 'hola zeko'\"],\"blockers\":[]}",
+      "hasStructuredOutput": true
+    },
+    {
+      "variant": "schema",
+      "i": 4,
+      "strictJson": true,
+      "lenient": true,
+      "exit": 0,
+      "cost": 0.0484334,
+      "turns": 4,
+      "raw": {
+        "status": "DONE",
+        "summary": "Se creó saludo.txt con el contenido 'hola zeko' y se verificó su contenido con Read.",
+        "filesChanged": [
+          "saludo.txt"
+        ],
+        "checks": [
+          "Read confirmó que saludo.txt contiene 'hola zeko'"
+        ],
+        "blockers": []
+      },
+      "resultText": "{\"status\":\"DONE\",\"summary\":\"Se creó saludo.txt con el contenido 'hola zeko' y se verificó su contenido con Read.\",\"filesChanged\":[\"saludo.txt\"],\"checks\":[\"Read confirmó que saludo.txt contiene 'hola zeko'\"],\"blockers\":[]}",
+      "hasStructuredOutput": true
+    }
+  ]
+}

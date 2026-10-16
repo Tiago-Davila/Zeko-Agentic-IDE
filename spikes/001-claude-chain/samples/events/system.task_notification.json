@@ -1,0 +1,11 @@
+{
+  "type": "system",
+  "subtype": "task_notification",
+  "task_id": "bmlkmo1mu",
+  "tool_use_id": "toolu_01Mp5ynbRoEB6yQ1o1NfTw7y",
+  "status": "completed",
+  "output_file": "",
+  "summary": "Check git version",
+  "uuid": "150ffbf2-25dc-4de0-8546-eca661bfbf39",
+  "session_id": "bdb61b81-928f-4f70-b1fa-40708385009d"
+}
